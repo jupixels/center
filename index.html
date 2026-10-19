@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jupixels Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1423;
+      --night: #241b33;
+      --cream: #f6e7c8;
+      --gold: #ffcf4a;
+      --coral: #ff6b5b;
+      --teal: #3ad6c4;
+      --violet: #9a7bff;
+      --px: 4px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      min-height: 100vh;
+      background-color: var(--ink);
+      background-image:
+        radial-gradient(ellipse at 50% -10%, rgba(154,123,255,0.35), transparent 60%),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      color: var(--cream);
+      font-family: "VT323", monospace;
+      font-size: 22px;
+      overflow-x: hidden;
+    }
+    /* CRT scanlines */
+    body::after {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px);
+      z-index: 10;
+    }
+
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 72px 16px 56px; }
+
+    /* ---------- Header ---------- */
+    header { text-align: center; margin-bottom: 64px; }
+    .eyebrow {
+      display: inline-block;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--ink);
+      background: var(--teal);
+      padding: 8px 12px;
+      box-shadow: var(--px) var(--px) 0 var(--violet);
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(30px, 7vw, 64px);
+      line-height: 1.15;
+      margin: 0;
+      color: var(--gold);
+      text-shadow:
+        4px 4px 0 var(--coral),
+        8px 8px 0 var(--violet);
+    }
+    .tagline { margin: 28px 0 0; color: #cdbfe6; font-size: 26px; }
+    .coin { color: var(--gold); animation: blink 1.1s steps(1) infinite; }
+
+    /* ---------- Games ---------- */
+    .shelf {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 40px 32px;
+    }
+    .cart {
+      --label: var(--teal);
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: var(--ink);
+      background: #3a2f4f;
+      padding: 18px 18px 22px;
+      /* notched cartridge top */
+      clip-path: polygon(0 16px, 16px 16px, 16px 0, calc(100% - 16px) 0, calc(100% - 16px) 16px, 100% 16px, 100% 100%, 0 100%);
+      box-shadow: inset 0 -8px 0 rgba(0,0,0,0.35), inset 0 6px 0 rgba(255,255,255,0.08);
+      transition: transform 0.18s steps(3);
+    }
+    .cart::before { /* grip ridges */
+      content: "";
+      display: block;
+      height: 14px;
+      margin: 0 24px 14px;
+      background: repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0 6px, transparent 6px 12px);
+    }
+    .cart:hover, .cart:focus-visible { transform: translateY(-10px); outline: none; }
+    .cart:focus-visible .label { outline: 4px solid var(--gold); outline-offset: 4px; }
+
+    .label {
+      background: var(--label);
+      padding: 10px;
+      box-shadow: var(--px) var(--px) 0 rgba(0,0,0,0.4);
+    }
+    .scene {
+      position: relative;
+      height: 170px;
+      overflow: hidden;
+      image-rendering: pixelated;
+      border: var(--px) solid var(--ink);
+    }
+    .meta { padding: 14px 4px 4px; }
+    .num { font-family: "Press Start 2P", monospace; font-size: 9px; opacity: 0.7; }
+    .cart h2 {
+      font-family: "Press Start 2P", monospace;
+      font-size: 17px;
+      margin: 10px 0 8px;
+      line-height: 1.3;
+    }
+    .desc { margin: 0; font-size: 21px; line-height: 1.05; }
+    .start {
+      margin-top: 18px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 11px;
+      color: var(--cream);
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    .start span { visibility: hidden; }
+    .cart:hover .start span, .cart:focus-visible .start span { visibility: visible; animation: blink 0.6s steps(1) infinite; }
+
+    /* ---------- Scene: Minercraft ---------- */
+    .mine .scene {
+      background:
+        /* grass top */
+        linear-gradient(#5fc94a 0 0) 0 96px / 100% 16px no-repeat,
+        linear-gradient(#3f9a35 0 0) 0 112px / 100% 6px no-repeat,
+        /* dirt + stone blocks */
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 2px, transparent 2px 24px) 0 118px / 100% 100% no-repeat,
+        linear-gradient(#8a5a35 0 0) 0 118px / 100% 20px no-repeat,
+        linear-gradient(#6d6a72 0 0) 0 138px / 100% 40px no-repeat,
+        /* sky */
+        linear-gradient(#79c7ff, #bfe6ff);
+    }
+    .mine .sun { position: absolute; top: 18px; right: 26px; width: 32px; height: 32px; background: #fff3a6; box-shadow: 0 0 0 4px #ffe066; }
+    .mine .cloud { position: absolute; top: 34px; left: 22px; width: 56px; height: 12px; background: #fff; box-shadow: 12px -10px 0 -2px #fff, 28px -8px 0 0 #fff; }
+    .mine .ore { position: absolute; width: 8px; height: 8px; background: #3ad6c4; }
+    .mine .tree { position: absolute; left: 40px; top: 56px; width: 12px; height: 40px; background: #6b4423; }
+    .mine .tree::before { content: ""; position: absolute; left: -16px; top: -18px; width: 44px; height: 30px; background: #2f8a3a; box-shadow: inset -6px -6px 0 #23702d; }
+    .mine .pick { position: absolute; right: 54px; top: 70px; width: 6px; height: 30px; background: #7a4b28; transform: rotate(35deg); }
+    .mine .pick::before { content: ""; position: absolute; top: -4px; left: -12px; width: 30px; height: 6px; background: #c9d4da; }
+
+    /* ---------- Scene: Space Sim ---------- */
+    .space { --label: var(--violet); }
+    .space .scene {
+      background:
+        radial-gradient(circle at 70% 60%, transparent 0, transparent 100%),
+        linear-gradient(#0b0820, #1d1240 70%, #2c1650);
+    }
+    .space .stars, .space .stars::after {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, #fff 50%, transparent 51%),
+        radial-gradient(2px 2px at 80px 120px, #fff 50%, transparent 51%),
+        radial-gradient(2px 2px at 150px 50px, #ffe9a8 50%, transparent 51%),
+        radial-gradient(2px 2px at 220px 140px, #fff 50%, transparent 51%),
+        radial-gradient(2px 2px at 260px 20px, #bfe6ff 50%, transparent 51%),
+        radial-gradient(2px 2px at 110px 80px, #fff 50%, transparent 51%),
+        radial-gradient(2px 2px at 40px 150px, #fff 50%, transparent 51%);
+      background-size: 300px 170px;
+    }
+    .space .stars::after { content: ""; transform: translate(60px, 40px); opacity: 0.5; animation: drift 14s linear infinite; }
+    .space .planet {
+      position: absolute; right: -30px; bottom: -40px;
+      width: 150px; height: 150px; border-radius: 50%;
+      background: repeating-linear-gradient(170deg, #ff8a5b 0 14px, #ff6b5b 14px 26px, #ffb36b 26px 34px);
+      box-shadow: inset -20px -16px 0 rgba(0,0,0,0.35);
+    }
+    .space .ring { position: absolute; right: -60px; bottom: 26px; width: 220px; height: 22px; border: 4px solid #ffcf4a; border-radius: 50%; transform: rotate(-12deg); }
+    .space .ship {
+      position: absolute; left: 50px; top: 60px;
+      width: 0; height: 0;
+      border-left: 34px solid #e8ecff;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      animation: hover 1.6s steps(4) infinite;
+    }
+    .space .ship::before { content: ""; position: absolute; left: -54px; top: -4px; width: 20px; height: 8px; background: linear-gradient(90deg, transparent, #ff6b5b, #ffcf4a); }
+
+    /* ---------- Scene: Geneva Game ---------- */
+    .geneva { --label: var(--coral); }
+    .geneva .scene {
+      background:
+        /* grassy ground */
+        linear-gradient(#3f7a3a 0 0) 0 146px / 100% 100% no-repeat,
+        linear-gradient(#5a9a47 0 0) 0 140px / 100% 6px no-repeat,
+        /* dusk sky */
+        linear-gradient(#3b2a5c, #b34d6a 60%, #ff9a6b);
+    }
+    .geneva .moon { position: absolute; top: 16px; left: 22px; width: 22px; height: 22px; background: #fff1c9; box-shadow: inset -6px 0 0 #e8d29a; }
+
+    /* castle */
+    .geneva .castle { position: absolute; right: 18px; bottom: 24px; width: 120px; height: 70px; background: #4a3f63; }
+    .geneva .castle::before { /* wall battlements */
+      content: ""; position: absolute; left: 0; top: -8px; width: 100%; height: 8px;
+      background: repeating-linear-gradient(90deg, #4a3f63 0 10px, transparent 10px 20px);
+    }
+    .geneva .castle::after { /* gate */
+      content: ""; position: absolute; left: 46px; bottom: 0; width: 28px; height: 34px;
+      background: #1a1423; border-radius: 14px 14px 0 0;
+    }
+    .geneva .tower { position: absolute; bottom: 24px; width: 30px; height: 104px; background: #5b4f78; }
+    .geneva .tower::before {
+      content: ""; position: absolute; left: 0; top: -8px; width: 100%; height: 8px;
+      background: repeating-linear-gradient(90deg, #5b4f78 0 8px, transparent 8px 11px);
+    }
+    .geneva .tower::after { /* window */
+      content: ""; position: absolute; left: 11px; top: 26px; width: 8px; height: 14px; background: #ffcf4a;
+    }
+    .geneva .t1 { right: 128px; }
+    .geneva .t2 { right: 8px; }
+    .geneva .flagpole { position: absolute; right: 21px; bottom: 136px; width: 4px; height: 28px; background: #d8d0e8; }
+    .geneva .flagpole::after {
+      content: ""; position: absolute; left: 4px; top: 0; width: 20px; height: 12px; background: var(--gold);
+      animation: wave 0.7s steps(2) infinite;
+    }
+
+    /* knight */
+    .geneva .knight { position: absolute; left: 50px; bottom: 24px; width: 40px; height: 82px; animation: hover 1.4s steps(2) infinite; }
+    .geneva .knight > div { position: absolute; }
+    .geneva .plume { left: 12px; top: 0; width: 16px; height: 10px; background: var(--coral); box-shadow: 4px -4px 0 -1px var(--coral); }
+    .geneva .helm { left: 8px; top: 10px; width: 24px; height: 22px; background: #c9d4da; box-shadow: inset -4px 0 0 #9aa7b0; }
+    .geneva .helm::after { content: ""; position: absolute; left: 4px; top: 9px; width: 16px; height: 4px; background: #1a1423; }
+    .geneva .torso { left: 6px; top: 32px; width: 28px; height: 28px; background: #2f6fb6; box-shadow: inset 0 -6px 0 #24548c; }
+    .geneva .torso::after { content: ""; position: absolute; left: 0; top: 12px; width: 100%; height: 4px; background: #7a4b28; }
+    .geneva .legs { left: 9px; top: 60px; width: 22px; height: 22px; background: linear-gradient(90deg, #9aa7b0 0 9px, transparent 9px 13px, #9aa7b0 13px); }
+    .geneva .shield {
+      left: -10px; top: 34px; width: 22px; height: 28px;
+      background: var(--gold);
+      clip-path: polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%);
+    }
+    .geneva .shield::after { /* red cross */
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(var(--coral) 0 0) 9px 0 / 4px 100% no-repeat,
+        linear-gradient(var(--coral) 0 0) 0 9px / 100% 4px no-repeat;
+    }
+    .geneva .sword { left: 38px; top: 2px; width: 4px; height: 44px; background: #e8ecff; box-shadow: inset -2px 0 0 #b8c2cc; }
+    .geneva .sword::before { content: ""; position: absolute; left: -6px; top: 40px; width: 16px; height: 4px; background: var(--gold); }
+    .geneva .sword::after { content: ""; position: absolute; left: 0; top: 44px; width: 4px; height: 10px; background: #7a4b28; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      margin-top: 72px;
+      text-align: center;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #8f82ab;
+      line-height: 2;
+    }
+    footer b { color: var(--gold); font-weight: normal; }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes hover { 50% { transform: translateY(-4px); } }
+    @keyframes drift { to { transform: translate(-240px, 40px); } }
+    @keyframes wave { 50% { transform: skewY(-12deg) scaleX(0.85); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">PLAYER 1 READY</div>
+      <h1>JUPIXELS<br>ARCADE</h1>
+      <p class="tagline">Choose your game &nbsp;<span class="coin">▶ insert coin</span></p>
+    </header>
+
+    <main class="shelf">
+      <a class="cart mine" href="https://jupixels.github.io/minercraft/">
+        <div class="label">
+          <div class="scene" aria-hidden="true">
+            <div class="sun"></div>
+            <div class="cloud"></div>
+            <div class="tree"></div>
+            <div class="pick"></div>
+            <div class="ore" style="left:60px;top:150px"></div>
+            <div class="ore" style="left:180px;top:158px;background:#ffcf4a"></div>
+            <div class="ore" style="left:240px;top:146px"></div>
+          </div>
+          <div class="meta">
+            <div class="num">GAME 01</div>
+            <h2>MINERCRAFT</h2>
+            <p class="desc">Dig deep. Build big.</p>
+          </div>
+        </div>
+        <div class="start"><span>PRESS START</span></div>
+      </a>
+
+      <a class="cart space" href="https://jupixels.github.io/spacesim/">
+        <div class="label">
+          <div class="scene" aria-hidden="true">
+            <div class="stars"></div>
+            <div class="ring"></div>
+            <div class="planet"></div>
+            <div class="ship"></div>
+          </div>
+          <div class="meta">
+            <div class="num">GAME 02</div>
+            <h2>SPACE SIM</h2>
+            <p class="desc">Chart a course for the stars.</p>
+          </div>
+        </div>
+        <div class="start"><span>PRESS START</span></div>
+      </a>
+
+      <a class="cart geneva" href="https://jupixels.github.io/genevagame/">
+        <div class="label">
+          <div class="scene" aria-hidden="true">
+            <div class="moon"></div>
+            <div class="tower t1"></div>
+            <div class="castle"></div>
+            <div class="tower t2"></div>
+            <div class="flagpole"></div>
+            <div class="knight">
+              <div class="plume"></div>
+              <div class="sword"></div>
+              <div class="helm"></div>
+              <div class="torso"></div>
+              <div class="legs"></div>
+              <div class="shield"></div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="num">GAME 03</div>
+            <h2>GENEVA GAME</h2>
+            <p class="desc">Draw your sword, brave knight.</p>
+          </div>
+        </div>
+        <div class="start"><span>PRESS START</span></div>
+      </a>
+    </main>
+
+    <footer>
+      © <b>JUPIXELS</b> · MORE GAMES COMING SOON
+    </footer>
+  </div>
+</body>
+</html>
