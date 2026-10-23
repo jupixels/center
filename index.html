@@ -139,6 +139,29 @@
   .opts { margin-top: 18px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 21px; color: var(--muted); }
   .opts label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .opts input { width: 18px; height: 18px; accent-color: var(--gold); }
+  .ideaBtn { margin-top: 18px; width: 100%; font-size: 11px; padding: 14px; }
+
+  /* ---------- idea machine form ---------- */
+  #idea { z-index: 25; }
+  #idea .panel { max-width: 560px; text-align: left; background: #150f22; border: 3px solid var(--gold);
+                 box-shadow: 8px 8px 0 rgba(0,0,0,.5); padding: 22px; }
+  #idea .sub { font-size: 21px; color: var(--muted); margin: 12px 0 4px; line-height: 1.05; }
+  #ideaForm { display: grid; gap: 14px; margin-top: 14px; -webkit-user-select: text; user-select: text; }
+  #ideaForm label { display: grid; gap: 6px; font-family: "Press Start 2P", monospace; font-size: 9px; letter-spacing: .05em; color: var(--teal); }
+  #ideaForm label small { font-family: "VT323", monospace; font-size: 17px; color: #8f82ab; letter-spacing: 0; }
+  #ideaForm input, #ideaForm textarea {
+    font-family: "VT323", monospace; font-size: 22px; color: var(--cream); background: #0c0816;
+    border: 2px solid #5b4c7a; padding: 8px 10px; width: 100%; border-radius: 0; outline: none;
+  }
+  #ideaForm input:focus, #ideaForm textarea:focus { border-color: var(--gold); }
+  #ideaForm textarea { min-height: 130px; resize: vertical; line-height: 1.05; }
+  #ideaForm .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { #ideaForm .row2 { grid-template-columns: 1fr; } }
+  #ideaForm .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  #ideaForm .count { justify-self: end; font-size: 17px; color: #8f82ab; margin-top: -8px; }
+  #ideaForm .btn { justify-self: start; }
+  #ideaStatus { font-size: 21px; min-height: 22px; line-height: 1.05; }
+  #ideaStatus.ok { color: var(--teal); } #ideaStatus.bad { color: var(--coral); }
 
   @keyframes blink { 50% { opacity: 0; } }
   @media (max-width: 700px) {
@@ -199,6 +222,7 @@
     <div class="btnrow">
       <button class="btn" id="enterBtn" type="button" disabled>LOADING…</button>
       <button class="btn ghost" id="listBtn" type="button">GAME LIST</button>
+      <button class="btn ghost" id="startIdeaBtn" type="button">💡 GAME IDEA</button>
     </div>
     <div class="err" id="err" hidden></div>
     <div class="controls" id="controls">
@@ -221,11 +245,43 @@
       <button class="chip" id="closeMenu" type="button">✕ CLOSE</button>
     </div>
     <div class="glist" id="glist"></div>
+    <button class="btn ideaBtn" id="menuIdeaBtn" type="button">💡 GOT A GAME IDEA? SEND IT IN</button>
     <div class="opts">
       <label><input type="checkbox" id="optFx" checked> Old camcorder effects</label>
       <label><input type="checkbox" id="optMap" checked> Show map</label>
     </div>
     <div class="ai">✦ All games in this arcade were made with the help of AI</div>
+  </div>
+</div>
+
+<!-- idea machine -->
+<div id="idea" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="ideaTitle">
+    <div class="mhead">
+      <h2 id="ideaTitle">💡 IDEA MACHINE</h2>
+      <button class="chip" id="closeIdea" type="button">✕ CLOSE</button>
+    </div>
+    <p class="sub">Dream up a game for this arcade. Insert your idea below and it goes straight to the arcade owner.</p>
+    <form id="ideaForm" novalidate>
+      <label>GAME NAME
+        <input id="ideaName" name="game_name" type="text" maxlength="60" placeholder="Space Pizza Delivery" required>
+      </label>
+      <label>YOUR IDEA
+        <textarea id="ideaText" name="idea" maxlength="1500" placeholder="What do you do in the game? What makes it fun?" required></textarea>
+      </label>
+      <div class="count" id="ideaCount">0 / 1500</div>
+      <div class="row2">
+        <label>YOUR NAME <small>(optional)</small>
+          <input id="ideaFrom" name="name" type="text" maxlength="40" placeholder="Player 1">
+        </label>
+        <label>EMAIL <small>(optional, for a reply)</small>
+          <input id="ideaEmail" name="email" type="email" maxlength="80" placeholder="you@example.com">
+        </label>
+      </div>
+      <div class="hp" aria-hidden="true"><input type="checkbox" name="botcheck" id="ideaBot" tabindex="-1" autocomplete="off"></div>
+      <button class="btn" id="ideaSend" type="submit">INSERT COIN ▶ SEND</button>
+      <div id="ideaStatus" role="status" aria-live="polite"></div>
+    </form>
   </div>
 </div>
 
@@ -281,6 +337,80 @@
     };
     setTimeout(() => { if (!window.arcadeReady) window.no3d(); }, 20000);
   })();
+
+  // ---------- idea machine (sends ideas by email via Web3Forms) ----------
+  // Get a free access key at https://web3forms.com (enter the email the ideas
+  // should go to) and paste it here. The key is safe to keep in public code.
+  const WEB3FORMS_KEY = '3b19866d-50ba-41b5-92d1-8c67731f7357';
+  (function () {
+    const box = document.getElementById('idea'), form = document.getElementById('ideaForm');
+    const name = document.getElementById('ideaName'), text = document.getElementById('ideaText');
+    const from = document.getElementById('ideaFrom'), email = document.getElementById('ideaEmail');
+    const send = document.getElementById('ideaSend'), status = document.getElementById('ideaStatus');
+    const count = document.getElementById('ideaCount');
+    const setStatus = (msg, cls) => { status.textContent = msg; status.className = cls || ''; };
+    let cooldownUntil = 0;
+
+    window.ideaOpen = false;
+    window.openIdea = () => {
+      document.getElementById('menu').hidden = true;
+      box.hidden = false; window.ideaOpen = true;
+      document.dispatchEvent(new Event('arcade:menu-open'));
+      setTimeout(() => name.focus(), 50);
+    };
+    window.closeIdea = () => {
+      if (!window.ideaOpen) return;
+      box.hidden = true; window.ideaOpen = false;
+      document.dispatchEvent(new Event('arcade:menu-close'));
+    };
+    document.getElementById('closeIdea').onclick = () => closeIdea();
+    document.getElementById('menuIdeaBtn').onclick = () => openIdea();
+    document.getElementById('startIdeaBtn').onclick = () => openIdea();
+    box.addEventListener('mousedown', e => { if (e.target === box) closeIdea(); });
+    text.addEventListener('input', () => { count.textContent = text.value.length + ' / 1500'; });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const game = name.value.trim(), idea = text.value.trim(), mail = email.value.trim();
+      if (!game) { setStatus('Give your game a name first.', 'bad'); name.focus(); return; }
+      if (idea.length < 10) { setStatus('Tell us a little more about your idea.', 'bad'); text.focus(); return; }
+      if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { setStatus('That email doesn\'t look right (or leave it blank).', 'bad'); email.focus(); return; }
+      if (Date.now() < cooldownUntil) { setStatus('Easy there! Wait a moment before sending another idea.', 'bad'); return; }
+      if (!WEB3FORMS_KEY || WEB3FORMS_KEY.startsWith('PASTE_')) { setStatus('The Idea Machine isn\'t plugged in yet. Check back soon!', 'bad'); return; }
+
+      const payload = {
+        access_key: WEB3FORMS_KEY,
+        subject: '💡 New game idea: ' + game,
+        from_name: 'Jupixels Arcade Idea Machine',
+        game_name: game,
+        idea: idea,
+        name: from.value.trim() || 'Anonymous player',
+        botcheck: document.getElementById('ideaBot').checked
+      };
+      if (mail) payload.email = mail;
+
+      send.disabled = true; send.textContent = 'SENDING…'; setStatus('');
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          setStatus('★ IDEA SENT! Thanks, it\'s on its way. ★', 'ok');
+          form.reset(); count.textContent = '0 / 1500';
+          cooldownUntil = Date.now() + 30000;
+          document.dispatchEvent(new Event('arcade:idea-sent'));
+        } else {
+          setStatus(res.status === 429 ? 'Too many ideas right now. Try again in a bit.' : 'Couldn\'t send that. Please try again.', 'bad');
+        }
+      } catch {
+        setStatus('No connection. Check your internet and try again.', 'bad');
+      }
+      send.disabled = false; send.textContent = 'INSERT COIN ▶ SEND';
+    });
+  })();
 </script>
 
 <script type="importmap">
@@ -300,7 +430,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const GAMES = window.GAMES;
-const SOON = { title: 'Coming Soon', url: null, color: '#8f82ab', scene: 'soon', desc: 'A new game is being built for this machine. Check back soon!' };
+const SOON = { title: 'Idea Machine', url: null, idea: true, color: '#ffcf4a', scene: 'idea', desc: 'Got an idea for a new game? Step up and send it in. The best ones might end up in this arcade!' };
 const $ = id => document.getElementById(id);
 const isTouch = matchMedia('(pointer: coarse)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -1076,6 +1206,26 @@ const SCENES = {
     st.nc.putImageData(st.img, 0, 0); c.imageSmoothingEnabled = false; c.drawImage(st.n, 0, 0, 160, 120);
     R(c, 0, 46, 160, 28, 'rgba(10,8,18,.88)'); T(c, 'COMING SOON', 80, 51, '#ffcf4a');
     if (Math.floor(t * 2) % 2) T(c, '? ? ?', 80, 63, '#cdbfe6');
+  },
+  idea(c, t) {
+    R(c, 0, 0, 160, 120, '#120c22');
+    // rays behind the bulb
+    c.save(); c.translate(80, 50); c.rotate(t * .4);
+    for (let i = 0; i < 12; i++) { c.rotate(Math.PI / 6); c.fillStyle = i % 2 ? 'rgba(255,207,74,.10)' : 'rgba(58,214,196,.08)'; c.beginPath(); c.moveTo(0, 0); c.lineTo(-10, -110); c.lineTo(10, -110); c.fill(); }
+    c.restore();
+    // sparkles
+    for (let i = 0; i < 10; i++) {
+      const p = (t * .35 + i / 10) % 1, a = i * 2.4 + t * .3, rr = 18 + p * 50;
+      c.globalAlpha = 1 - p; R(c, 80 + Math.cos(a) * rr | 0, 50 + Math.sin(a) * rr * .8 | 0, 2, 2, ['#ffcf4a', '#3ad6c4', '#ff4fd8', '#fff'][i % 4]);
+    }
+    c.globalAlpha = 1;
+    // pixel light bulb (pulses)
+    const on = .7 + .3 * Math.sin(t * 3), bulb = `rgba(255,${200 + on * 40 | 0},${60 + on * 80 | 0},1)`;
+    R(c, 70, 28, 20, 4, bulb); R(c, 66, 32, 28, 16, bulb); R(c, 70, 48, 20, 6, bulb); R(c, 74, 54, 12, 4, bulb);
+    R(c, 70, 32, 4, 6, '#fff8dc');
+    R(c, 74, 58, 12, 3, '#b8bcc4'); R(c, 74, 62, 12, 3, '#8d919a'); R(c, 76, 65, 8, 3, '#6d7079');
+    T(c, 'GOT AN IDEA?', 80, 80, '#ffcf4a');
+    if ((t % 1.2) < .75) { R(c, 20, 100, 120, 14, 'rgba(8,6,14,.8)'); T(c, 'SUBMIT IT HERE', 80, 103, '#3ad6c4'); }
   }
 };
 function drawScreen(cab, t) {
@@ -1083,7 +1233,7 @@ function drawScreen(cab, t) {
   SCENES[g.scene](c, lt, cab.state);
   if (g.scene !== 'soon') {
     R(c, 0, 0, 160, 13, 'rgba(8,6,14,.72)'); T(c, g.title.toUpperCase(), 80, 3, g.color);
-    if ((lt % 1.2) < .75) { R(c, 32, 104, 96, 12, 'rgba(8,6,14,.72)'); T(c, 'PRESS START', 80, 106, '#fff'); }
+    if (!g.idea && (lt % 1.2) < .75) { R(c, 32, 104, 96, 12, 'rgba(8,6,14,.72)'); T(c, 'PRESS START', 80, 106, '#fff'); }
   }
   if (g.scene !== 'fluid') { c.fillStyle = 'rgba(0,0,0,.16)'; for (let y = 1; y < 120; y += 2) c.fillRect(0, y, 160, 1); }
   cab.tex.needsUpdate = true;
@@ -1108,6 +1258,8 @@ function look(dx, dy, k) { player.yaw -= dx * k; player.pitch = clamp(player.pit
 
 // --- keyboard ---
 addEventListener('keydown', e => {
+  // while the idea form is open, let the player type freely
+  if (window.ideaOpen) { if (e.code === 'Escape') closeIdea(); return; }
   if (e.code === 'Tab' || e.code === 'KeyG') { e.preventDefault(); if (menuOpen) closeMenu(); else openMenu(); return; }
   if (menuOpen) { if (e.code === 'Escape') closeMenu(); return; }
   keys.add(e.code);
@@ -1200,12 +1352,13 @@ function updateTarget() {
   cabinets.forEach(c => c.mmat.color.setScalar(c === target ? 2.0 : 1.3));
   const pr = $('prompt');
   $('crosshair').classList.toggle('on', !!target);
-  $('playBtn').hidden = !(isTouch && target && target.g.url);
+  $('playBtn').hidden = !(isTouch && target && (target.g.url || target.g.idea));
+  $('playBtn').textContent = target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
   pr.querySelector('.t').textContent = target.g.title.toUpperCase();
   pr.querySelector('.d').textContent = target.g.desc;
-  pr.querySelector('.k').innerHTML = !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
+  pr.querySelector('.k').innerHTML = target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
   sfx.blip();
 }
 
@@ -1228,6 +1381,7 @@ const sfx = {
 const tmpCam = new THREE.PerspectiveCamera();
 function launch(cab) {
   if (launching) return;
+  if (cab.g.idea) { sfx.blip(); keys.clear(); openIdea(); return; }
   if (!cab.g.url) { sfx.buzz(); glitchUntil = performance.now() + 400; return; }
   sfx.coin();
   const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38);
@@ -1271,6 +1425,7 @@ function walkTo(i) {
 document.addEventListener('arcade:menu-open', () => { menuOpen = true; if (document.pointerLockElement) document.exitPointerLock(); });
 document.addEventListener('arcade:menu-close', () => { menuOpen = false; if (started) resume(); });
 document.addEventListener('arcade:walk', e => { menuOpen = false; walkTo(e.detail); });
+document.addEventListener('arcade:idea-sent', () => { audio(); sfx.coin(); });
 $('optFx').addEventListener('change', e => setFx(e.target.checked));
 $('optMap').addEventListener('change', e => setMap(e.target.checked));
 function setFx(on) { fxOn = on; $('optFx').checked = on; $('cam').hidden = !on || !started; }
