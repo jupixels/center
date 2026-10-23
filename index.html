@@ -8,6 +8,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<!-- the import map must come before any module loads or preloads -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<!-- start downloading the 3D engine right away, in parallel -->
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/Pass.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/BufferGeometryUtils.js" crossorigin>
 <style>
   :root {
     --ink: #1a1423;
@@ -140,6 +154,31 @@
   .opts label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .opts input { width: 18px; height: 18px; accent-color: var(--gold); }
   .ideaBtn { margin-top: 18px; width: 100%; font-size: 11px; padding: 14px; }
+  .opts select { font-family: "VT323", monospace; font-size: 19px; background: #0c0816; color: var(--cream); border: 2px solid #5b4c7a; padding: 2px 6px; }
+
+  /* ---------- featured vs extras ---------- */
+  .gsec { font-family: "Press Start 2P", monospace; font-size: 10px; letter-spacing: .08em; color: #8f82ab; margin: 22px 0 -6px; }
+  .gsec.feat { color: var(--gold); font-size: 12px; margin-top: 18px; }
+  .gsec span { font-family: "VT323", monospace; font-size: 19px; letter-spacing: 0; color: #6e6388; margin-left: 6px; }
+  .gitem.big { grid-template-columns: 14px 1fr auto; padding: 16px 16px 16px 0; background: linear-gradient(90deg, #2c2142, #221a33);
+               box-shadow: inset 0 0 0 2px rgba(255,207,74,.45); }
+  .gitem.big h3 { font-size: 15px; margin-bottom: 8px; }
+  .gitem.big p { font-size: 21px; color: var(--cream); }
+  .gitem.big .acts a { font-size: 11px; padding: 13px 14px; }
+  .badge { display: inline-block; font-family: "Press Start 2P", monospace; font-size: 8px; color: var(--ink); background: var(--gold); padding: 4px 6px; margin-bottom: 8px; }
+  .glist.extras { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .glist.extras .gitem { opacity: .88; }
+  .glist.extras .gitem h3 { font-size: 10px; }
+  .glist.extras .gitem p { font-size: 18px; }
+  .startfeat { margin-top: 24px; }
+  .startfeat .lbl { font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--gold); letter-spacing: .1em; }
+  .startfeat .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  .startfeat a { font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--c); text-decoration: none;
+                 border: 2px solid var(--c); padding: 10px 12px; background: rgba(16,11,26,.7); }
+  .startfeat a:hover { background: var(--c); color: var(--ink); }
+  #fps { position: fixed; right: 40px; top: 250px; z-index: 6; font-family: "Press Start 2P", monospace; font-size: 9px;
+         color: var(--teal); background: rgba(10,7,18,.6); padding: 5px 7px; pointer-events: none; }
+  @media (max-width: 700px) { #fps { right: 30px; top: 180px; } }
 
   /* ---------- idea machine form ---------- */
   #idea { z-index: 25; }
@@ -176,7 +215,8 @@
     #tools { left: 26px; top: 74px; }
     #ainote { left: 26px; bottom: 46px; font-size: 15px; }
     #prompt { bottom: 76px; }
-    .gitem { grid-template-columns: 8px 1fr; }
+    .gitem, .gitem.big { grid-template-columns: 8px 1fr; }
+    .gitem.big h3 { font-size: 12px; }
     .acts { grid-column: 2; justify-content: flex-start; }
   }
   body.touch #prompt { bottom: 128px; }
@@ -207,6 +247,7 @@
     <div id="hint">WASD move · Mouse look · Shift run · E play · C camera FX · M map</div>
   </div>
   <canvas id="map" width="140" height="170"></canvas>
+  <div id="fps" hidden></div>
   <div id="ainote">✦ All games made with the help of AI</div>
   <div id="prompt" hidden><div class="t"></div><div class="d"></div><div class="k"></div></div>
   <div id="joy"><i></i></div>
@@ -225,6 +266,7 @@
       <button class="btn ghost" id="startIdeaBtn" type="button">💡 GAME IDEA</button>
     </div>
     <div class="err" id="err" hidden></div>
+    <div class="startfeat"><div class="lbl">★ FEATURED GAMES ★</div><div class="links" id="startFeat"></div></div>
     <div class="controls" id="controls">
       <div><kbd>WASD</kbd> walk</div>
       <div><kbd>MOUSE</kbd> look around</div>
@@ -244,11 +286,23 @@
       <h2>GAME LIST</h2>
       <button class="chip" id="closeMenu" type="button">✕ CLOSE</button>
     </div>
-    <div class="glist" id="glist"></div>
+    <div class="gsec feat">★ FEATURED GAMES</div>
+    <div class="glist" id="gfeat"></div>
+    <div class="gsec">EXTRAS <span>quick side projects</span></div>
+    <div class="glist extras" id="glist"></div>
     <button class="btn ideaBtn" id="menuIdeaBtn" type="button">💡 GOT A GAME IDEA? SEND IT IN</button>
     <div class="opts">
       <label><input type="checkbox" id="optFx" checked> Old camcorder effects</label>
       <label><input type="checkbox" id="optMap" checked> Show map</label>
+      <label><input type="checkbox" id="optFps"> Show FPS</label>
+      <label>Graphics
+        <select id="optGfx">
+          <option value="auto" selected>Auto</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low (fastest)</option>
+        </select>
+      </label>
     </div>
     <div class="ai">✦ All games in this arcade were made with the help of AI</div>
   </div>
@@ -289,13 +343,15 @@
 
 <script>
   // ---------- game data (edit here to add games) ----------
+  // featured: true = a big, finished game. These get the stage on the back wall,
+  // bigger cabinets and the top of the game list. Everything else is an "extra".
   window.GAMES = [
-    { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    desc: 'Dig deep. Build big.' },
-    { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
+    { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
+    { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    featured: true, desc: 'Dig deep. Build big.' },
+    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, desc: 'Command your forces across the map.' },
     { title: 'Geneva Game',      url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
     { title: '3D Boxing',        url: 'https://jupixels.github.io/3d-boxing/',         color: '#ffcf4a', scene: 'boxing',   desc: 'Gloves up. Throw hands.' },
-    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      desc: 'Command your forces across the map.' },
-    { title: 'Fluid Lab',        url: 'https://jupixels.github.io/fluidlab/',          color: '#3ad6c4', scene: 'fluid',    desc: 'Simulate how fluids flow and swirl.' },
+    { title: 'Fluid Lab',       url: 'https://jupixels.github.io/fluidlab/',          color: '#3ad6c4', scene: 'fluid',    desc: 'Simulate how fluids flow and swirl.' },
     { title: 'Pressure Washing', url: 'https://jupixels.github.io/pressurewashing/',   color: '#6cc4ff', scene: 'wash',     desc: 'Blast away the grime.' },
     { title: 'Music Lab',        url: 'https://jupixels.github.io/musiclab/',          color: '#ff8fc7', scene: 'music',    desc: 'Make beats and melodies.' },
     { title: 'Friction Lab',     url: 'https://jupixels.github.io/frictionlab/',       color: '#ff9a3c', scene: 'friction', desc: 'Test how things slide.' }
@@ -303,16 +359,22 @@
 
   // ---------- game list menu (works even if 3D fails) ----------
   (function () {
-    const list = document.getElementById('glist');
+    const list = document.getElementById('glist'), feat = document.getElementById('gfeat');
+    const startFeat = document.getElementById('startFeat');
     GAMES.forEach((g, i) => {
       const el = document.createElement('div');
-      el.className = 'gitem';
+      el.className = 'gitem' + (g.featured ? ' big' : '');
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div><h3>' + String(i + 1).padStart(2, '0') + ' · ' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
+        '<div>' + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '">PLAY ▶</a></div>';
-      list.appendChild(el);
+      (g.featured ? feat : list).appendChild(el);
+      if (g.featured) {
+        const a = document.createElement('a');
+        a.href = g.url; a.textContent = g.title.toUpperCase(); a.style.setProperty('--c', g.color);
+        startFeat.appendChild(a);
+      }
     });
     const menu = document.getElementById('menu');
     window.openMenu = () => { menu.hidden = false; document.dispatchEvent(new Event('arcade:menu-open')); };
@@ -320,7 +382,7 @@
     document.getElementById('closeMenu').onclick = () => closeMenu();
     document.getElementById('listBtn').onclick = () => openMenu();
     document.getElementById('menuBtn').onclick = () => openMenu();
-    list.addEventListener('click', e => {
+    menu.addEventListener('click', e => {
       const b = e.target.closest('[data-walk]');
       if (!b) return;
       menu.hidden = true;
@@ -413,13 +475,6 @@
   })();
 </script>
 
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-} }
-</script>
-
 <script type="module">
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -428,6 +483,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const GAMES = window.GAMES;
 const SOON = { title: 'Idea Machine', url: null, idea: true, color: '#ffcf4a', scene: 'idea', desc: 'Got an idea for a new game? Step up and send it in. The best ones might end up in this arcade!' };
@@ -446,13 +502,34 @@ try {
   if (!renderer.getContext()) throw new Error('no gl');
 } catch (e) { window.no3d(); throw e; }
 
-const DPR = Math.min(devicePixelRatio || 1, isTouch ? 1.25 : 1.6);
+// --- graphics quality ladder -------------------------------------------
+// In "Auto" mode the arcade watches its own frame rate and steps down
+// (lower resolution, no anti-aliasing, then no bloom) until it runs smoothly,
+// and steps back up when there's headroom.
+const LEVELS = [
+  { dpr: 1.6,  samples: 4, bloom: true  },   // 0 high
+  { dpr: 1.3,  samples: 2, bloom: true  },   // 1
+  { dpr: 1.0,  samples: 0, bloom: true  },   // 2 medium
+  { dpr: 0.85, samples: 0, bloom: true  },   // 3
+  { dpr: 0.7,  samples: 0, bloom: false },   // 4 low
+  { dpr: 0.55, samples: 0, bloom: false }    // 5
+];
+const PRESETS = { high: 0, medium: 2, low: 4 };
+let gfxMode = 'auto';
+try { gfxMode = localStorage.getItem('arcade-gfx') || 'auto'; } catch { }
+if (!(gfxMode in PRESETS) && gfxMode !== 'auto') gfxMode = 'auto';
+let q = gfxMode === 'auto' ? (isTouch ? 2 : 1) : PRESETS[gfxMode];
+const dprFor = i => Math.min(LEVELS[i].dpr, devicePixelRatio || 1);
+const DPR = dprFor(q);
+
 renderer.setPixelRatio(DPR);
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = !isTouch;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+// the room never moves, so shadows are drawn once instead of every frame
+renderer.shadowMap.autoUpdate = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#050309');
@@ -464,14 +541,18 @@ scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture
 const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.05, 60);
 camera.rotation.order = 'YXZ';
 
-const rt = new THREE.WebGLRenderTarget(innerWidth * DPR, innerHeight * DPR, { type: THREE.HalfFloatType, samples: isTouch ? 0 : 4 });
+const rt = new THREE.WebGLRenderTarget(innerWidth * DPR, innerHeight * DPR, { type: THREE.HalfFloatType, samples: LEVELS[q].samples });
 const composer = new EffectComposer(renderer, rt);
 composer.setPixelRatio(DPR);
-composer.setSize(innerWidth, innerHeight);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.32, 0.95);
+// bloom is a soft blur anyway, so compute it at half resolution
+const bloomSetSize = bloom.setSize.bind(bloom);
+bloom.setSize = (w, h) => bloomSetSize(Math.max(2, w * 0.5), Math.max(2, h * 0.5));
+bloom.enabled = LEVELS[q].bloom;
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
+composer.setSize(innerWidth, innerHeight);
 
 // --- Old-school camcorder shader -----------------------------
 const CamcorderShader = {
@@ -555,8 +636,21 @@ function tex(cv, { pixel = false, repeat = null, srgb = true } = {}) {
   if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
   return t;
 }
-const glow = (hex, k = 2) => new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k) });
-const std = (o) => new THREE.MeshStandardMaterial(o);
+// Materials are shared whenever they're identical, so the static-mesh merge
+// below can combine everything that uses them into a single draw call.
+const matCache = new Map();
+const glow = (hex, k = 2) => {
+  const key = 'g' + new THREE.Color(hex).getHexString() + k;
+  if (!matCache.has(key)) matCache.set(key, new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k) }));
+  return matCache.get(key);
+};
+const std = (o) => {
+  const plain = Object.values(o).every(v => typeof v !== 'object' || v instanceof THREE.Color);
+  if (!plain) return new THREE.MeshStandardMaterial(o);
+  const key = 's' + JSON.stringify(o);
+  if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial(o));
+  return matCache.get(key);
+};
 function mesh(geo, mat, parent, x = 0, y = 0, z = 0, { cast = true, receive = true } = {}) {
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = receive; (parent || scene).add(m); return m;
 }
@@ -694,10 +788,11 @@ for (const [x, col] of [[-1.2, '#ff4fd8'], [1.2, '#3ad6c4']]) strip(RD - 1, 'z',
 // --- lights ---
 scene.add(new THREE.HemisphereLight('#7f6fd8', '#1a0f2e', 0.8));
 const spots = [];
-for (const z of [-8.5, -4, 0.5]) {
-  const s = new THREE.SpotLight('#ffe9d6', 60, 14, 0.95, 0.85, 2);
+// the first spot is aimed at the featured stage on the back wall
+for (const [z, tz, ty, power] of [[-9.2, -11.4, 0.9, 85], [-4, -4, 0, 60], [0.5, 0.5, 0, 60]]) {
+  const s = new THREE.SpotLight('#ffe9d6', power, 14, 0.95, 0.85, 2);
   s.position.set(0, ROOM.h - .15, z);
-  s.target.position.set(0, 0, z);
+  s.target.position.set(0, ty, tz);
   s.castShadow = !isTouch;
   s.shadow.mapSize.set(1024, 1024);
   s.shadow.bias = -0.0004; s.shadow.normalBias = 0.02;
@@ -720,7 +815,7 @@ function makeNeonSign() {
 }
 const signMat = new THREE.MeshBasicMaterial({ map: tex(makeNeonSign()), transparent: true, depthWrite: false });
 signMat.color.setScalar(1.35);
-const sign = mesh(new THREE.PlaneGeometry(5.4, 1.58), signMat, null, 0, 3.15, ROOM.z0 + .04, { cast: false, receive: false });
+const sign = mesh(new THREE.PlaneGeometry(4.3, 1.26), signMat, null, 0, 3.53, ROOM.z0 + .04, { cast: false, receive: false });
 const signLight = new THREE.PointLight('#ff6be0', 7, 7, 2); signLight.position.set(0, 3.1, ROOM.z0 + .8); scene.add(signLight);
 
 // ============================================================
@@ -773,7 +868,11 @@ function makeMarquee(g, idx) {
   c.fillStyle = g.color; c.fillText(label, 260, 100);
   c.shadowColor = g.color; c.shadowBlur = 16; c.fillStyle = '#ffffff'; c.fillText(label, 256, 96);
   c.shadowBlur = 0; c.font = '13px "Press Start 2P"'; c.fillStyle = g.color;
-  c.fillText(idx < GAMES.length ? `GAME ${String(idx + 1).padStart(2, '0')}` : 'NEW GAME', 256, 34);
+  if (g.featured) {
+    // gold frame + "FEATURED" tag
+    c.fillStyle = '#ffcf4a'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
+    c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34);
+  } else c.fillText(g.idea ? 'NEW GAMES' : 'BONUS GAME', 256, 34);
   return cv;
 }
 
@@ -788,8 +887,31 @@ function addObstacle(grp, lx0, lx1, lz0, lz1, color, cab) {
   obstacles.push({ x0, x1, z0, z1, color, cab });
 }
 
-function buildCabinet(g, idx, x, z, ry) {
-  const grp = new THREE.Group(); grp.position.set(x, 0, z); grp.rotation.y = ry; scene.add(grp);
+// a soft coloured pool of light painted on the carpet: looks like a lamp,
+// costs nothing (replaces a real point light per machine)
+const poolTex = (() => {
+  const cv = mkCanvas(128, 128), c = cv.getContext('2d');
+  const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.45, 'rgba(255,255,255,.4)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = g; c.fillRect(0, 0, 128, 128); return tex(cv);
+})();
+const poolMats = new Map();
+function lightPool(parent, color, w, d, x, z, k = .5) {
+  const key = color + k;
+  if (!poolMats.has(key)) poolMats.set(key, new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(color).multiplyScalar(k), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), poolMats.get(key));
+  m.rotation.x = -Math.PI / 2; m.position.set(x, 0.009, z); m.renderOrder = 2; parent.add(m); return m;
+}
+// faint volumetric spotlight beam (for the featured machines)
+const beamTex = (() => {
+  const cv = mkCanvas(4, 128), c = cv.getContext('2d');
+  const g = c.createLinearGradient(0, 0, 0, 128);   // grayscale: alphaMap reads the green channel
+  g.addColorStop(0, '#e6e6e6'); g.addColorStop(.6, '#595959'); g.addColorStop(1, '#000');
+  c.fillStyle = g; c.fillRect(0, 0, 4, 128); return tex(cv, { srgb: false });
+})();
+
+function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
+  const grp = new THREE.Group(); grp.position.set(x, y, z); grp.rotation.y = ry; grp.scale.setScalar(s); scene.add(grp);
   const body = mesh(BODY_GEO, bodyMat, grp);
   const sideTex = tex(makeSideArt(g, idx));
   sideTex.repeat.set(1 / 1.04, 1 / 2.42); sideTex.offset.set(0.42 / 1.04, 0);
@@ -812,7 +934,7 @@ function buildCabinet(g, idx, x, z, ry) {
   // control panel
   const cp = new THREE.Group(); cp.position.set(0, 1.14, 0.5); cp.rotation.x = Math.atan2(0.12, 0.24); grp.add(cp);
   const deckCol = new THREE.Color(g.color).multiplyScalar(.3);
-  const deck = mesh(new THREE.PlaneGeometry(0.94, 0.27), std({ color: deckCol, roughness: .3, envMapIntensity: .8 }), cp, 0, 0.002, 0); deck.rotation.x = -Math.PI / 2;
+  const deck = mesh(new THREE.PlaneGeometry(0.94, 0.27), std({ color: deckCol, emissive: deckCol.clone().multiplyScalar(.6), roughness: .3, envMapIntensity: .8 }), cp, 0, 0.002, 0); deck.rotation.x = -Math.PI / 2;
   mesh(new THREE.CylinderGeometry(.04, .045, .012, 20), blackGloss, cp, -0.25, 0.008, 0);
   mesh(new THREE.CylinderGeometry(.008, .008, .075, 10), metalMat, cp, -0.25, 0.045, 0);
   mesh(new THREE.SphereGeometry(.028, 18, 14), std({ color: '#d42b3a', roughness: .2, envMapIntensity: 1 }), cp, -0.25, 0.09, 0);
@@ -826,28 +948,73 @@ function buildCabinet(g, idx, x, z, ry) {
   // kick-plate glow onto the carpet
   mesh(new THREE.BoxGeometry(0.9, 0.02, 0.02), glow(g.color, 2), grp, 0, 0.015, 0.43, { cast: false });
   contact(grp, 1.5, 1.5, 0, 0.1);
-  const light = new THREE.PointLight(g.color, 2.4, 3.2, 2); light.position.set(0, 1.55, 0.85); grp.add(light);
+  grp.updateMatrixWorld(true);
+  // light pools go on the carpet itself (even when the machine sits on the stage)
+  const floorPool = (col, w, d, lz, k) => {
+    const p = grp.localToWorld(new THREE.Vector3(0, 0, lz));
+    const m = lightPool(scene, col, w * s, d * s, p.x, p.z, k); m.rotation.order = 'YXZ'; m.rotation.y = ry; return m;
+  };
+  floorPool(g.color, 1.9, 1.5, 0.95, g.featured ? .75 : .45);
+  if (g.featured) {
+    // gold trim on the kick plate and a soft spotlight beam from the ceiling
+    mesh(new THREE.BoxGeometry(1.0, 0.03, 0.03), glow('#ffcf4a', 2.6), grp, 0, 0.04, 0.44, { cast: false });
+    const beamH = (4.2 - y) / s;
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.95, beamH, 24, 1, true),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(g.color).lerp(new THREE.Color('#fff4d6'), .5).multiplyScalar(.13), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    beam.position.set(0, beamH / 2, 0.75); beam.renderOrder = 3; grp.add(beam);
+    floorPool('#fff1c4', 1.6, 1.3, 1.05, .35);
+  }
 
   grp.updateMatrixWorld(true);
   const screenWorld = screen.getWorldPosition(new THREE.Vector3());
   const screenNormal = nrm.clone().applyAxisAngle(Y, ry);
-  const front = new THREE.Vector3(0, 0, 1.45).applyAxisAngle(Y, ry).add(grp.position);
-  const cab = { g, idx, grp, screen, marquee, mmat, smat, ctx: sctx, tex: stex, state: {}, screenWorld, screenNormal, front, ry, light, offset: idx * 1.7 };
+  const front = new THREE.Vector3(0, 0, 1.45 * s).applyAxisAngle(Y, ry).add(grp.position).setY(0);
+  const cab = { g, idx, grp, screen, marquee, mmat, smat, ctx: sctx, tex: stex, state: {}, screenWorld, screenNormal, front, ry, s, offset: idx * 1.7 };
   [body, screen, marquee, bezel].forEach(m => { m.userData.cab = cab; interactive.push(m); });
   addObstacle(grp, -0.53, 0.53, -0.43, 0.64, g.color, cab);
   cabinets.push(cab);
   return cab;
 }
 
-// layout: left wall front→back (1-3), back wall (4-6), right wall back→front (7-9)
-const LX = ROOM.x0 + 0.46, RX = ROOM.x1 - 0.46, BZ = ROOM.z0 + 0.46;
-const SLOTS = [
-  [LX, -5.0, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -8.6, Math.PI / 2],
-  [-1.8, BZ, 0], [0, BZ, 0], [1.8, BZ, 0],
+// layout: featured games stand on a lit stage on the back wall, straight ahead
+// of the entrance; the extras line the side walls.
+const LX = ROOM.x0 + 0.46, RX = ROOM.x1 - 0.46;
+const FS = 1.15, STAGE_H = 0.12, STAGE_X = 3.4, STAGE_FRONT = ROOM.z0 + 1.5;
+const FZ = ROOM.z0 + 0.43 * FS + 0.04;
+const FEAT_SLOTS = [[0, FZ, 0], [-2.25, FZ, 0], [2.25, FZ, 0]];   // centre, left, right
+const EXTRA_SLOTS = [
+  [LX, -8.6, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -5.0, Math.PI / 2],
   [RX, -8.6, -Math.PI / 2], [RX, -6.8, -Math.PI / 2], [RX, -5.0, -Math.PI / 2]
 ];
-GAMES.forEach((g, i) => { const s = SLOTS[i] || [LX, -3.2 + (i - 9) * 1.8, Math.PI / 2]; buildCabinet(g, i, ...s); });
+let nf = 0, ne = 0;
+GAMES.forEach((g, i) => {
+  if (g.featured && nf < FEAT_SLOTS.length) buildCabinet(g, i, ...FEAT_SLOTS[nf++], FS, STAGE_H);
+  else buildCabinet(g, i, ...(EXTRA_SLOTS[ne++] || [LX, -3.2 - ne * 1.8, Math.PI / 2]));
+});
 buildCabinet(SOON, GAMES.length, LX, -3.2, Math.PI / 2);
+
+// --- featured stage ---
+(() => {
+  const g = new THREE.Group(); scene.add(g);
+  const depth = STAGE_FRONT - ROOM.z0, cz = ROOM.z0 + depth / 2;
+  mesh(new THREE.BoxGeometry(STAGE_X * 2, STAGE_H, depth), std({ color: '#241a3a', roughness: .5, envMapIntensity: .5 }), g, 0, STAGE_H / 2, cz);
+  // carpet runner on top
+  mesh(new THREE.BoxGeometry(STAGE_X * 2 - .2, .004, depth - .15), std({ color: '#3a1530', roughness: 1 }), g, 0, STAGE_H + .002, cz - .05, { cast: false });
+  // gold LED edges
+  mesh(new THREE.BoxGeometry(STAGE_X * 2, .025, .025), glow('#ffcf4a', 3), g, 0, STAGE_H, STAGE_FRONT, { cast: false });
+  mesh(new THREE.BoxGeometry(STAGE_X * 2, .02, .02), glow('#ffcf4a', 1.6), g, 0, .02, STAGE_FRONT + .01, { cast: false });
+  for (const sx of [-1, 1]) mesh(new THREE.BoxGeometry(.025, .025, depth), glow('#ffcf4a', 3), g, sx * STAGE_X, STAGE_H, cz, { cast: false });
+  // painted floor sign in front of the stage
+  const cv = mkCanvas(1024, 160), c = cv.getContext('2d');
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '50px "Press Start 2P"';
+  c.shadowColor = '#ffcf4a'; c.shadowBlur = 24; c.fillStyle = '#fff1c4';
+  c.fillText('★ FEATURED GAMES ★', 512, 82); c.fillText('★ FEATURED GAMES ★', 512, 82);
+  const fm = new THREE.MeshBasicMaterial({ map: tex(cv), transparent: true, depthWrite: false }); fm.color.setScalar(1.3);
+  const f = mesh(new THREE.PlaneGeometry(4.6, .72), fm, g, 0, .01, STAGE_FRONT + .62, { cast: false, receive: false });
+  f.rotation.x = -Math.PI / 2; f.renderOrder = 2;
+  lightPool(g, '#ffcf4a', STAGE_X * 2.4, 2.2, 0, STAGE_FRONT + .6, .3);
+  obstacles.unshift({ x0: -STAGE_X, x1: STAGE_X, z0: ROOM.z0, z1: STAGE_FRONT, color: 'rgba(255,207,74,.3)' });   // first, so the map draws machines on top
+})();
 
 // ============================================================
 //  Decor: air hockey, claw machines, prize counter, tokens, door
@@ -912,8 +1079,9 @@ function clawMachine(x, z, ry, color, label, seed) {
   mesh(new THREE.BoxGeometry(.18, .03, .1), std({ color: '#111', roughness: .4 }), g, .25, .82, .46);
   mesh(new THREE.SphereGeometry(.03, 12, 8), std({ color: color, roughness: .2 }), g, .25, .88, .46);
   mesh(new THREE.BoxGeometry(.26, .2, .04), glow('#ffffff', .6), g, -.24, .35, .452, { cast: false });
-  const l = new THREE.PointLight(color, 1.6, 2.5, 2); l.position.set(0, 1.75, 0); g.add(l);
+  mesh(new THREE.BoxGeometry(.8, .02, .8), glow(color, .9), g, 0, 1.94, 0, { cast: false });   // light panel inside the lid
   contact(g, 1.3, 1.3);
+  lightPool(g, color, 1.7, 1.7, 0, 0, .4);
   addObstacle(g, -.48, .48, -.48, .48, color);
   claws.push({ claw, cable, head, off: seed });
 }
@@ -995,6 +1163,42 @@ clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 9);
 
 // slightly lower env reflections on everything except glass/metal
 scene.traverse(o => { if (o.isMesh && o.material && o.material.isMeshStandardMaterial && o.material.envMapIntensity === 1 && !o.material.isMeshPhysicalMaterial) o.material.envMapIntensity = 0.9; });
+
+// ============================================================
+//  Performance: merge everything that never moves
+// ============================================================
+// Hundreds of small static meshes (buttons, prizes, trims, shelves...) are
+// combined into one mesh per material, cutting draw calls dramatically.
+// Anything you can click and anything that animates is left alone.
+(function mergeStatic() {
+  const skip = new Set(interactive);
+  for (const cl of claws) cl.claw.traverse(o => skip.add(o));
+  scene.updateMatrixWorld(true);
+  const groups = new Map();
+  scene.traverse(o => {
+    if (!o.isMesh || skip.has(o) || Array.isArray(o.material)) return;
+    const geo = o.geometry;
+    const key = [o.material.uuid, o.castShadow, o.receiveShadow, o.renderOrder, !!geo.index, Object.keys(geo.attributes).sort().join()].join('|');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(o);
+  });
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const geos = list.map(o => { const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); g.clearGroups(); return g; });
+    const merged = mergeGeometries(geos, false);
+    geos.forEach(g => g.dispose());
+    if (!merged) continue;
+    const m = new THREE.Mesh(merged, list[0].material);
+    m.castShadow = list[0].castShadow; m.receiveShadow = list[0].receiveShadow; m.renderOrder = list[0].renderOrder;
+    m.matrixAutoUpdate = false; scene.add(m);
+    for (const o of list) o.parent.remove(o);
+  }
+  // nothing static needs its matrix recomputed every frame
+  scene.traverse(o => { if (!skip.has(o) && o !== camera) { o.updateMatrix(); o.matrixAutoUpdate = false; } });
+  for (const cl of claws) cl.claw.traverse(o => { o.matrixAutoUpdate = true; });
+  scene.updateMatrixWorld(true);
+})();
+renderer.shadowMap.needsUpdate = true;   // draw the (static) shadows once
 
 // ============================================================
 //  Screen animations (160×120 pixel canvases)
@@ -1356,7 +1560,7 @@ function updateTarget() {
   $('playBtn').textContent = target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = target.g.title.toUpperCase();
+  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '');
   pr.querySelector('.d').textContent = target.g.desc;
   pr.querySelector('.k').innerHTML = target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
   sfx.blip();
@@ -1384,7 +1588,7 @@ function launch(cab) {
   if (cab.g.idea) { sfx.blip(); keys.clear(); openIdea(); return; }
   if (!cab.g.url) { sfx.buzz(); glitchUntil = performance.now() + 400; return; }
   sfx.coin();
-  const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38);
+  const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38 * cab.s);
   tmpCam.position.copy(to); tmpCam.lookAt(cab.screenWorld);
   launching = { cab, k: 0, fromP: camera.position.clone(), fromQ: camera.quaternion.clone(), toP: to, toQ: tmpCam.quaternion.clone(), went: false };
   if (document.pointerLockElement) document.exitPointerLock();
@@ -1467,6 +1671,7 @@ function drawMap() {
   for (const o of obstacles) {
     c.fillStyle = o.cab ? (o.cab === target ? '#ffffff' : o.color) : 'rgba(200,190,230,.35)';
     c.fillRect((o.x0 - ROOM.x0) * MS, (o.z0 - ROOM.z0) * MS, (o.x1 - o.x0) * MS, (o.z1 - o.z0) * MS);
+    if (o.cab && o.cab.g.featured) { c.strokeStyle = '#ffcf4a'; c.lineWidth = 2; c.strokeRect((o.x0 - ROOM.x0) * MS - 1, (o.z0 - ROOM.z0) * MS - 1, (o.x1 - o.x0) * MS + 2, (o.z1 - o.z0) * MS + 2); }
   }
   c.fillStyle = '#ffcf4a'; c.fillRect((-1.1 - ROOM.x0) * MS, RD * MS - 3, 2.2 * MS, 3);
   const px = (player.pos.x - ROOM.x0) * MS, pz = (player.pos.z - ROOM.z0) * MS;
@@ -1522,15 +1727,64 @@ function updatePlayer(dt, t) {
   camera.rotation.set(player.pitch + hy + Math.sin(player.bob * 2) * 0.006 * amt, player.yaw + hx, Math.sin(player.bob) * 0.009 * amt + hx * .5);
 }
 
+// --- performance helpers ---
+const frustum = new THREE.Frustum(), projM = new THREE.Matrix4(), tmpSphere = new THREE.Sphere();
+function visibleNear(pos, r, maxDist) {
+  if (camera.position.distanceTo(pos) > maxDist) return false;
+  tmpSphere.set(pos, r); return frustum.intersectsSphere(tmpSphere);
+}
+const hockeyPos = new THREE.Vector3(0, .8, -6.4);
+
+// auto graphics: measure fps every 2s while playing and step quality up/down
+let qAcc = -1.5, qFrames = 0, qGood = 0, fpsAcc = 0, fpsFrames = 0, fpsOn = false;
+const qFail = LEVELS.map(() => 0);
+function applyQuality(i) {
+  q = clamp(i, 0, LEVELS.length - 1);
+  const L = LEVELS[q], dpr = dprFor(q);
+  renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight);
+  for (const t of [composer.renderTarget1, composer.renderTarget2]) if (t.samples !== L.samples) { t.samples = L.samples; t.dispose(); }
+  composer.setPixelRatio(dpr); composer.setSize(innerWidth, innerHeight);
+  bloom.enabled = L.bloom;
+}
+function autoQuality(rawDt) {
+  if (gfxMode !== 'auto' || !started || paused || menuOpen || launching || document.hidden) { qAcc = -1; qFrames = 0; return; }
+  qAcc += rawDt; qFrames++;
+  if (qAcc < 2) return;
+  const fps = qFrames / qAcc; qAcc = qFrames = 0;
+  if (fps < 45 && q < LEVELS.length - 1) { qFail[q]++; applyQuality(q + 1); qGood = 0; qAcc = -0.5; }
+  else if (fps > 57 && q > 0 && qFail[q - 1] < 2) { if (++qGood >= 3) { applyQuality(q - 1); qGood = 0; qAcc = -0.5; } }
+  else qGood = 0;
+}
+function setGfx(mode) {
+  gfxMode = mode; $('optGfx').value = mode;
+  try { localStorage.setItem('arcade-gfx', mode); } catch { }
+  if (mode !== 'auto') applyQuality(PRESETS[mode]);
+  qFail.fill(0); qGood = 0; qAcc = -1;
+}
+$('optGfx').value = gfxMode;
+$('optGfx').addEventListener('change', e => setGfx(e.target.value));
+$('optFps').addEventListener('change', e => { fpsOn = e.target.checked; $('fps').hidden = !fpsOn; });
+
+let mapAcc = 0;
 function frame(now) {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const rawDt = (now - last) / 1000;
+  const dt = Math.min(0.05, rawDt); last = now;
   const t = now / 1000;
   if (launching) updateLaunch(dt);
   else if (started && !paused && !menuOpen) updatePlayer(dt, t);
   else camera.rotation.set(player.pitch + Math.sin(t * .4) * .01, player.yaw + Math.sin(t * .25) * .03, 0);
+  autoQuality(rawDt);
+  if (fpsOn) { fpsAcc += rawDt; fpsFrames++; if (fpsAcc > .5) { $('fps').textContent = Math.round(fpsFrames / fpsAcc) + ' FPS · Q' + (LEVELS.length - q); fpsAcc = fpsFrames = 0; } }
 
+  // only redraw the little game screens you can actually see
+  camera.updateMatrixWorld();
+  projM.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); frustum.setFromProjectionMatrix(projM);
   screenAcc += dt;
-  if (screenAcc >= 1 / 30) { const sdt = screenAcc; screenAcc = 0; for (const c of cabinets) drawScreen(c, t); drawHockey(sdt); }
+  if (screenAcc >= 1 / 30) {
+    const sdt = screenAcc; screenAcc = 0;
+    for (const c of cabinets) if (visibleNear(c.screenWorld, .6 * c.s, 11)) drawScreen(c, t);
+    if (visibleNear(hockeyPos, 1.3, 12)) drawHockey(sdt);
+  }
   for (const cl of claws) {
     const o = cl.off;
     cl.claw.position.set(Math.sin(t * .6 + o) * .28, 0, Math.cos(t * .45 + o * 2) * .28);
@@ -1549,7 +1803,7 @@ function frame(now) {
   camPass.enabled = camPass.uniforms.amount.value > 0.01 || camPass.uniforms.glitch.value > 0;
 
   updateTarget();
-  drawMap();
+  mapAcc += dt; if (mapAcc > 1 / 20) { mapAcc = 0; drawMap(); }
   updateCamHud(now);
   composer.render(dt);
   requestAnimationFrame(frame);
@@ -1558,15 +1812,18 @@ function frame(now) {
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
-  bloom.setSize(innerWidth, innerHeight);
   camPass.uniforms.res.value.set(innerWidth, innerHeight);
 });
 
 // go!
-window.arcadeReady = true;
-window.arcade = { walkTo, cabinets, player, camera };
 for (const c of cabinets) drawScreen(c, 0);
 drawHockey(0);
+// compile every shader up front (in the background) so there's no stutter
+// the first time you turn around, then render one frame behind the menu
+try { await Promise.race([renderer.compileAsync(scene, camera), new Promise(r => setTimeout(r, 2500))]); } catch { }
+composer.render(0);
+window.arcadeReady = true;
+window.arcade = { walkTo, cabinets, player, camera };
 $('enterBtn').disabled = false;
 showStart(false);
 requestAnimationFrame(frame);
