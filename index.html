@@ -815,7 +815,7 @@ function makeNeonSign() {
 }
 const signMat = new THREE.MeshBasicMaterial({ map: tex(makeNeonSign()), transparent: true, depthWrite: false });
 signMat.color.setScalar(1.35);
-const sign = mesh(new THREE.PlaneGeometry(4.3, 1.26), signMat, null, 0, 3.53, ROOM.z0 + .04, { cast: false, receive: false });
+const sign = mesh(new THREE.PlaneGeometry(3.5, 1.03), signMat, null, 0, 3.67, ROOM.z0 + .04, { cast: false, receive: false });
 const signLight = new THREE.PointLight('#ff6be0', 7, 7, 2); signLight.position.set(0, 3.1, ROOM.z0 + .8); scene.add(signLight);
 
 // ============================================================
@@ -836,7 +836,7 @@ const TRIM_GEO = (() => {
     const a = PROFILE[i], b = PROFILE[i + 1];
     path.add(new THREE.LineCurve3(new THREE.Vector3(0, a[1], a[0]), new THREE.Vector3(0, b[1], b[0])));
   }
-  return new THREE.TubeGeometry(path, 260, 0.012, 6, false);
+  return new THREE.TubeGeometry(path, 72, 0.012, 4, false);   // thin neon trim: few segments needed
 })();
 const bodyMat = std({ color: '#17122a', roughness: .45, metalness: .05, envMapIntensity: .4 });
 const blackGloss = std({ color: '#050408', roughness: .12, metalness: .1, envMapIntensity: .8 });
@@ -929,7 +929,8 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
   const bezel = mesh(new THREE.PlaneGeometry(0.9, 0.74), blackGloss, grp); bezel.position.copy(onSlope(0.003)); bezel.rotation.x = -SCREEN_TILT;
   const screen = mesh(new THREE.PlaneGeometry(0.8, 0.6), smat, grp, 0, 0, 0, { cast: false, receive: false }); screen.position.copy(onSlope(0.006)); screen.rotation.x = -SCREEN_TILT;
   // marquee
-  const mmat = new THREE.MeshBasicMaterial({ map: tex(makeMarquee(g, idx)) }); mmat.color.setScalar(1.3);
+  const mBase = g.featured ? 1.7 : 1.2;   // featured marquees shine brighter
+  const mmat = new THREE.MeshBasicMaterial({ map: tex(makeMarquee(g, idx)) }); mmat.color.setScalar(mBase);
   const marquee = mesh(new THREE.PlaneGeometry(0.92, 0.3), mmat, grp, 0, 2.25, 0.345, { cast: false, receive: false });
   // control panel
   const cp = new THREE.Group(); cp.position.set(0, 1.14, 0.5); cp.rotation.x = Math.atan2(0.12, 0.24); grp.add(cp);
@@ -937,7 +938,7 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
   const deck = mesh(new THREE.PlaneGeometry(0.94, 0.27), std({ color: deckCol, emissive: deckCol.clone().multiplyScalar(.6), roughness: .3, envMapIntensity: .8 }), cp, 0, 0.002, 0); deck.rotation.x = -Math.PI / 2;
   mesh(new THREE.CylinderGeometry(.04, .045, .012, 20), blackGloss, cp, -0.25, 0.008, 0);
   mesh(new THREE.CylinderGeometry(.008, .008, .075, 10), metalMat, cp, -0.25, 0.045, 0);
-  mesh(new THREE.SphereGeometry(.028, 18, 14), std({ color: '#d42b3a', roughness: .2, envMapIntensity: 1 }), cp, -0.25, 0.09, 0);
+  mesh(new THREE.SphereGeometry(.028, 10, 8), std({ color: '#d42b3a', roughness: .2, envMapIntensity: 1 }), cp, -0.25, 0.09, 0);
   ['#ff4f6b', '#ffcf4a', '#3ad6c4', '#6c8cff'].forEach((col, i) => {
     mesh(new THREE.CylinderGeometry(.024, .024, .02, 18), glow(col, 1.3), cp, -0.06 + i * 0.085, 0.01, (i % 2) * 0.03 - 0.01, { cast: false });
   });
@@ -959,9 +960,10 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
     // gold trim on the kick plate and a soft spotlight beam from the ceiling
     mesh(new THREE.BoxGeometry(1.0, 0.03, 0.03), glow('#ffcf4a', 2.6), grp, 0, 0.04, 0.44, { cast: false });
     const beamH = (4.2 - y) / s;
-    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.95, beamH, 24, 1, true),
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(g.color).lerp(new THREE.Color('#fff4d6'), .5).multiplyScalar(.13), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
-    beam.position.set(0, beamH / 2, 0.75); beam.renderOrder = 3; grp.add(beam);
+    // front faces only: visible from across the room, invisible once you step inside it
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.66, beamH, 24, 1, true),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(g.color).lerp(new THREE.Color('#fff4d6'), .5).multiplyScalar(.22), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    beam.position.set(0, beamH / 2, 0.55); beam.renderOrder = 3; grp.add(beam);
     floorPool('#fff1c4', 1.6, 1.3, 1.05, .35);
   }
 
@@ -969,7 +971,7 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
   const screenWorld = screen.getWorldPosition(new THREE.Vector3());
   const screenNormal = nrm.clone().applyAxisAngle(Y, ry);
   const front = new THREE.Vector3(0, 0, 1.45 * s).applyAxisAngle(Y, ry).add(grp.position).setY(0);
-  const cab = { g, idx, grp, screen, marquee, mmat, smat, ctx: sctx, tex: stex, state: {}, screenWorld, screenNormal, front, ry, s, offset: idx * 1.7 };
+  const cab = { g, idx, grp, screen, marquee, mmat, smat, ctx: sctx, tex: stex, state: {}, screenWorld, screenNormal, front, ry, s, mBase, offset: idx * 1.7 };
   [body, screen, marquee, bezel].forEach(m => { m.userData.cab = cab; interactive.push(m); });
   addObstacle(grp, -0.53, 0.53, -0.43, 0.64, g.color, cab);
   cabinets.push(cab);
@@ -1065,7 +1067,7 @@ function clawMachine(x, z, ry, color, label, seed) {
   const r = rng(seed), pal = ['#ff6b5b', '#ffcf4a', '#3ad6c4', '#9a7bff', '#ff8fc7', '#6cc4ff', '#ffffff'];
   for (let i = 0; i < 22; i++) {
     const col = pal[(r() * pal.length) | 0];
-    const m = mesh(new THREE.SphereGeometry(.07 + r() * .03, 14, 10), std({ color: col, roughness: .55, envMapIntensity: .5 }), g, (r() - .5) * .66, .97 + r() * .12, (r() - .5) * .66);
+    const m = mesh(new THREE.SphereGeometry(.07 + r() * .03, 10, 7), std({ color: col, roughness: .55, envMapIntensity: .5 }), g, (r() - .5) * .66, .97 + r() * .12, (r() - .5) * .66);
     m.scale.y = .85;
   }
   const claw = new THREE.Group(); g.add(claw);
@@ -1105,7 +1107,7 @@ clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 9);
     for (let i = 0; i < 9; i++) {
       const col = pal[(r() * pal.length) | 0], zz = cz - 1.3 + i * .32;
       if (r() < .5) mesh(new THREE.BoxGeometry(.2, .16 + r() * .12, .2), std({ color: col, roughness: .5 }), g, sx, y + .12, zz);
-      else { const b = mesh(new THREE.SphereGeometry(.11, 14, 10), std({ color: col, roughness: .9 }), g, sx, y + .13, zz); b.scale.y = 1.1; }
+      else { const b = mesh(new THREE.SphereGeometry(.11, 10, 8), std({ color: col, roughness: .9 }), g, sx, y + .13, zz); b.scale.y = 1.1; }
     }
   }
   const pm = new THREE.MeshBasicMaterial({ map: tex(textCanvas('PRIZES', { w: 512, h: 128, size: 60, color: '#fff6d6', glowCol: '#ffcf4a' })), transparent: true, depthWrite: false });
@@ -1553,7 +1555,7 @@ function updateTarget() {
   }
   if (cab === target) return;
   target = cab;
-  cabinets.forEach(c => c.mmat.color.setScalar(c === target ? 2.0 : 1.3));
+  cabinets.forEach(c => c.mmat.color.setScalar(c === target ? 2.1 : c.mBase));
   const pr = $('prompt');
   $('crosshair').classList.toggle('on', !!target);
   $('playBtn').hidden = !(isTouch && target && (target.g.url || target.g.idea));
