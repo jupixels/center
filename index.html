@@ -202,6 +202,68 @@
   #ideaStatus { font-size: 21px; min-height: 22px; line-height: 1.05; }
   #ideaStatus.ok { color: var(--teal); } #ideaStatus.bad { color: var(--coral); }
 
+  /* ---------- claw machine HUD ---------- */
+  #clawHud { --c: #ff4fd8; position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 7;
+             width: min(560px, calc(100% - 32px)); padding: 12px 14px; background: rgba(16,11,26,.88);
+             border: 3px solid var(--c); box-shadow: 6px 6px 0 rgba(0,0,0,.5); }
+  #clawHud .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  #clawName { font-family: "Press Start 2P", monospace; font-size: 12px; color: var(--c); }
+  #clawTimer { font-family: "Press Start 2P", monospace; font-size: 13px; color: var(--gold); margin-left: auto; }
+  #clawWallet { font-size: 22px; white-space: nowrap; }
+  #clawMsg { font-size: 22px; margin: 6px 0 8px; line-height: 1.05; }
+  #clawKeys { font-family: "Press Start 2P", monospace; font-size: 9px; color: var(--muted); line-height: 1.5; }
+  .cbtns { display: flex; gap: 12px; align-items: center; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .cbtns .btn { font-size: 11px; padding: 12px 14px; }
+  .cbtns .btn.ghost { font-size: 10px; padding: 11px 12px; }
+  .cbtns .btn:disabled { cursor: default; }
+  .pad { display: none; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 42px); gap: 4px; margin-right: auto; }
+  body.touch .pad { display: grid; }
+  body.touch #clawKeys { display: none; }
+  .pad button { font-size: 16px; background: #2d2342; color: var(--cream); border: 2px solid #5b4c7a; touch-action: none; padding: 0; }
+  .pad button:active { border-color: var(--gold); }
+  .pad [data-dir=u] { grid-column: 2; grid-row: 1; } .pad [data-dir=l] { grid-column: 1; grid-row: 2; }
+  .pad [data-dir=d] { grid-column: 2; grid-row: 2; } .pad [data-dir=r] { grid-column: 3; grid-row: 2; }
+
+  /* ---------- pop-up messages ---------- */
+  #toast { --c: var(--gold); position: fixed; left: 50%; top: 20%; transform: translateX(-50%); z-index: 28; pointer-events: none;
+           text-align: center; width: min(640px, calc(100% - 32px)); }
+  #toast b { display: block; font-family: "Press Start 2P", monospace; font-weight: normal; font-size: clamp(18px, 4vw, 30px);
+             color: var(--c); text-shadow: 3px 3px 0 rgba(0,0,0,.75); line-height: 1.3; }
+  #toast span { display: block; margin-top: 10px; font-size: 23px; color: #fff; text-shadow: 2px 2px 0 #000; }
+  #toast.pop { animation: toast 2.4s ease-out forwards; }
+  @keyframes toast {
+    0% { opacity: 0; transform: translate(-50%, 14px) scale(.8); } 10% { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
+    18% { transform: translate(-50%, 0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -14px); }
+  }
+
+  /* ---------- prize counter ---------- */
+  #shop { z-index: 25; }
+  #shop .panel { position: relative; max-width: 760px; text-align: left; background: #150f22; border: 3px solid var(--gold);
+                 box-shadow: 8px 8px 0 rgba(0,0,0,.5); padding: 22px; }
+  #shop .sub { font-size: 21px; color: var(--muted); margin: 10px 0 0; line-height: 1.05; }
+  .purse { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 14px; font-family: "Press Start 2P", monospace; font-size: 11px; }
+  .purse b { color: var(--gold); font-weight: normal; }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  .prize { background: #221a33; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; }
+  .prize.dim .ico, .prize.dim h4 { opacity: .5; }
+  .prize .ico { font-size: 40px; line-height: 1; }
+  .prize h4 { font-family: "Press Start 2P", monospace; font-size: 9px; font-weight: normal; margin: 0; line-height: 1.4; }
+  .prize .cost { font-size: 21px; color: var(--gold); line-height: 1; }
+  .prize button { font-family: "Press Start 2P", monospace; font-size: 9px; padding: 9px 6px; border: 0; cursor: pointer;
+                  background: var(--gold); color: var(--ink); width: 100%; margin-top: auto; }
+  .prize button:disabled { background: #3a2f4f; color: #8f82ab; cursor: default; }
+  .bag { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; font-size: 20px; color: #8f82ab; }
+  .bag span { background: #221a33; padding: 4px 10px; font-size: 28px; display: inline-flex; align-items: center; gap: 6px; }
+  .bag small { font-family: "Press Start 2P", monospace; font-size: 9px; color: var(--muted); }
+  #reveal { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: rgba(10,7,18,.86); cursor: pointer; }
+  #reveal .card { text-align: center; animation: popin .5s cubic-bezier(.2,1.6,.4,1); }
+  #reveal .lbl { font-family: "Press Start 2P", monospace; font-size: 15px; color: var(--gold); text-shadow: 3px 3px 0 var(--coral); }
+  #reveal .ico { font-size: 110px; line-height: 1.25; animation: bob 1.2s ease-in-out infinite; }
+  #reveal .nm { font-family: "Press Start 2P", monospace; font-size: 13px; }
+  #reveal .tap { font-size: 19px; color: #8f82ab; margin-top: 14px; }
+  @keyframes popin { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes bob { 50% { transform: translateY(-10px) rotate(-6deg); } }
+
   @keyframes blink { 50% { opacity: 0; } }
   @media (max-width: 700px) {
     #hint { display: none; }
@@ -244,7 +306,8 @@
   <div id="crosshair"></div>
   <div id="tools">
     <button class="chip" id="menuBtn" type="button">☰ GAME LIST</button>
-    <div id="hint">WASD move · Mouse look · Shift run · E play · C camera FX · M map</div>
+    <button class="chip" id="wallet" type="button" title="Your tokens, tickets and prizes">🪙 5 · 🎟 0</button>
+    <div id="hint">WASD move · Mouse look · Shift run · E play · P prizes · C camera FX · M map</div>
   </div>
   <canvas id="map" width="140" height="170"></canvas>
   <div id="fps" hidden></div>
@@ -273,6 +336,7 @@
       <div><kbd>SHIFT</kbd> run</div>
       <div><kbd>E</kbd> / <kbd>CLICK</kbd> play</div>
       <div><kbd>G</kbd> game list</div>
+      <div><kbd>P</kbd> your prizes</div>
       <div><kbd>C</kbd> camera effects</div>
     </div>
     <div class="ai">✦ All games in this arcade were made with the help of AI</div>
@@ -338,6 +402,39 @@
     </form>
   </div>
 </div>
+
+<!-- claw machine controls -->
+<div id="clawHud" hidden>
+  <div class="row"><span id="clawName">CLAW MACHINE</span><span id="clawTimer"></span><span id="clawWallet"></span></div>
+  <div id="clawMsg"></div>
+  <div id="clawKeys">WASD / ARROWS steer · SPACE play &amp; drop · Q leave</div>
+  <div class="cbtns">
+    <div class="pad">
+      <button type="button" data-dir="u" aria-label="Back">▲</button><button type="button" data-dir="l" aria-label="Left">◀</button>
+      <button type="button" data-dir="d" aria-label="Forward">▼</button><button type="button" data-dir="r" aria-label="Right">▶</button>
+    </div>
+    <button class="btn ghost" id="clawExit" type="button">✕ LEAVE</button>
+    <button class="btn" id="clawDrop" type="button">PLAY</button>
+  </div>
+</div>
+
+<!-- prize counter -->
+<div id="shop" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="shopTitle">
+    <div class="mhead">
+      <h2 id="shopTitle">🎁 PRIZE COUNTER</h2>
+      <button class="chip" id="closeShop" type="button">✕ CLOSE</button>
+    </div>
+    <div class="purse"><span>🎟 <b id="shopTickets">0</b> TICKETS</span><span>🪙 <b id="shopTokens">0</b> TOKENS</span></div>
+    <p class="sub" id="shopNote"></p>
+    <div class="pgrid" id="shopGrid"></div>
+    <div class="gsec">YOUR PRIZES</div>
+    <div class="bag" id="shopBag"></div>
+    <div id="reveal" hidden><div class="card"><div class="lbl">★ PRIZE GET! ★</div><div class="ico" id="revealIco"></div><div class="nm" id="revealName"></div><div class="tap">tap to continue</div></div></div>
+  </div>
+</div>
+
+<div id="toast" hidden><b></b><span></span></div>
 
 <div id="fade"><div class="pixel" id="fadeText"></div></div>
 
@@ -1053,23 +1150,65 @@ function drawHockey(dt) {
   hockeyTex.needsUpdate = true;
 }
 
-// --- claw machines ---
-const claws = [];
-function clawMachine(x, z, ry, color, label, seed) {
+// --- claw machines (playable: see "Claw machine game" further down) ---
+// Everything inside a machine is in its local space: the glass box spans
+// x,z ∈ ±0.43 above the prize floor at y 0.92; the player stands on +z.
+const claws = [], dynamic = [], extras = [];
+const CLAW_TOP = 1.78, CLAW_HOME = [-.28, .28], CLAW_LIM = .33;
+const inChute = (x, z, r) => x - r < -.15 && z + r > .15;   // the prize chute fills the front-left corner
+const capsuleGeo = new THREE.SphereGeometry(1, 14, 10);
+const CAPSULE_COLS = ['#ff6b5b', '#3ad6c4', '#9a7bff', '#ff8fc7', '#6cc4ff', '#ffffff', '#9be564'];
+const goldMat = std({ color: '#ffcf4a', roughness: .22, metalness: .85, envMapIntensity: 1.3, emissive: '#4a3000' });
+// things you can walk up to and use with E (claws, tokens, prizes)
+function addInteractable(meshes, o) { meshes.forEach(m => { m.userData.cab = o; interactive.push(m); }); extras.push(o); return o; }
+
+function restY(cl, b, x, z) {   // how high a capsule sits if dropped at x,z onto the pile
+  let y = .92 + b.r * .85;
+  for (const o of cl.balls) {
+    if (o === b || o.state !== 'rest') continue;
+    const R = (b.r + o.r) * .95, d = Math.hypot(x - o.x, z - o.z);
+    if (d < R) y = Math.max(y, o.y + Math.sqrt(R * R - d * d) * .85);
+  }
+  return y;
+}
+function spotFor(cl, b) {       // a low spot on the pile, clear of the chute
+  let best = null;
+  for (let i = 0; i < 40 && !(best && i >= 8); i++) {
+    const lim = .41 - b.r, x = (cl.rnd() * 2 - 1) * lim, z = (cl.rnd() * 2 - 1) * lim;
+    if (inChute(x, z, b.r)) continue;
+    const y = restY(cl, b, x, z);
+    if (!best || y < best.y) best = { x, y, z };
+  }
+  return best || { x: .2, y: restY(cl, b, .2, -.2), z: -.2 };
+}
+function addCapsule(cl, gold) {
+  const r = gold ? .085 : .07 + cl.rnd() * .03;
+  const mat = gold ? goldMat : std({ color: CAPSULE_COLS[(cl.rnd() * CAPSULE_COLS.length) | 0], roughness: .55, envMapIntensity: .5 });
+  const m = mesh(capsuleGeo, mat, cl.g, 0, 0, 0, { cast: false });
+  m.scale.set(r, r * .85, r); dynamic.push(m);
+  // bigger capsules are worth more; the gold one is the jackpot
+  const b = { m, r, gold, value: gold ? 100 : 5 * Math.round(2 + (r - .07) / .03 * 4), vy: 0, state: 'rest', t: 0 };
+  Object.assign(b, spotFor(cl, b)); m.position.set(b.x, b.y, b.z);
+  cl.balls.push(b); return b;
+}
+
+function clawMachine(x, z, ry, color, label, title, seed) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
-  mesh(new THREE.BoxGeometry(.9, .9, .9), std({ color: new THREE.Color(color).multiplyScalar(.35), roughness: .35, envMapIntensity: .7 }), g, 0, .45, 0);
+  const base = mesh(new THREE.BoxGeometry(.9, .9, .9), std({ color: new THREE.Color(color).multiplyScalar(.35), roughness: .35, envMapIntensity: .7 }), g, 0, .45, 0);
   mesh(new THREE.BoxGeometry(.86, .02, .86), std({ color: '#2a2238', roughness: .8 }), g, 0, .91, 0);
-  mesh(new THREE.BoxGeometry(.86, 1.05, .86), glassMat, g, 0, 1.43, 0, { cast: false, receive: false });
+  const glass = mesh(new THREE.BoxGeometry(.86, 1.05, .86), glassMat, g, 0, 1.43, 0, { cast: false, receive: false });
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) mesh(new THREE.BoxGeometry(.04, 1.05, .04), glow(color, 2.2), g, sx * .43, 1.43, sz * .43, { cast: false });
   mesh(new THREE.BoxGeometry(.94, .3, .94), bodyMat, g, 0, 2.1, 0);
   const sm = new THREE.MeshBasicMaterial({ map: tex(textCanvas(label, { w: 512, h: 140, size: 54, glowCol: color, bg: '#120c1f' })) }); sm.color.setScalar(1.6);
   mesh(new THREE.PlaneGeometry(.9, .26), sm, g, 0, 2.1, .471, { cast: false });
-  const r = rng(seed), pal = ['#ff6b5b', '#ffcf4a', '#3ad6c4', '#9a7bff', '#ff8fc7', '#6cc4ff', '#ffffff'];
-  for (let i = 0; i < 22; i++) {
-    const col = pal[(r() * pal.length) | 0];
-    const m = mesh(new THREE.SphereGeometry(.07 + r() * .03, 10, 7), std({ color: col, roughness: .55, envMapIntensity: .5 }), g, (r() - .5) * .66, .97 + r() * .12, (r() - .5) * .66);
-    m.scale.y = .85;
-  }
+  // prize chute: a hole in the corner fenced with clear acrylic
+  mesh(new THREE.BoxGeometry(.26, .004, .26), std({ color: '#050408', roughness: 1 }), g, -.3, .922, .3, { cast: false });
+  mesh(new THREE.BoxGeometry(.008, .2, .26), glassMat, g, -.17, 1.02, .3, { cast: false, receive: false });
+  mesh(new THREE.BoxGeometry(.26, .2, .008), glassMat, g, -.3, 1.02, .17, { cast: false, receive: false });
+  mesh(new THREE.BoxGeometry(.012, .012, .27), glow(color, 2), g, -.17, 1.12, .3, { cast: false });
+  mesh(new THREE.BoxGeometry(.27, .012, .012), glow(color, 2), g, -.3, 1.12, .17, { cast: false });
+  const cl = { g, color, label, balls: [], rnd: rng(seed), x: CLAW_HOME[0], z: CLAW_HOME[1], hy: CLAW_TOP, open: .3, state: 'idle', off: seed, k: 0, timer: 0, hum: 0, held: null };
+  for (let i = 0; i < 20; i++) addCapsule(cl, i === 7);
   const claw = new THREE.Group(); g.add(claw);
   const cable = mesh(new THREE.CylinderGeometry(.006, .006, 1, 6), metalMat, claw, 0, 0, 0, { cast: false });
   const head = mesh(new THREE.CylinderGeometry(.05, .04, .08, 12), metalMat, claw, 0, 0, 0);
@@ -1084,19 +1223,25 @@ function clawMachine(x, z, ry, color, label, seed) {
   mesh(new THREE.BoxGeometry(.8, .02, .8), glow(color, .9), g, 0, 1.94, 0, { cast: false });   // light panel inside the lid
   contact(g, 1.3, 1.3);
   lightPool(g, color, 1.7, 1.7, 0, 0, .4);
-  addObstacle(g, -.48, .48, -.48, .48, color);
-  claws.push({ claw, cable, head, off: seed });
+  g.updateMatrixWorld(true);
+  Object.assign(cl, { claw, cable, head, prongs });
+  cl.it = addInteractable([base, glass], {
+    kind: 'claw', machine: cl, front: g.localToWorld(new THREE.Vector3(0, 0, 1.2)).setY(0),
+    g: { title, color, desc: 'Steer the claw over a capsule, drop it, and land it in the chute to win tickets. Spend them at the prize counter!' }
+  });
+  addObstacle(g, -.48, .48, -.48, .48, color, cl.it);
+  claws.push(cl);
 }
-clawMachine(ROOM.x0 + .5, 0.2, Math.PI / 2, '#ff4fd8', 'CLAW', 3);
-clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 9);
+clawMachine(ROOM.x0 + .5, 0.2, Math.PI / 2, '#ff4fd8', 'CLAW', 'Claw Machine', 3);
+clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 'Prize Grabber', 9);
 
 // --- prize counter & shelves ---
 (() => {
   const g = new THREE.Group(); scene.add(g);
   const cz = 1.6, len = 3.0, cx = 5.15;
-  mesh(new THREE.BoxGeometry(.7, 1.0, len), bodyMat, g, cx, .5, cz);
+  const counter = mesh(new THREE.BoxGeometry(.7, 1.0, len), bodyMat, g, cx, .5, cz);
   mesh(new THREE.BoxGeometry(.74, .04, len + .04), std({ color: '#d9dde4', roughness: .2, metalness: .7, envMapIntensity: 1 }), g, cx, 1.02, cz);
-  mesh(new THREE.BoxGeometry(.6, .34, len - .1), glassMat, g, cx, 1.21, cz, { cast: false, receive: false });
+  const case_ = mesh(new THREE.BoxGeometry(.6, .34, len - .1), glassMat, g, cx, 1.21, cz, { cast: false, receive: false });
   mesh(new THREE.BoxGeometry(.02, .03, len), glow('#ffcf4a', 2.4), g, cx - .36, .98, cz, { cast: false });
   const r = rng(21), pal = ['#ff6b5b', '#ffcf4a', '#3ad6c4', '#9a7bff', '#ff8fc7', '#6cc4ff', '#9be564'];
   for (let i = 0; i < 16; i++) mesh(new THREE.SphereGeometry(.035, 10, 8), std({ color: pal[i % pal.length], roughness: .3 }), g, cx + (r() - .5) * .4, 1.08, cz - 1.3 + i * .17);
@@ -1114,13 +1259,17 @@ clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 9);
   pm.color.setScalar(1.4);
   const ps = mesh(new THREE.PlaneGeometry(2.4, .6), pm, g, ROOM.x1 - .03, 3.0, cz, { cast: false, receive: false }); ps.rotation.y = -Math.PI / 2;
   contact(g, 1.1, 3.4, cx, cz);
-  obstacles.push({ x0: cx - .37, x1: ROOM.x1, z0: cz - len / 2, z1: cz + len / 2, color: '#ffcf4a' });
+  const it = addInteractable([counter, case_], {
+    kind: 'prizes', front: new THREE.Vector3(cx - 1.0, 0, cz),
+    g: { title: 'Prize Counter', color: '#ffcf4a', desc: 'Trade your tickets for prizes. Win tickets on the claw machines.' }
+  });
+  obstacles.push({ x0: cx - .37, x1: ROOM.x1, z0: cz - len / 2, z1: cz + len / 2, color: '#ffcf4a', cab: it });
 })();
 
 // --- token machine ---
 (() => {
   const g = new THREE.Group(); g.position.set(ROOM.x1 - .36, 0, -3.2); g.rotation.y = -Math.PI / 2; scene.add(g);
-  mesh(new THREE.BoxGeometry(.72, 1.8, .55), std({ color: '#2f6fb6', roughness: .35, metalness: .2, envMapIntensity: .7 }), g, 0, .9, 0);
+  const body = mesh(new THREE.BoxGeometry(.72, 1.8, .55), std({ color: '#2f6fb6', roughness: .35, metalness: .2, envMapIntensity: .7 }), g, 0, .9, 0);
   const tm = new THREE.MeshBasicMaterial({ map: tex(textCanvas('TOKENS', { w: 512, h: 160, size: 64, color: '#fff6d6', glowCol: '#ffcf4a', bg: '#101a33' })) }); tm.color.setScalar(1.7);
   mesh(new THREE.PlaneGeometry(.62, .2), tm, g, 0, 1.6, .277, { cast: false });
   mesh(new THREE.PlaneGeometry(.46, .3), blackGloss, g, 0, 1.2, .277, { cast: false });
@@ -1128,7 +1277,12 @@ clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 9);
   mesh(new THREE.BoxGeometry(.3, .1, .14), metalMat, g, 0, .5, .3);
   mesh(new THREE.BoxGeometry(.24, .02, .1), glow('#ffcf4a', 1.4), g, 0, .46, .33, { cast: false });
   contact(g, 1.1, 1);
-  addObstacle(g, -.37, .37, -.3, .3, '#2f6fb6');
+  g.updateMatrixWorld(true);
+  const it = addInteractable([body], {
+    kind: 'tokens', front: g.localToWorld(new THREE.Vector3(0, 0, 1.0)).setY(0),
+    g: { title: 'Token Machine', color: '#6cc4ff', desc: 'Free play today! Grab 5 tokens for the claw machines.' }
+  });
+  addObstacle(g, -.37, .37, -.3, .3, '#2f6fb6', it);
 })();
 
 // --- entrance doors + welcome mat ---
@@ -1175,6 +1329,7 @@ scene.traverse(o => { if (o.isMesh && o.material && o.material.isMeshStandardMat
 (function mergeStatic() {
   const skip = new Set(interactive);
   for (const cl of claws) cl.claw.traverse(o => skip.add(o));
+  for (const o of dynamic) skip.add(o);   // claw machine capsules move
   scene.updateMatrixWorld(true);
   const groups = new Map();
   scene.traverse(o => {
@@ -1467,11 +1622,14 @@ function look(dx, dy, k) { player.yaw -= dx * k; player.pitch = clamp(player.pit
 addEventListener('keydown', e => {
   // while the idea form is open, let the player type freely
   if (window.ideaOpen) { if (e.code === 'Escape') closeIdea(); return; }
+  if (shopOpen) { if (e.code === 'Escape') closeShop(); return; }
+  if (clawGame) { clawKey(e); return; }
   if (e.code === 'Tab' || e.code === 'KeyG') { e.preventDefault(); if (menuOpen) closeMenu(); else openMenu(); return; }
   if (menuOpen) { if (e.code === 'Escape') closeMenu(); return; }
   keys.add(e.code);
   if (!started || paused) return;
   if ((e.code === 'KeyE' || e.code === 'Enter') && target) launch(target);
+  if (e.code === 'KeyP') openShop(false);
   if (e.code === 'KeyC') setFx(!fxOn);
   if (e.code === 'KeyM') setMap(!mapOn);
 });
@@ -1482,21 +1640,22 @@ addEventListener('blur', () => keys.clear());
 let mouseDown = false, dragDist = 0;
 document.addEventListener('mousemove', e => {
   if (document.pointerLockElement === canvasEl) look(e.movementX, e.movementY, 0.0021);
-  else if (dragLook && mouseDown && !launching) { look(e.movementX, e.movementY, 0.0042); dragDist += Math.abs(e.movementX) + Math.abs(e.movementY); }
+  else if (dragLook && mouseDown && !launching && !clawGame) { look(e.movementX, e.movementY, 0.0042); dragDist += Math.abs(e.movementX) + Math.abs(e.movementY); }
 });
 canvasEl.addEventListener('mousedown', e => {
   if (isTouch || !started || launching) return;
+  if (clawGame) { clawAction(); return; }   // clicking the machine works like the button
   if (document.pointerLockElement === canvasEl) { if (target) launch(target); return; }
   if (dragLook) { mouseDown = true; dragDist = 0; }
 });
 addEventListener('mouseup', e => {
-  if (dragLook && mouseDown) { mouseDown = false; if (dragDist < 6) { const cab = pick(e.clientX, e.clientY); if (cab) launch(cab); } }
+  if (dragLook && mouseDown && !clawGame) { mouseDown = false; if (dragDist < 6) { const cab = pick(e.clientX, e.clientY); if (cab) launch(cab); } }
 });
 document.addEventListener('pointerlockchange', () => {
   if (document.pointerLockElement === canvasEl) { hadLock = true; paused = false; $('start').hidden = true; }
-  else if (started && !launching && !menuOpen && !dragLook) { paused = true; showStart(true); }
+  else if (started && !launching && !menuOpen && !dragLook && !clawGame) { paused = true; showStart(true); }
 });
-document.addEventListener('pointerlockerror', () => { if (hadLock) showStart(true); else enableDragLook(); });
+document.addEventListener('pointerlockerror', () => { if (hadLock) { paused = true; showStart(true); } else enableDragLook(); });
 function lockPointer() {
   if (isTouch || dragLook) return;
   try { const p = canvasEl.requestPointerLock(); if (p && p.catch) p.catch(() => { if (!hadLock) enableDragLook(); }); }
@@ -1504,14 +1663,14 @@ function lockPointer() {
 }
 function enableDragLook() {
   dragLook = true; paused = false; $('start').hidden = true;
-  $('hint').textContent = 'WASD move · Drag to look · Click a screen to play · C camera FX · M map';
+  $('hint').textContent = 'WASD move · Drag to look · Click a screen to play · P prizes · C camera FX · M map';
 }
 
 // --- touch ---
 const joyEl = $('joy'), knob = joyEl.firstElementChild, joyVec = { x: 0, y: 0 };
 let joy = null, lookT = null;
 canvasEl.addEventListener('touchstart', e => {
-  if (!started || launching) return; e.preventDefault();
+  if (!started || launching || clawGame) return; e.preventDefault();
   for (const t of e.changedTouches) {
     if (t.clientX < innerWidth * 0.42 && !joy) {
       joy = { id: t.identifier, x: t.clientX, y: t.clientY };
@@ -1549,23 +1708,24 @@ function pick(x, y) {
 }
 function updateTarget() {
   let cab = null;
-  if (started && !paused && !launching && !menuOpen) {
+  if (started && !paused && !launching && !menuOpen && !clawGame) {
     ndc.set(0, 0); ray.setFromCamera(ndc, camera); ray.far = 3.0;
     const h = ray.intersectObjects(interactive, false)[0]; if (h) cab = h.object.userData.cab;
-    if (!cab && isTouch) { let best = 1.6; for (const c of cabinets) { const d = Math.hypot(c.front.x - player.pos.x, c.front.z - player.pos.z); if (d < best) { best = d; cab = c; } } }
+    if (!cab && isTouch) { let best = 1.6; for (const c of [...cabinets, ...extras]) { const d = Math.hypot(c.front.x - player.pos.x, c.front.z - player.pos.z); if (d < best) { best = d; cab = c; } } }
   }
   if (cab === target) return;
   target = cab;
   cabinets.forEach(c => c.mmat.color.setScalar(c === target ? 2.1 : c.mBase));
   const pr = $('prompt');
   $('crosshair').classList.toggle('on', !!target);
-  $('playBtn').hidden = !(isTouch && target && (target.g.url || target.g.idea));
-  $('playBtn').textContent = target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
+  const verb = target && USE_VERB[target.kind];
+  $('playBtn').hidden = !(isTouch && target && (target.g.url || target.g.idea || verb));
+  $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
   pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '');
-  pr.querySelector('.d').textContent = target.g.desc;
-  pr.querySelector('.k').innerHTML = target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
+  pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.` : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : '');
+  pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
   sfx.blip();
 }
 
@@ -1581,13 +1741,22 @@ function tone(f, start, dur, type = 'square', vol = .05) {
 const sfx = {
   blip: () => tone(660, 0, .05, 'square', .02),
   coin: () => { tone(988, 0, .09); tone(1319, .09, .45); },
-  buzz: () => tone(110, 0, .25, 'sawtooth', .04)
+  buzz: () => tone(110, 0, .25, 'sawtooth', .04),
+  drop: () => { tone(520, 0, .08, 'triangle', .05); tone(390, .08, .12, 'triangle', .05); },
+  clunk: () => { tone(150, 0, .1, 'square', .05); tone(95, .05, .14, 'triangle', .06); },
+  slip: () => { tone(620, 0, .09, 'square', .03); tone(310, .09, .25, 'square', .03); },
+  win: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .08, .2, 'square', .04)),
+  tokens: () => [0, 1, 2, 3, 4].forEach(i => tone(1175 + i * 90, i * .07, .08, 'square', .03)),
+  prize: () => { [392, 523, 659, 784].forEach((f, i) => tone(f, i * .1, .16, 'square', .04)); tone(1047, .42, .6, 'square', .045); }
 };
 
 // --- launching a game: walk the camera into the screen ---
 const tmpCam = new THREE.PerspectiveCamera();
 function launch(cab) {
   if (launching) return;
+  if (cab.kind === 'claw') { enterClaw(cab.machine); return; }
+  if (cab.kind === 'tokens') { takeTokens(); return; }
+  if (cab.kind === 'prizes') { openShop(true); return; }
   if (cab.g.idea) { sfx.blip(); keys.clear(); openIdea(); return; }
   if (!cab.g.url) { sfx.buzz(); glitchUntil = performance.now() + 400; return; }
   sfx.coin();
@@ -1638,6 +1807,369 @@ $('optMap').addEventListener('change', e => setMap(e.target.checked));
 function setFx(on) { fxOn = on; $('optFx').checked = on; $('cam').hidden = !on || !started; }
 function setMap(on) { mapOn = on; $('optMap').checked = on; $('map').hidden = !on; }
 
+// ============================================================
+//  Tokens, tickets & prizes
+// ============================================================
+// Tokens come free from the token machine and pay for claw games; claw
+// capsules pay out tickets; the prize counter trades tickets for prizes.
+// Everything is kept in this browser (localStorage).
+const USE_VERB = { claw: 'PLAY', tokens: 'GET TOKENS', prizes: 'SEE PRIZES' };
+const TOKEN_CAP = 20;
+const wallet = (() => {
+  let w = null;
+  try { w = JSON.parse(localStorage.getItem('arcade-wallet')); } catch { }
+  if (!w || typeof w !== 'object') w = { tokens: 5, tickets: 0, prizes: {} };   // a few tokens to get you started
+  w.tokens = Math.max(0, w.tokens | 0); w.tickets = Math.max(0, w.tickets | 0);
+  if (!w.prizes || typeof w.prizes !== 'object') w.prizes = {};
+  return w;
+})();
+function updateWallet() {
+  $('wallet').textContent = `🪙 ${wallet.tokens} · 🎟 ${wallet.tickets}`;
+  $('clawWallet').textContent = `🪙 ${wallet.tokens} · 🎟 ${wallet.tickets}`;
+}
+function saveWallet() { try { localStorage.setItem('arcade-wallet', JSON.stringify(wallet)); } catch { } updateWallet(); }
+updateWallet();
+
+let toastTimer = 0;
+function toast(big, col = '#ffcf4a', small = '') {
+  const el = $('toast');
+  el.querySelector('b').textContent = big; el.querySelector('span').textContent = small; el.style.setProperty('--c', col);
+  el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2400);
+}
+
+// --- token machine ---
+let lastTokens = 0;
+function takeTokens() {
+  audio();
+  const now = performance.now(); if (now - lastTokens < 900) return; lastTokens = now;
+  if (wallet.tokens >= TOKEN_CAP) { sfx.buzz(); toast('POCKETS FULL!', '#6cc4ff', `You can carry ${TOKEN_CAP} tokens. Go play the claw!`); return; }
+  wallet.tokens = Math.min(TOKEN_CAP, wallet.tokens + 5); saveWallet();
+  sfx.tokens(); toast('+5 TOKENS', '#6cc4ff', 'One token = one go on a claw machine');
+}
+
+// --- prize counter ---
+const PRIZES = [
+  { id: 'candy',  icon: '🍬', name: 'Candy',          cost: 10 },
+  { id: 'star',   icon: '⭐', name: 'Glow Star',       cost: 25 },
+  { id: 'yoyo',   icon: '🪀', name: 'Yo-Yo',           cost: 40 },
+  { id: 'duck',   icon: '🦆', name: 'Rubber Duck',     cost: 60 },
+  { id: 'shades', icon: '🕶️', name: 'Party Shades',    cost: 90 },
+  { id: 'dino',   icon: '🦖', name: 'Dino Figure',     cost: 140 },
+  { id: 'robot',  icon: '🤖', name: 'Wind-up Robot',   cost: 200 },
+  { id: 'bear',   icon: '🧸', name: 'Teddy Bear',      cost: 300 },
+  { id: 'stick',  icon: '🕹️', name: 'Golden Joystick', cost: 500 },
+  { id: 'crown',  icon: '👑', name: 'Arcade Crown',    cost: 1000 }
+];
+let shopOpen = false, shopAtCounter = false, revealTimer = 0;
+function openShop(atCounter) {
+  if (shopOpen || clawGame) return;
+  audio(); sfx.blip(); keys.clear();
+  shopOpen = true; shopAtCounter = atCounter;
+  renderShop(); $('reveal').hidden = true; $('shop').hidden = false;
+  document.dispatchEvent(new Event('arcade:menu-open'));
+}
+function closeShop() {
+  if (!shopOpen) return;
+  shopOpen = false; $('shop').hidden = true; $('reveal').hidden = true;
+  document.dispatchEvent(new Event('arcade:menu-close'));
+}
+function renderShop() {
+  $('shopTickets').textContent = wallet.tickets; $('shopTokens').textContent = wallet.tokens;
+  $('shopNote').textContent = shopAtCounter
+    ? (wallet.tickets ? 'Pick a prize and the clerk will hand it right over.' : 'No tickets yet! Win some on the claw machines, then come back.')
+    : 'Walk up to the PRIZE COUNTER to trade in your tickets.';
+  $('shopGrid').innerHTML = PRIZES.map(p => {
+    const ok = wallet.tickets >= p.cost;
+    const label = !shopAtCounter ? 'AT THE COUNTER' : ok ? 'REDEEM' : `NEED ${p.cost - wallet.tickets} MORE`;
+    return `<div class="prize${ok ? '' : ' dim'}"><div class="ico">${p.icon}</div><h4>${p.name.toUpperCase()}</h4>` +
+      `<div class="cost">🎟 ${p.cost}</div><button type="button" data-prize="${p.id}"${shopAtCounter && ok ? '' : ' disabled'}>${label}</button></div>`;
+  }).join('');
+  const got = PRIZES.filter(p => wallet.prizes[p.id]);
+  $('shopBag').innerHTML = got.length
+    ? got.map(p => `<span title="${p.name}">${p.icon}${wallet.prizes[p.id] > 1 ? `<small>×${wallet.prizes[p.id]}</small>` : ''}</span>`).join('')
+    : 'Nothing yet. Your prizes will show up here.';
+}
+function redeem(id) {
+  const p = PRIZES.find(q => q.id === id);
+  if (!p || !shopAtCounter || wallet.tickets < p.cost) { sfx.buzz(); return; }
+  wallet.tickets -= p.cost; wallet.prizes[id] = (wallet.prizes[id] || 0) + 1; saveWallet();
+  sfx.prize(); renderShop();
+  $('revealIco').textContent = p.icon; $('revealName').textContent = p.name.toUpperCase();
+  $('reveal').hidden = false;
+  clearTimeout(revealTimer); revealTimer = setTimeout(() => { $('reveal').hidden = true; }, 3200);
+  say(clerk, pickLine(['ENJOY YOUR PRIZE!', 'GREAT CHOICE!', 'THERE YOU GO!', 'COME BACK SOON!']), 3);
+  burstConfetti(5.0, 1.6, 1.6);
+}
+$('shopGrid').addEventListener('click', e => { const b = e.target.closest('[data-prize]'); if (b && !b.disabled) redeem(b.dataset.prize); });
+$('reveal').addEventListener('click', () => { $('reveal').hidden = true; });
+$('closeShop').onclick = () => closeShop();
+$('shop').addEventListener('mousedown', e => { if (e.target === $('shop')) closeShop(); });
+$('wallet').onclick = () => openShop(false);
+
+// ============================================================
+//  Claw machine game
+// ============================================================
+// ready → (token) → aim → drop → grab → lift → carry → release → result → ready
+let clawGame = null;           // the machine you're standing at, if any
+let camBlend = null;           // eases the camera back to your eyes when you step away
+const clawPad = { u: 0, d: 0, l: 0, r: 0 };
+const BUSY = new Set(['drop', 'grab', 'lift', 'carry', 'release']);
+
+function clawView(cl) {        // camera spot in front of the glass, backed off on narrow screens
+  const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
+  const dist = Math.max(1.35, .62 / Math.tan(hfov / 2));
+  // looking down into the glass so the capsule pile sits above the control panel
+  const p = cl.g.localToWorld(new THREE.Vector3(0, 1.7 + dist * .18, dist));
+  tmpCam.position.copy(p); tmpCam.lookAt(cl.g.localToWorld(new THREE.Vector3(0, 1.1, 0)));
+  return { p, q: tmpCam.quaternion.clone() };
+}
+function enterClaw(cl) {
+  if (clawGame) return;
+  audio(); sfx.blip(); keys.clear();
+  clawGame = cl; cl.state = 'ready'; cl.k = 0;
+  const v = clawView(cl);
+  cl.cam = { fromP: camera.position.clone(), fromQ: camera.quaternion.clone(), toP: v.p, toQ: v.q, k: 0 };
+  // somebody on it already? they step aside for you
+  const s = cl.station;
+  if (s) {
+    const p = s.by;
+    if (p && p !== 'player') {
+      if (p.state === 'act') { p.timer = 0; say(p, pickLine(['ALL YOURS!', 'YOUR TURN!', 'GOOD LUCK!'])); }
+      else { p.station = null; p.path.pop(); p.goalWp = s.wp; }
+    }
+    s.by = 'player';
+  }
+  if (document.pointerLockElement) document.exitPointerLock();
+  $('crosshair').hidden = true;
+  for (const id of ['tools', 'map', 'ainote']) $(id).style.visibility = 'hidden';
+  $('clawHud').style.setProperty('--c', cl.color);
+  $('clawName').textContent = cl.it.g.title.toUpperCase();
+  $('clawHud').hidden = false; hudKey = '';
+  clawStatus(cl);
+}
+function exitClaw(viaEscape) {
+  const cl = clawGame; if (!cl) return;
+  if (BUSY.has(cl.state)) { toast('HANG ON!', cl.color, 'Let the claw finish its run'); return; }
+  cl.state = 'idle'; clawGame = null;
+  if (cl.station && cl.station.by === 'player') cl.station.by = null;
+  keys.clear(); for (const k in clawPad) clawPad[k] = 0;
+  $('clawHud').hidden = true; $('crosshair').hidden = false;
+  for (const id of ['tools', 'map', 'ainote']) $(id).style.visibility = '';
+  camBlend = { p: camera.position.clone(), q: camera.quaternion.clone(), k: 0 };
+  // Esc can't re-grab the mouse in browsers, so it pauses like it does everywhere else
+  if (viaEscape && !isTouch && !dragLook) { paused = true; showStart(true); } else resume();
+}
+function clawKey(e) {
+  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+  keys.add(e.code);
+  if (e.repeat) return;
+  if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') clawAction();
+  else if (e.code === 'Escape') exitClaw(true);
+  else if (e.code === 'KeyQ') exitClaw(false);
+}
+function clawAction() {
+  const cl = clawGame; if (!cl) return;
+  if (cl.state === 'ready') {
+    if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine by the right wall has free ones'); return; }
+    wallet.tokens--; saveWallet(); sfx.coin();
+    cl.state = 'aim'; cl.timer = 20; cl.won = false;
+  } else if (cl.state === 'aim') startDrop(cl);
+}
+function startDrop(cl) {
+  // stop just above the highest capsule under the claw (or the floor)
+  let top = .92;
+  for (const b of cl.balls) if (b.state === 'rest') {
+    const d = Math.hypot(b.x - cl.x, b.z - cl.z);
+    if (d < b.r) top = Math.max(top, b.y + Math.sqrt(b.r * b.r - d * d) * .85);
+  }
+  cl.dropTo = Math.max(1.06, top + .1); cl.state = 'drop'; sfx.drop();
+}
+function grab(cl) {
+  let best = null, bd = 1e9;
+  for (const b of cl.balls) {
+    if (b.state !== 'rest' || b.y + b.r * .85 < cl.hy - .22) continue;
+    const d = Math.hypot(b.x - cl.x, b.z - cl.z); if (d < bd) { bd = d; best = b; }
+  }
+  cl.outcome = 'miss'; cl.slip = null; cl.held = null;
+  if (best && bd < .1) {
+    // dead centre grips well, the edge of a capsule usually slips; gold is greasy
+    let p = bd < .035 ? .75 : bd < .065 ? .45 : .15;
+    if (best.gold) p *= .6;
+    const roll = Math.random();
+    cl.outcome = roll < p ? 'win' : roll < p + .45 ? 'slip' : 'miss';
+    if (cl.outcome === 'miss') {     // the prongs just shove it a little
+      const a = Math.atan2(best.z - cl.z, best.x - cl.x) || Math.random() * 6.28, lim = .41 - best.r;
+      best.x = clamp(best.x + Math.cos(a) * .03, -lim, lim); best.z = clamp(best.z + Math.sin(a) * .03, -lim, lim);
+      dropCapsule(cl, best);
+    } else {
+      cl.held = best; best.state = 'held';
+      if (cl.outcome === 'slip') {
+        if (Math.random() < .5) { cl.slip = 'lift'; cl.slipAt = cl.hy + (CLAW_TOP - cl.hy) * (.3 + Math.random() * .6); }
+        else { cl.slip = 'carry'; cl.slipAt = Math.random() * Math.hypot(cl.x - CLAW_HOME[0], cl.z - CLAW_HOME[1]) * .8; }
+      }
+      settle(cl);                    // whatever it was resting on (or under it) shifts
+    }
+  }
+  sfx.clunk(); cl.state = 'lift';
+}
+function holdCapsule(cl) { const b = cl.held; if (b) { b.x = cl.x; b.z = cl.z; b.y = cl.hy - .1 - b.r * .55; } }
+function letGo(cl) {
+  const b = cl.held; if (!b) return;
+  cl.held = null; cl.slip = null; sfx.slip();
+  dropCapsule(cl, b);
+}
+function dropCapsule(cl, b) {
+  if (inChute(b.x, b.z, 0)) { b.state = 'chute'; b.vy = 0; return; }   // lucky!
+  if (inChute(b.x, b.z, b.r)) { if (-.15 + b.r - b.x < b.z - (.15 - b.r)) b.x = -.15 + b.r; else b.z = .15 - b.r; }
+  b.state = 'fall'; b.vy = Math.min(b.vy, 0); b.rest = restY(cl, b, b.x, b.z);
+}
+function settle(cl) {           // let capsules drop into gaps left by one that was taken
+  for (const b of [...cl.balls].sort((a, c) => a.y - c.y)) {
+    if (b.state !== 'rest') continue;
+    const y = restY(cl, b, b.x, b.z);
+    if (y < b.y - .004) { b.state = 'fall'; b.vy = 0; b.rest = y; }
+  }
+}
+function stepCapsule(cl, b, dt) {
+  if (b.state === 'fall') {
+    b.vy -= 9.8 * dt; b.y += b.vy * dt;
+    if (b.y <= b.rest) {
+      b.y = b.rest;
+      if (b.vy < -.9) { b.vy *= -.28; if (cl === clawGame) tone(240 + b.r * 900, 0, .05, 'triangle', .03); }
+      else { b.vy = 0; b.state = 'rest'; }
+    }
+  } else if (b.state === 'chute') {
+    b.vy -= 9.8 * dt; b.y += b.vy * dt;
+    const k = Math.min(1, dt * 6); b.x += (-.3 - b.x) * k; b.z += (.3 - b.z) * k;
+    if (b.y < .8) { b.state = 'gone'; b.m.visible = false; b.t = 1.6; payOut(cl, b); }
+  } else if (b.state === 'gone') {
+    b.t -= dt;
+    if (b.t <= 0) {                // the machine restocks: a new capsule drops in
+      Object.assign(b, spotFor(cl, b));
+      b.rest = b.y; b.y = 1.85; b.vy = 0; b.state = 'fall'; b.m.visible = true;
+    }
+  }
+  b.m.position.set(b.x, b.y, b.z);
+}
+function payOut(cl, b) {
+  cl.won = true;
+  wallet.tickets += b.value; saveWallet();
+  sfx.win();
+  toast(`+${b.value} TICKETS!`, b.gold ? '#ffcf4a' : cl.color, b.gold ? 'GOLDEN CAPSULE — JACKPOT!' : 'Trade them in at the prize counter');
+  const p = cl.g.localToWorld(new THREE.Vector3(-.3, 1.3, .3)); burstConfetti(p.x, p.y, p.z);
+}
+
+function playClaw(cl, dt) {
+  const home = (k) => { cl.x += (CLAW_HOME[0] - cl.x) * k; cl.z += (CLAW_HOME[1] - cl.z) * k; cl.hy += (CLAW_TOP - cl.hy) * k; };
+  switch (cl.state) {
+    case 'ready': home(Math.min(1, dt * 3)); cl.open += (.3 - cl.open) * Math.min(1, dt * 4); break;
+    case 'aim': {
+      cl.timer -= dt;
+      const on = (...c) => c.some(k => keys.has(k)) ? 1 : 0;
+      const ix = on('KeyD', 'ArrowRight') + clawPad.r - on('KeyA', 'ArrowLeft') - clawPad.l;
+      const iz = on('KeyS', 'ArrowDown') + clawPad.d - on('KeyW', 'ArrowUp') - clawPad.u;
+      const nx = clamp(cl.x + clamp(ix, -1, 1) * .32 * dt, -CLAW_LIM, CLAW_LIM);
+      const nz = clamp(cl.z + clamp(iz, -1, 1) * .32 * dt, -CLAW_LIM, CLAW_LIM);
+      if (nx !== cl.x || nz !== cl.z) { cl.hum -= dt; if (cl.hum <= 0) { cl.hum = .12; tone(82, 0, .1, 'sawtooth', .012); } }
+      cl.x = nx; cl.z = nz;
+      cl.open += (1 - cl.open) * Math.min(1, dt * 4);
+      if (cl.timer <= 0) startDrop(cl);
+      break;
+    }
+    case 'drop':
+      cl.open = 1; cl.hy -= .5 * dt;
+      if (cl.hy <= cl.dropTo) { cl.hy = cl.dropTo; cl.state = 'grab'; cl.k = 0; }
+      break;
+    case 'grab':
+      cl.k += dt; cl.open = Math.max(0, 1 - cl.k / .45);
+      if (cl.k >= .6) grab(cl);
+      break;
+    case 'lift':
+      cl.hy = Math.min(CLAW_TOP, cl.hy + .35 * dt); holdCapsule(cl);
+      if (cl.slip === 'lift' && cl.hy >= cl.slipAt) letGo(cl);
+      if (cl.hy >= CLAW_TOP) { cl.state = 'carry'; cl.k = 0; }
+      break;
+    case 'carry': {
+      const dx = CLAW_HOME[0] - cl.x, dz = CLAW_HOME[1] - cl.z, d = Math.hypot(dx, dz);
+      const st = Math.min(d, .3 * dt);
+      if (d > 1e-4) { cl.x += dx / d * st; cl.z += dz / d * st; }
+      cl.k += st; holdCapsule(cl);
+      if (cl.slip === 'carry' && cl.k >= cl.slipAt) letGo(cl);
+      if (d < .002) { cl.state = 'release'; cl.k = 0; }
+      break;
+    }
+    case 'release':
+      cl.k += dt; cl.open = Math.min(1, cl.k / .3);
+      if (cl.held && cl.k > .15) { const b = cl.held; cl.held = null; b.state = 'chute'; b.vy = 0; }
+      if (cl.k > 1.0) {
+        cl.state = 'result'; cl.k = 0;
+        if (!cl.won && !cl.balls.some(b => b.state === 'chute')) {
+          sfx.buzz();
+          if (cl.outcome === 'slip') toast('SO CLOSE!', cl.color, 'It slipped right out of the claw');
+          else toast('MISSED!', cl.color, 'Line the claw up right over a capsule');
+        }
+      }
+      break;
+    case 'result':
+      cl.k += dt; cl.open += (.3 - cl.open) * Math.min(1, dt * 4);
+      if (cl.k > 1.2) cl.state = 'ready';
+      break;
+  }
+}
+function demoClaw(cl, dt, t) {  // what the machine does while someone else plays it (or nobody)
+  const s = cl.station, npc = s && s.by && s.by !== 'player' && s.by.state === 'act' && s.by.station === s;
+  let tx = CLAW_HOME[0], tz = CLAW_HOME[1], ty = CLAW_TOP, to = .3;
+  if (npc) {
+    const o = cl.off;
+    tx = Math.sin(t * .6 + o) * .28; tz = Math.cos(t * .45 + o * 2) * .28;
+    const drop = Math.max(0, Math.sin(t * .8 + o)) ** 4 * .45;
+    ty = CLAW_TOP - drop; to = drop > .05 ? .9 : .3;
+  }
+  const k = Math.min(1, dt * 2.5);
+  cl.x += (tx - cl.x) * k; cl.z += (tz - cl.z) * k; cl.hy += (ty - cl.hy) * Math.min(1, dt * 6); cl.open += (to - cl.open) * k;
+}
+function updateClaws(dt, t) {
+  for (const cl of claws) {
+    if (cl === clawGame) playClaw(cl, dt); else demoClaw(cl, dt, t);
+    for (const b of cl.balls) if (b.state !== 'rest' || b === cl.held) stepCapsule(cl, b, dt);
+    cl.claw.position.set(cl.x, 0, cl.z);
+    cl.head.position.y = cl.hy; cl.cable.scale.y = 1.95 - cl.hy; cl.cable.position.y = (1.95 + cl.hy) / 2;
+    const pr = .5 - cl.open * .95;   // prongs: tips in when closed, out when open
+    for (const p of cl.prongs) p.rotation.x = pr;
+  }
+  if (clawGame) clawStatus(clawGame);
+}
+function updateClawCam(dt) {
+  const c = clawGame.cam; c.k = Math.min(1, c.k + dt / .7);
+  const e = ease(c.k);
+  camera.position.lerpVectors(c.fromP, c.toP, e);
+  camera.quaternion.slerpQuaternions(c.fromQ, c.toQ, e);
+}
+let hudKey = '';
+function clawStatus(cl) {
+  const st = cl.state;
+  const msg = st === 'ready'
+    ? (wallet.tokens ? (isTouch ? 'Tap PLAY to put in a token.' : 'Press SPACE (or click PLAY) to put in a token.') : 'Out of tokens! The token machine on the right wall has free ones.')
+    : st === 'aim' ? 'Steer the claw over a capsule, then DROP it!'
+    : st === 'result' ? (cl.won ? '★ WINNER! ★' : 'Better luck next time.')
+    : 'Here goes…';
+  const timer = st === 'aim' ? Math.max(0, Math.ceil(cl.timer)) + 's' : '';
+  const btn = st === 'ready' ? 'PLAY · 1 🪙' : st === 'aim' ? '▼ DROP' : '…';
+  const key = msg + timer + btn + BUSY.has(st);
+  if (key === hudKey) return; hudKey = key;
+  $('clawMsg').textContent = msg; $('clawTimer').textContent = timer;
+  $('clawDrop').textContent = btn; $('clawDrop').disabled = st !== 'ready' && st !== 'aim';
+  $('clawExit').disabled = BUSY.has(st);
+}
+$('clawDrop').addEventListener('click', e => { e.currentTarget.blur(); audio(); clawAction(); });
+$('clawExit').addEventListener('click', e => { e.currentTarget.blur(); exitClaw(false); });
+for (const b of document.querySelectorAll('.pad button')) {
+  const d = b.dataset.dir, off = () => { clawPad[d] = 0; };
+  b.addEventListener('pointerdown', e => { e.preventDefault(); clawPad[d] = 1; });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, off);
+}
+
 // --- start / pause ---
 function showStart(resumeMode) {
   $('start').hidden = false;
@@ -1658,7 +2190,7 @@ function resume() {
 $('enterBtn').addEventListener('click', enter);
 if (isTouch) {
   document.body.classList.add('touch');
-  $('controls').innerHTML = '<div><kbd>LEFT THUMB</kbd> walk</div><div><kbd>DRAG</kbd> look around</div><div><kbd>TAP SCREEN</kbd> play</div><div><kbd>☰</kbd> game list</div>';
+  $('controls').innerHTML = '<div><kbd>LEFT THUMB</kbd> walk</div><div><kbd>DRAG</kbd> look around</div><div><kbd>TAP SCREEN</kbd> play</div><div><kbd>☰</kbd> game list</div><div><kbd>🪙 🎟</kbd> your prizes</div>';
   $('hint').hidden = true;
 }
 
@@ -2020,7 +2552,11 @@ for (const c of cabinets) if (!c.g.featured && c.g.url) {
   const d = new THREE.Vector3(0, 0, 1).applyAxisAngle(Y, c.ry);
   addStation(c.grp.position.x + d.x * 1.0, c.grp.position.z + d.z * 1.0, c.grp.position.x, c.grp.position.z, 'play', { cab: c });
 }
-for (const z of [.2, 1.45]) addStation(ROOM.x0 + 1.5, z, ROOM.x0, z, 'claw');
+for (const cl of claws) {
+  const z = cl.g.position.z;
+  addStation(ROOM.x0 + 1.5, z, ROOM.x0, z, 'claw', { machine: cl });
+  cl.station = STATIONS.find(s => s.machine === cl) || null;
+}
 for (const z of [1.1, 2.2]) addStation(4.4, z, 7, z, 'browse');
 addStation(5.85, -3.2, 7, -3.2, 'token');
 for (const s of [-1, 1]) addStation(s * 1.35, -6.4, 0, -6.4, 'watch', { side: s });
@@ -2068,6 +2604,8 @@ const hockeyPlayers = [
 // and the star of the show
 const rockin = addPerson('dancer', { skin: '#f1c7a5', shirt: '#2fa8ff', pants: '#15121e', hair: '#a8875a', shoes: '#ffcf4a', style: 'short', funny: true, sleeves: true, h: .93, shoeMat: glow('#ffcf4a', 1.4) }, DANCE.x, DANCE.z, DANCE.yaw);
 nameTag(rockin, 'ROCKIN512', '#ff4fd8');
+// the prize clerk, behind the counter
+const clerk = addPerson('clerk', { ...randomLook(77), shirt: '#ffcf4a', style: 'cap', capCol: '#ff4fd8', sleeves: false }, 6.1, 1.6, -Math.PI / 2);
 
 // --- walking into people ---
 function personHit(x, z) {
@@ -2118,7 +2656,7 @@ function planNext(p) {
   }
   p.state = 'walk';
 }
-function leaveStation(p) { if (p.station) { p.wp = p.station.wp; p.station.by = null; } p.path = [WP[p.wp]]; p.station = null; p.goalWp = p.wp; p.state = 'walk'; }
+function leaveStation(p) { if (p.station) { p.wp = p.station.wp; if (p.station.by === p) p.station.by = null; } p.path = [WP[p.wp]]; p.station = null; p.goalWp = p.wp; p.state = 'walk'; }
 
 function updateWalker(p, dt, t) {
   if (p.react > 0) return;   // standing there, glaring at you
@@ -2164,7 +2702,7 @@ function updateWalker(p, dt, t) {
   if (p.moving) p.tyaw = Math.atan2(ux, uz);
 }
 
-let rockinGreet = -99;
+let rockinGreet = -99, clerkGreet = -99;
 function updatePeople(dt, t) {
   const beat = Math.floor(t * DANCE_BPM);
   if (beat !== floorBeat) { floorBeat = beat; drawDanceFloor(beat); }
@@ -2183,6 +2721,11 @@ function updatePeople(dt, t) {
       p.tyaw = DANCE.yaw + Math.sin(t * .13) * .7;
       if (started && !paused && t - rockinGreet > 25 && Math.hypot(player.pos.x - p.x, player.pos.z - p.z) < 2.4) {
         rockinGreet = t; say(p, pickLine(['HEY! JOIN THE PARTY!', 'COME DANCE!', 'YO! NICE TO SEE YA!']), 2.6);
+      }
+    } else if (p.kind === 'clerk') {
+      p.tyaw = -Math.PI / 2 + Math.sin(t * .3) * .35;
+      if (started && !paused && !shopOpen && t - clerkGreet > 30 && Math.hypot(player.pos.x - 4.3, player.pos.z - 1.6) < 1.7) {
+        clerkGreet = t; say(p, pickLine(['STEP RIGHT UP!', 'GOT TICKETS?', 'PRIZES! GET YER PRIZES!']), 2.6);
       }
     }
     if (p.react > 0) p.react -= dt;
@@ -2246,6 +2789,12 @@ function updatePlayer(dt, t) {
   const hy = (Math.sin(t * 1.3) * 0.5 + Math.sin(t * 3.1) * 0.3) * 0.005 * sway;
   camera.position.set(player.pos.x + Math.cos(player.bob) * 0.025 * amt * cs, EYE + Math.abs(Math.sin(player.bob)) * 0.045 * amt - 0.02 * amt, player.pos.z - Math.cos(player.bob) * 0.025 * amt * sn);
   camera.rotation.set(player.pitch + hy + Math.sin(player.bob * 2) * 0.006 * amt, player.yaw + hx, Math.sin(player.bob) * 0.009 * amt + hx * .5);
+  if (camBlend) {   // gliding back from the claw machine view
+    camBlend.k = Math.min(1, camBlend.k + dt / .5);
+    const e = ease(camBlend.k), toP = camera.position.clone(), toQ = camera.quaternion.clone();
+    camera.position.lerpVectors(camBlend.p, toP, e); camera.quaternion.slerpQuaternions(camBlend.q, toQ, e);
+    if (camBlend.k >= 1) camBlend = null;
+  }
 }
 
 // --- performance helpers ---
@@ -2292,6 +2841,7 @@ function frame(now) {
   const dt = Math.min(0.05, rawDt); last = now;
   const t = now / 1000;
   if (launching) updateLaunch(dt);
+  else if (clawGame) updateClawCam(dt);
   else if (started && !paused && !menuOpen) updatePlayer(dt, t);
   else camera.rotation.set(player.pitch + Math.sin(t * .4) * .01, player.yaw + Math.sin(t * .25) * .03, 0);
   autoQuality(rawDt);
@@ -2307,12 +2857,7 @@ function frame(now) {
     if (visibleNear(hockeyPos, 1.3, 12)) drawHockey(sdt);
   }
   updatePeople(dt, t);
-  for (const cl of claws) {
-    const o = cl.off;
-    cl.claw.position.set(Math.sin(t * .6 + o) * .28, 0, Math.cos(t * .45 + o * 2) * .28);
-    const drop = Math.max(0, Math.sin(t * .8 + o)) ** 4 * .45, hy = 1.78 - drop;
-    cl.head.position.y = hy; cl.cable.scale.y = 1.95 - hy; cl.cable.position.y = (1.95 + hy) / 2;
-  }
+  updateClaws(dt, t);
   // neon sign flicker
   const fl = (t % 11) > 10.4 && Math.sin(t * 70) > 0 ? .35 : 1;
   signMat.color.setScalar(1.35 * fl); signLight.intensity = 7 * fl;
@@ -2335,6 +2880,7 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
   camPass.uniforms.res.value.set(innerWidth, innerHeight);
+  if (clawGame) { const v = clawView(clawGame); clawGame.cam.toP = v.p; clawGame.cam.toQ = v.q; }
 });
 
 // go!
@@ -2345,7 +2891,7 @@ drawHockey(0);
 try { await Promise.race([renderer.compileAsync(scene, camera), new Promise(r => setTimeout(r, 2500))]); } catch { }
 composer.render(0);
 window.arcadeReady = true;
-window.arcade = { walkTo, cabinets, player, camera };
+window.arcade = { walkTo, cabinets, player, camera, claws, wallet, launch, extras };
 $('enterBtn').disabled = false;
 showStart(false);
 requestAnimationFrame(frame);
