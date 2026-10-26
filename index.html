@@ -2232,7 +2232,7 @@ function updateCamHud(now) {
 
 // ============================================================
 //  Visitors: people wandering the arcade, playing the machines,
-//  a game of air hockey — and Rockin512 on the dance floor
+//  a game of air hockey — and Rocco on the dance floor
 // ============================================================
 const people = [];
 const PR = 0.24;                 // body radius for collisions
@@ -2375,7 +2375,7 @@ function poseAct(r, kind, t, o, p) {
   }
 }
 
-// Rockin512's routine: 120 BPM, a new move every 8 beats
+// Rocco's routine: 120 BPM, a new move every 8 beats
 const DANCE_BPM = 2;   // beats per second
 function poseDance(r, t, p) {
   const beat = t * DANCE_BPM, b = beat % 1, move = Math.floor(beat / 8) % 5, inMove = beat % 8;
@@ -2462,7 +2462,7 @@ function nameTag(p, name, col) {
   p.tag = sp;
 }
 
-// --- confetti (for when you bump into Rockin512) ---
+// --- confetti (for when you bump into Rocco) ---
 const CONF_N = 90;
 const confetti = new THREE.InstancedMesh(new THREE.PlaneGeometry(.06, .035), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false }), CONF_N);
 confetti.frustumCulled = false; scene.add(confetti);
@@ -2495,7 +2495,7 @@ function updateConfetti(dt) {
   if (!alive) confetti.count = 0;
 }
 
-// --- Rockin512's dance floor + boombox ---
+// --- Rocco's dance floor + boombox ---
 const DANCE = { x: -2.0, z: -1.4, yaw: Math.atan2(2.0, 4.0) };
 const floorCv = mkCanvas(64, 64), floorCtx = floorCv.getContext('2d'), floorTex = tex(floorCv, { pixel: true });
 const floorMat = new THREE.MeshBasicMaterial({ map: floorTex, transparent: true, opacity: .8, depthWrite: false });
@@ -2602,8 +2602,8 @@ const hockeyPlayers = [
   addPerson('hockey', randomLook(23), 0, -6.4 + 1.55, Math.PI, { mallet: 'm2' })
 ];
 // and the star of the show
-const rockin = addPerson('dancer', { skin: '#f1c7a5', shirt: '#2fa8ff', pants: '#15121e', hair: '#a8875a', shoes: '#ffcf4a', style: 'short', funny: true, sleeves: true, h: .93, shoeMat: glow('#ffcf4a', 1.4) }, DANCE.x, DANCE.z, DANCE.yaw);
-nameTag(rockin, 'ROCKIN512', '#ff4fd8');
+const rocco = addPerson('dancer', { skin: '#f1c7a5', shirt: '#2fa8ff', pants: '#15121e', hair: '#a8875a', shoes: '#ffcf4a', style: 'short', funny: true, sleeves: true, h: .93, shoeMat: glow('#ffcf4a', 1.4) }, DANCE.x, DANCE.z, DANCE.yaw);
+nameTag(rocco, 'ROCCO', '#ff4fd8');
 // the prize clerk, behind the counter
 const clerk = addPerson('clerk', { ...randomLook(77), shirt: '#ffcf4a', style: 'cap', capCol: '#ff4fd8', sleeves: false }, 6.1, 1.6, -Math.PI / 2);
 
@@ -2618,7 +2618,7 @@ function personHit(x, z) {
 const BUMP_LINES = ['HEY!', 'OOF!', 'WATCH IT!', 'OOPS, SORRY!', 'RUDE!', 'BEEP BEEP!', "YOU'RE IT!", 'EXCUSE YOU!', 'WHOA THERE!', 'NICE MOVES...'];
 const PLAY_LINES = ["I'M ON A HIGH SCORE!", 'NOT NOW, BOSS LEVEL!', 'YOU MADE ME LOSE A LIFE!', 'WAIT YOUR TURN!'];
 const HOCKEY_LINES = ['FOUL!', 'NO CUTTING IN!', 'HEY, WE\'RE MID-GAME!', 'YOU\'RE NEXT!'];
-const ROCKIN_LINES = ['WANNA DANCE?', 'FEEL THE BEAT!', 'DANCE BATTLE!', 'ROCKIN\' IT!', 'BUST A MOVE!'];
+const ROCCO_LINES = ['WANNA DANCE?', 'FEEL THE BEAT!', 'DANCE BATTLE!', 'ROCKIN\' IT!', 'BUST A MOVE!'];
 const pickLine = a => a[(Math.random() * a.length) | 0];
 function bumpPerson(p, t) {
   if (t - p.lastBump < 1.3) return;
@@ -2628,7 +2628,7 @@ function bumpPerson(p, t) {
   player.vel.x = dx / d * 2.0; player.vel.z = dz / d * 2.0;
   if (p.kind === 'dancer') {
     p.spinT = .9; burstConfetti(p.x, 1.9, p.z);
-    say(p, pickLine(ROCKIN_LINES), 2.4);
+    say(p, pickLine(ROCCO_LINES), 2.4);
     audio(); [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .07, .14, 'square', .035));
     return;
   }
@@ -2702,7 +2702,7 @@ function updateWalker(p, dt, t) {
   if (p.moving) p.tyaw = Math.atan2(ux, uz);
 }
 
-let rockinGreet = -99, clerkGreet = -99;
+let roccoGreet = -99, clerkGreet = -99;
 function updatePeople(dt, t) {
   const beat = Math.floor(t * DANCE_BPM);
   if (beat !== floorBeat) { floorBeat = beat; drawDanceFloor(beat); }
@@ -2719,8 +2719,8 @@ function updatePeople(dt, t) {
       if (p.react <= 0) { p.x += (mx * .75 - p.x) * Math.min(1, dt * 3); p.reach = (mx - p.x) * (p.mallet === 'm1' ? 1.6 : -1.6); p.tyaw = p.mallet === 'm1' ? 0 : Math.PI; }
     } else if (p.kind === 'dancer') {
       p.tyaw = DANCE.yaw + Math.sin(t * .13) * .7;
-      if (started && !paused && t - rockinGreet > 25 && Math.hypot(player.pos.x - p.x, player.pos.z - p.z) < 2.4) {
-        rockinGreet = t; say(p, pickLine(['HEY! JOIN THE PARTY!', 'COME DANCE!', 'YO! NICE TO SEE YA!']), 2.6);
+      if (started && !paused && t - roccoGreet > 25 && Math.hypot(player.pos.x - p.x, player.pos.z - p.z) < 2.4) {
+        roccoGreet = t; say(p, pickLine(['HEY! JOIN THE PARTY!', 'COME DANCE!', 'YO! NICE TO SEE YA!']), 2.6);
       }
     } else if (p.kind === 'clerk') {
       p.tyaw = -Math.PI / 2 + Math.sin(t * .3) * .35;
