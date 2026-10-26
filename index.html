@@ -176,6 +176,19 @@
   .startfeat a { font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--c); text-decoration: none;
                  border: 2px solid var(--c); padding: 10px 12px; background: rgba(16,11,26,.7); }
   .startfeat a:hover { background: var(--c); color: var(--ink); }
+  /* ---------- brand-new games ---------- */
+  .gsec.new { color: #b8ff2e; font-size: 12px; margin-top: 18px; }
+  .gsec.new + .glist:empty, .gsec.new:has(+ .glist:empty) { display: none; }
+  .gitem.new { background: linear-gradient(90deg, #26331a, #221a33); box-shadow: inset 0 0 0 2px var(--c); animation: newglow 1.6s ease-in-out infinite; }
+  .badge.newb { background: var(--c); animation: blink 1s steps(1) infinite; }
+  @keyframes newglow { 50% { box-shadow: inset 0 0 0 2px var(--c), 0 0 18px -2px var(--c); } }
+  .startnew { margin-top: 24px; }
+  .startnew a { --c: #b8ff2e; display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 12px;
+                font-family: "Press Start 2P", monospace; font-size: 13px; color: var(--ink); background: var(--c); text-decoration: none;
+                padding: 13px 16px; box-shadow: var(--px) var(--px) 0 var(--violet); animation: newglow 1.6s ease-in-out infinite; }
+  .startnew a b { font-weight: normal; font-size: 9px; background: var(--ink); color: var(--c); padding: 5px 7px; animation: blink 1s steps(1) infinite; }
+  .startnew a span { font-size: 10px; }
+  .startnew a:hover { transform: translate(-2px, -2px); }
   #fps { position: fixed; right: 40px; top: 250px; z-index: 6; font-family: "Press Start 2P", monospace; font-size: 9px;
          color: var(--teal); background: rgba(10,7,18,.6); padding: 5px 7px; pointer-events: none; }
   @media (max-width: 700px) { #fps { right: 30px; top: 180px; } }
@@ -329,6 +342,7 @@
       <button class="btn ghost" id="startIdeaBtn" type="button">💡 GAME IDEA</button>
     </div>
     <div class="err" id="err" hidden></div>
+    <div class="startnew" id="startNew"></div>
     <div class="startfeat"><div class="lbl">★ FEATURED GAMES ★</div><div class="links" id="startFeat"></div></div>
     <div class="controls" id="controls">
       <div><kbd>WASD</kbd> walk</div>
@@ -350,6 +364,8 @@
       <h2>GAME LIST</h2>
       <button class="chip" id="closeMenu" type="button">✕ CLOSE</button>
     </div>
+    <div class="gsec new">✦ NEW GAME <span>just released!</span></div>
+    <div class="glist" id="gnew"></div>
     <div class="gsec feat">★ FEATURED GAMES</div>
     <div class="glist" id="gfeat"></div>
     <div class="gsec">EXTRAS <span>quick side projects</span></div>
@@ -446,7 +462,10 @@
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
     { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    featured: true, desc: 'Dig deep. Build big.' },
     { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, desc: 'Command your forces across the map.' },
-    { title: 'Geneva Game',      url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
+    // isNew: true = just released. Gets its own spotlit spot on the floor, a NEW
+    // section at the top of the game list and a banner on the start screen.
+    { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',      isNew: true, desc: 'Open-world BMX! Pedal, hop and pull tricks off dirt jumps, a mega ramp and a downhill trail, tackle obstacle courses and ride with friends.' },
+    { title: 'Geneva Game',     url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
     { title: '3D Boxing',        url: 'https://jupixels.github.io/3d-boxing/',         color: '#ffcf4a', scene: 'boxing',   desc: 'Gloves up. Throw hands.' },
     { title: 'Fluid Lab',       url: 'https://jupixels.github.io/fluidlab/',          color: '#3ad6c4', scene: 'fluid',    desc: 'Simulate how fluids flow and swirl.' },
     { title: 'Pressure Washing', url: 'https://jupixels.github.io/pressurewashing/',   color: '#6cc4ff', scene: 'wash',     desc: 'Blast away the grime.' },
@@ -457,16 +476,22 @@
   // ---------- game list menu (works even if 3D fails) ----------
   (function () {
     const list = document.getElementById('glist'), feat = document.getElementById('gfeat');
-    const startFeat = document.getElementById('startFeat');
+    const startFeat = document.getElementById('startFeat'), fresh = document.getElementById('gnew'), startNew = document.getElementById('startNew');
     GAMES.forEach((g, i) => {
       const el = document.createElement('div');
-      el.className = 'gitem' + (g.featured ? ' big' : '');
+      el.className = 'gitem' + (g.featured || g.isNew ? ' big' : '') + (g.isNew ? ' new' : '');
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div>' + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
+        '<div>' + (g.isNew ? '<span class="badge newb">✦ NEW GAME ✦</span>' : g.featured ? '<span class="badge">★ FEATURED</span>' : '') + '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '">PLAY ▶</a></div>';
-      (g.featured ? feat : list).appendChild(el);
+      (g.isNew ? fresh : g.featured ? feat : list).appendChild(el);
+      if (g.isNew) {
+        const a = document.createElement('a');
+        a.href = g.url; a.style.setProperty('--c', g.color);
+        a.innerHTML = '<b>✦ NEW GAME ✦</b>' + g.title.toUpperCase() + ' <span>PLAY NOW ▶</span>';
+        startNew.appendChild(a);
+      }
       if (g.featured) {
         const a = document.createElement('a');
         a.href = g.url; a.textContent = g.title.toUpperCase(); a.style.setProperty('--c', g.color);
@@ -969,11 +994,25 @@ function makeMarquee(g, idx) {
     // gold frame + "FEATURED" tag
     c.fillStyle = '#ffcf4a'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
     c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34);
+  } else if (g.isNew) {
+    // frame + "NEW GAME" tag in the game's own colour
+    c.fillStyle = g.color; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
+    c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ NEW GAME ★', 256, 34);
   } else c.fillText(g.idea ? 'NEW GAMES' : 'BONUS GAME', 256, 34);
   return cv;
 }
 
-const cabinets = [], interactive = [];
+const cabinets = [], interactive = [], newSigns = [];
+function makeNewSign(col) {     // starburst with "NEW!" for brand-new games
+  const cv = mkCanvas(320, 224), c = cv.getContext('2d');
+  c.translate(160, 112); c.beginPath();
+  for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2, r = i % 2 ? 78 : 104; c.lineTo(Math.cos(a) * r * 1.4, Math.sin(a) * r); }
+  c.closePath(); c.shadowColor = col; c.shadowBlur = 18; c.fillStyle = col; c.fill();
+  c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = '#1a1423'; c.stroke();
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '54px "Press Start 2P"';
+  c.fillStyle = '#1a1423'; c.fillText('NEW!', 4, 8); c.fillStyle = '#ffffff'; c.fillText('NEW!', 0, 4);
+  return cv;
+}
 function addObstacle(grp, lx0, lx1, lz0, lz1, color, cab) {
   grp.updateMatrixWorld(true);
   let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
@@ -1026,7 +1065,7 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
   const bezel = mesh(new THREE.PlaneGeometry(0.9, 0.74), blackGloss, grp); bezel.position.copy(onSlope(0.003)); bezel.rotation.x = -SCREEN_TILT;
   const screen = mesh(new THREE.PlaneGeometry(0.8, 0.6), smat, grp, 0, 0, 0, { cast: false, receive: false }); screen.position.copy(onSlope(0.006)); screen.rotation.x = -SCREEN_TILT;
   // marquee
-  const mBase = g.featured ? 1.7 : 1.2;   // featured marquees shine brighter
+  const mBase = g.featured || g.isNew ? 1.7 : 1.2;   // featured and new marquees shine brighter
   const mmat = new THREE.MeshBasicMaterial({ map: tex(makeMarquee(g, idx)) }); mmat.color.setScalar(mBase);
   const marquee = mesh(new THREE.PlaneGeometry(0.92, 0.3), mmat, grp, 0, 2.25, 0.345, { cast: false, receive: false });
   // control panel
@@ -1052,10 +1091,25 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
     const p = grp.localToWorld(new THREE.Vector3(0, 0, lz));
     const m = lightPool(scene, col, w * s, d * s, p.x, p.z, k); m.rotation.order = 'YXZ'; m.rotation.y = ry; return m;
   };
-  floorPool(g.color, 1.9, 1.5, 0.95, g.featured ? .75 : .45);
-  if (g.featured) {
-    // gold trim on the kick plate and a soft spotlight beam from the ceiling
-    mesh(new THREE.BoxGeometry(1.0, 0.03, 0.03), glow('#ffcf4a', 2.6), grp, 0, 0.04, 0.44, { cast: false });
+  floorPool(g.color, 1.9, 1.5, 0.95, g.featured || g.isNew ? .75 : .45);
+  if (g.isNew) {
+    // brand-new game: a flashing starburst "NEW!" on top, a neon ring and a sign on the carpet
+    const nm = new THREE.MeshBasicMaterial({ map: tex(makeNewSign(g.color)), transparent: true, depthWrite: false });
+    const sign = mesh(new THREE.PlaneGeometry(1.2, 0.84), nm, grp, 0, 2.92, 0.2, { cast: false, receive: false });
+    sign.rotation.x = -0.12; sign.renderOrder = 4; newSigns.push({ sign, nm });
+    const ring = mesh(new THREE.RingGeometry(1.02, 1.08, 48), glow(g.color, 2.2), grp, 0, 0.012, 0.3, { cast: false, receive: false });
+    ring.rotation.x = -Math.PI / 2;
+    const cv = mkCanvas(1024, 160), c = cv.getContext('2d');
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '56px "Press Start 2P"';
+    c.shadowColor = g.color; c.shadowBlur = 24; c.fillStyle = '#f4ffd6';
+    c.fillText('★ NEW GAME ★', 512, 82); c.fillText('★ NEW GAME ★', 512, 82);
+    const fm = new THREE.MeshBasicMaterial({ map: tex(cv), transparent: true, depthWrite: false }); fm.color.setScalar(1.3);
+    const f = mesh(new THREE.PlaneGeometry(2.1, .33), fm, grp, 0, .014, 1.62, { cast: false, receive: false });
+    f.rotation.x = -Math.PI / 2; f.renderOrder = 2;
+  }
+  if (g.featured || g.isNew) {
+    // a soft spotlight beam from the ceiling (featured machines also get gold trim)
+    if (g.featured) mesh(new THREE.BoxGeometry(1.0, 0.03, 0.03), glow('#ffcf4a', 2.6), grp, 0, 0.04, 0.44, { cast: false });
     const beamH = (4.2 - y) / s;
     // front faces only: visible from across the room, invisible once you step inside it
     const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.66, beamH, 24, 1, true),
@@ -1085,9 +1139,13 @@ const EXTRA_SLOTS = [
   [LX, -8.6, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -5.0, Math.PI / 2],
   [RX, -8.6, -Math.PI / 2], [RX, -6.8, -Math.PI / 2], [RX, -5.0, -Math.PI / 2]
 ];
-let nf = 0, ne = 0;
+// brand-new games get a spotlit spot of their own out on the floor, angled
+// toward the entrance so it's the first thing you see walking in
+const NEW_SLOTS = [[2.0, -1.3, -0.35]];
+let nf = 0, ne = 0, nn = 0;
 GAMES.forEach((g, i) => {
-  if (g.featured && nf < FEAT_SLOTS.length) buildCabinet(g, i, ...FEAT_SLOTS[nf++], FS, STAGE_H);
+  if (g.isNew && nn < NEW_SLOTS.length) buildCabinet(g, i, ...NEW_SLOTS[nn++]);
+  else if (g.featured && nf < FEAT_SLOTS.length) buildCabinet(g, i, ...FEAT_SLOTS[nf++], FS, STAGE_H);
   else buildCabinet(g, i, ...(EXTRA_SLOTS[ne++] || [LX, -3.2 - ne * 1.8, Math.PI / 2]));
 });
 buildCabinet(SOON, GAMES.length, LX, -3.2, Math.PI / 2);
@@ -1330,6 +1388,7 @@ scene.traverse(o => { if (o.isMesh && o.material && o.material.isMeshStandardMat
   const skip = new Set(interactive);
   for (const cl of claws) cl.claw.traverse(o => skip.add(o));
   for (const o of dynamic) skip.add(o);   // claw machine capsules move
+  for (const n of newSigns) skip.add(n.sign);   // the NEW! signs pulse
   scene.updateMatrixWorld(true);
   const groups = new Map();
   scene.traverse(o => {
@@ -1561,6 +1620,48 @@ const SCENES = {
     T(c, 'MU=' + mu.toFixed(2), 4, 16, '#1a1423', 'left');
     T(c, a > 0 ? 'V=' + Math.min(a * lt, 9.9).toFixed(1) : 'STUCK!', 156, 16, a > 0 ? '#2f6fb6' : '#e0453a', 'right');
   },
+  bmx(c, t) {
+    // dusk sky, sun and parallax hills
+    ['#2a1f5c', '#432a74', '#6a3a88', '#a14d8c', '#e0687e', '#ff9a6b'].forEach((col, i) => R(c, 0, 13 + i * 12, 160, 12, col));
+    R(c, 0, 0, 160, 13, '#2a1f5c');
+    c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(118, 72, 13, 0, 7); c.fill();
+    for (let x = 0; x < 160; x += 4) {
+      const h1 = 14 + Math.sin((x + t * 8) * .045) * 6 + Math.sin((x + t * 8) * .11) * 3;
+      R(c, x, 84 - h1, 4, h1 + 12, '#3b2a5c');
+      const h2 = 8 + Math.sin((x + t * 22) * .07 + 2) * 4;
+      R(c, x, 92 - h2, 4, h2 + 4, '#2b4a3a');
+    }
+    // dirt track with kickers scrolling past
+    const SP = 62, GAP = 120, RAMP = 28, AIR = 70, G = 96, rx = 46;
+    R(c, 0, G, 160, 24, '#8a5a35'); R(c, 0, G, 160, 2, '#a9744a');
+    for (let x = 0; x < 160; x += 6) R(c, (x - t * SP % 6 + 160) % 160, G + 6 + (x * 7) % 12, 2, 1, '#6b4426');
+    const k0 = Math.floor((t * SP - 40) / GAP);
+    for (let k = k0 - 1; k <= k0 + 2; k++) {
+      const sx = k * GAP + 40 - t * SP + rx;
+      c.fillStyle = '#9b6a3f'; c.beginPath(); c.moveTo(sx, G); c.lineTo(sx + RAMP, G - 18); c.lineTo(sx + RAMP + 4, G); c.fill();
+      R(c, sx + RAMP - 1, G - 18, 3, 2, '#c4905e');
+    }
+    // where's the rider? up a kicker, in the air, or rolling
+    const q = ((t * SP - 40) % GAP + GAP) % GAP, jump = Math.floor((t * SP - 40) / GAP);
+    let y = G, rot = 0, air = false;
+    if (q < RAMP) { y = G - q / RAMP * 18; rot = -Math.atan2(18, RAMP); }
+    else if (q < RAMP + AIR) {
+      const d = (q - RAMP) / AIR; air = true;
+      y = G - 18 + 18 * d - 38 * Math.sin(Math.PI * d);
+      rot = jump % 2 ? -d * Math.PI * 2 : -.6 + d * 1.0;   // backflip every other jump
+    }
+    c.save(); c.translate(rx, y - 5); c.rotate(rot);
+    c.strokeStyle = '#1a1423'; c.lineWidth = 2;
+    for (const wx of [-8, 8]) { c.beginPath(); c.arc(wx, 0, 5, 0, 7); c.stroke(); }
+    c.strokeStyle = '#b8ff2e'; c.beginPath(); c.moveTo(-8, 0); c.lineTo(-1, -6); c.lineTo(6, -6); c.lineTo(8, 0); c.moveTo(-1, -6); c.lineTo(0, 0); c.lineTo(-8, 0); c.moveTo(6, -6); c.lineTo(7, -10); c.stroke();
+    R(c, -3, -17, 5, 9, '#ff4fd8');                     // body
+    R(c, -1, -22, 5, 5, '#f0c090'); R(c, -2, -24, 7, 3, '#3ad6c4');   // head + helmet
+    R(c, 1, -15, 6, 2, '#ff4fd8'); R(c, -2, -9, 2, 6, '#2b3a67'); R(c, 1, -9, 2, 5, '#2b3a67');
+    c.restore();
+    if (air && jump % 2 && (q - RAMP) / AIR > .25) T(c, 'BACKFLIP!', 104, 20, '#b8ff2e');
+    if (!air && q > RAMP + AIR && q < RAMP + AIR + 14) for (let i = 0; i < 5; i++) R(c, rx - 14 - i * 4, G - 2 - (i % 3) * 2, 2, 2, '#c4905e');
+    if ((t % .8) < .5) { R(c, 4, 16, 34, 12, '#b8ff2e'); T(c, 'NEW!', 21, 18, '#1a1423'); }
+  },
   soon(c, t, st) {
     if (!st.n) { st.n = mkCanvas(80, 60); st.nc = st.n.getContext('2d'); st.img = st.nc.createImageData(80, 60); }
     const d = st.img.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 150 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
@@ -1723,7 +1824,7 @@ function updateTarget() {
   $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '');
+  pr.querySelector('.t').textContent = (target.g.isNew ? '✦ NEW GAME · ' : target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '');
   pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.` : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
   sfx.blip();
@@ -2206,6 +2307,7 @@ function drawMap() {
   for (const o of obstacles) {
     c.fillStyle = o.cab ? (o.cab === target ? '#ffffff' : o.color) : 'rgba(200,190,230,.35)';
     c.fillRect((o.x0 - ROOM.x0) * MS, (o.z0 - ROOM.z0) * MS, (o.x1 - o.x0) * MS, (o.z1 - o.z0) * MS);
+    if (o.cab && o.cab.g.isNew && (performance.now() / 400 | 0) % 2) { c.strokeStyle = o.cab.g.color; c.lineWidth = 2; c.strokeRect((o.x0 - ROOM.x0) * MS - 2, (o.z0 - ROOM.z0) * MS - 2, (o.x1 - o.x0) * MS + 4, (o.z1 - o.z0) * MS + 4); }
     if (o.cab && o.cab.g.featured) { c.strokeStyle = '#ffcf4a'; c.lineWidth = 2; c.strokeRect((o.x0 - ROOM.x0) * MS - 1, (o.z0 - ROOM.z0) * MS - 1, (o.x1 - o.x0) * MS + 2, (o.z1 - o.z0) * MS + 2); }
   }
   c.fillStyle = '#ffcf4a'; c.fillRect((-1.1 - ROOM.x0) * MS, RD * MS - 3, 2.2 * MS, 3);
@@ -2861,6 +2963,8 @@ function frame(now) {
   // neon sign flicker
   const fl = (t % 11) > 10.4 && Math.sin(t * 70) > 0 ? .35 : 1;
   signMat.color.setScalar(1.35 * fl); signLight.intensity = 7 * fl;
+  // NEW! signs bounce to the beat and flash
+  for (const n of newSigns) { n.sign.scale.setScalar(1 + Math.abs(Math.sin(t * 4)) * .1); n.nm.color.setScalar((t * 2.5) % 1 < .8 ? 1.5 : .8); }
 
   // camcorder FX
   if (now > nextGlitch) { glitchUntil = now + 180 + Math.random() * 250; nextGlitch = now + 7000 + Math.random() * 12000; }
