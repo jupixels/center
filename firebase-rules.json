@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "arcade": {
+      "board": {
+        ".read": true,
+        ".indexOn": ["score"],
+        "$id": {
+          ".write": "$id.matches(/^[a-z0-9]{16}$/)",
+          ".validate": "newData.hasChildren(['name', 'score', 'count', 'top', 't'])",
+          "name":  { ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9 ._-]{2,12}$/)" },
+          "score": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
+          "count": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" },
+          "top":   { ".validate": "newData.isString() && newData.val().length <= 80" },
+          "t":     { ".validate": "newData.isNumber() && newData.val() <= now + 60000" },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+  }
+}

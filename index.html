@@ -261,6 +261,43 @@
   #reveal .ico { font-size: 110px; line-height: 1.25; animation: bob 1.2s ease-in-out infinite; }
   #reveal .nm { font-family: "Press Start 2P", monospace; font-size: 13px; }
   #reveal .tap { font-size: 19px; color: #8f82ab; margin-top: 14px; }
+  /* ---------- exclusives & ways to earn ---------- */
+  .prize.ex { box-shadow: inset 0 0 0 2px var(--rc); }
+  .prize .rar { font-family: "Press Start 2P", monospace; font-size: 8px; color: var(--rc); }
+  .prize .own { font-size: 19px; color: var(--muted); line-height: 1; }
+  .prize.locked .ico { opacity: .45; }
+  .bag span.ex { box-shadow: inset 0 0 0 2px var(--rc); }
+  .earn { margin: 10px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+          gap: 6px 16px; font-size: 20px; color: var(--muted); line-height: 1.05; }
+  .earn b { color: var(--gold); font-weight: normal; }
+  #fade .pixel { white-space: pre-line; }
+
+  /* ---------- hall of fame ---------- */
+  #hofBox { z-index: 25; }
+  #hofBox .panel { max-width: 680px; text-align: left; background: #150f22; border: 3px solid var(--gold);
+                   box-shadow: 8px 8px 0 rgba(0,0,0,.5); padding: 22px; }
+  #hofBox .sub { font-size: 21px; color: var(--muted); margin: 10px 0 0; line-height: 1.05; }
+  .hofme { margin-top: 14px; font-family: "Press Start 2P", monospace; font-size: 10px; line-height: 1.8; }
+  .hofme b { color: var(--gold); font-weight: normal; }
+  .hofform { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 12px; -webkit-user-select: text; user-select: text; }
+  .hofform input { flex: 1 1 150px; min-width: 0; font-family: "Press Start 2P", monospace; font-size: 12px; text-transform: uppercase;
+                   color: var(--cream); background: #0c0816; border: 2px solid #5b4c7a; padding: 11px 10px; border-radius: 0; outline: none; }
+  .hofform input:focus { border-color: var(--gold); }
+  .hofform .btn { font-size: 10px; padding: 12px 14px; }
+  .hofform .btn.ghost { font-size: 9px; padding: 10px 12px; }
+  #hofStatus { font-size: 20px; min-height: 20px; margin-top: 8px; line-height: 1.05; }
+  #hofStatus.ok { color: var(--teal); } #hofStatus.bad { color: var(--coral); }
+  .hoflist { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+  .hoflist li { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; background: #221a33; padding: 8px 12px; }
+  .hoflist li.me { box-shadow: inset 0 0 0 2px var(--teal); }
+  .hoflist .rk { font-family: "Press Start 2P", monospace; font-size: 12px; color: #8f82ab; }
+  .hoflist .r1 .rk { color: #ffcf4a; } .hoflist .r2 .rk { color: #d9dde4; } .hoflist .r3 .rk { color: #e0965a; }
+  .hoflist .nm { font-family: "Press Start 2P", monospace; font-size: 10px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hoflist .nm small { font-family: "VT323", monospace; font-size: 16px; color: var(--teal); margin-left: 6px; }
+  .hoflist .ic { font-size: 22px; letter-spacing: 2px; display: block; margin-top: 4px; white-space: nowrap; overflow: hidden; }
+  .hoflist .sc { font-size: 22px; color: var(--gold); white-space: nowrap; }
+  .hoflist .none { display: block; background: none; padding: 6px 0; font-size: 20px; color: #8f82ab; }
+
   @keyframes popin { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes bob { 50% { transform: translateY(-10px) rotate(-6deg); } }
 
@@ -428,9 +465,39 @@
     <div class="purse"><span>🎟 <b id="shopTickets">0</b> TICKETS</span><span>🪙 <b id="shopTokens">0</b> TOKENS</span></div>
     <p class="sub" id="shopNote"></p>
     <div class="pgrid" id="shopGrid"></div>
+    <div class="gsec">PRIZE GRABBER EXCLUSIVES <span>can't be bought: win them on the Prize Grabber!</span></div>
+    <div class="pgrid" id="shopEx"></div>
     <div class="gsec">YOUR PRIZES</div>
     <div class="bag" id="shopBag"></div>
+    <div class="gsec">WAYS TO EARN TICKETS</div>
+    <ul class="earn">
+      <li>🦾 <b>Claw Machine</b> capsules: 10–100 tickets</li>
+      <li>🎡 <b>Ticket Wheel</b>: spin for up to 50</li>
+      <li>✨ <b>Golden tickets</b> hidden around the arcade: +10</li>
+      <li>🕹️ <b>Play any game</b>: +10 (each game, once a day)</li>
+      <li>💃 <b>Dance with Rocco</b> on the dance floor: +5</li>
+      <li>📅 <b>Visit every day</b>: +20</li>
+    </ul>
     <div id="reveal" hidden><div class="card"><div class="lbl">★ PRIZE GET! ★</div><div class="ico" id="revealIco"></div><div class="nm" id="revealName"></div><div class="tap">tap to continue</div></div></div>
+  </div>
+</div>
+
+<!-- hall of fame -->
+<div id="hofBox" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="hofTitle">
+    <div class="mhead">
+      <h2 id="hofTitle">🏆 HALL OF FAME</h2>
+      <button class="chip" id="closeHof" type="button">✕ CLOSE</button>
+    </div>
+    <p class="sub" id="hofNote"></p>
+    <div class="hofme" id="hofMe"></div>
+    <form id="hofForm" class="hofform" novalidate>
+      <input id="hofName" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false" aria-label="Display name">
+      <button class="btn" type="submit" id="hofJoin">PUT MY PRIZES ON DISPLAY</button>
+      <button class="btn ghost" type="button" id="hofLeave" hidden>REMOVE ME</button>
+    </form>
+    <div id="hofStatus" role="status" aria-live="polite"></div>
+    <ol class="hoflist" id="hofList"></ol>
   </div>
 </div>
 
@@ -503,6 +570,14 @@
   // Get a free access key at https://web3forms.com (enter the email the ideas
   // should go to) and paste it here. The key is safe to keep in public code.
   const WEB3FORMS_KEY = '3b19866d-50ba-41b5-92d1-8c67731f7357';
+
+  // ---------- Hall of Fame (global prize leaderboard) ----------
+  // To share the Hall of Fame display case between everyone who visits:
+  // create a free Firebase Realtime Database, paste firebase-rules.json into
+  // its Rules tab, and paste the database URL here, e.g.
+  // 'https://your-project-default-rtdb.firebaseio.com'. While this is empty
+  // the display case just shows each player's own prizes.
+  window.LEADERBOARD_DB = '';
   (function () {
     const box = document.getElementById('idea'), form = document.getElementById('ideaForm');
     const name = document.getElementById('ideaName'), text = document.getElementById('ideaText');
@@ -1215,7 +1290,7 @@ function addCapsule(cl, gold) {
   cl.balls.push(b); return b;
 }
 
-function clawMachine(x, z, ry, color, label, title, seed) {
+function clawMachine(x, z, ry, color, label, title, seed, opts = {}) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
   const base = mesh(new THREE.BoxGeometry(.9, .9, .9), std({ color: new THREE.Color(color).multiplyScalar(.35), roughness: .35, envMapIntensity: .7 }), g, 0, .45, 0);
   mesh(new THREE.BoxGeometry(.86, .02, .86), std({ color: '#2a2238', roughness: .8 }), g, 0, .91, 0);
@@ -1230,7 +1305,7 @@ function clawMachine(x, z, ry, color, label, title, seed) {
   mesh(new THREE.BoxGeometry(.26, .2, .008), glassMat, g, -.3, 1.02, .17, { cast: false, receive: false });
   mesh(new THREE.BoxGeometry(.012, .012, .27), glow(color, 2), g, -.17, 1.12, .3, { cast: false });
   mesh(new THREE.BoxGeometry(.27, .012, .012), glow(color, 2), g, -.3, 1.12, .17, { cast: false });
-  const cl = { g, color, label, balls: [], rnd: rng(seed), x: CLAW_HOME[0], z: CLAW_HOME[1], hy: CLAW_TOP, open: .3, state: 'idle', off: seed, k: 0, timer: 0, hum: 0, held: null };
+  const cl = { g, color, label, exclusive: !!opts.exclusive, balls: [], rnd: rng(seed), x: CLAW_HOME[0], z: CLAW_HOME[1], hy: CLAW_TOP, open: .3, state: 'idle', off: seed, k: 0, timer: 0, hum: 0, held: null };
   for (let i = 0; i < 20; i++) addCapsule(cl, i === 7);
   const claw = new THREE.Group(); g.add(claw);
   const cable = mesh(new THREE.CylinderGeometry(.006, .006, 1, 6), metalMat, claw, 0, 0, 0, { cast: false });
@@ -1250,13 +1325,105 @@ function clawMachine(x, z, ry, color, label, title, seed) {
   Object.assign(cl, { claw, cable, head, prongs });
   cl.it = addInteractable([base, glass], {
     kind: 'claw', machine: cl, front: g.localToWorld(new THREE.Vector3(0, 0, 1.2)).setY(0),
-    g: { title, color, desc: 'Steer the claw over a capsule, drop it, and land it in the chute to win tickets. Spend them at the prize counter!' }
+    g: { title, color, desc: opts.desc || 'Steer the claw over a capsule, drop it, and land it in the chute to win tickets. Spend them at the prize counter!' }
   });
   addObstacle(g, -.48, .48, -.48, .48, color, cl.it);
   claws.push(cl);
 }
 clawMachine(ROOM.x0 + .5, 0.2, Math.PI / 2, '#ff4fd8', 'CLAW', 'Claw Machine', 3);
-clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 'Prize Grabber', 9);
+clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 'Prize Grabber', 9, {
+  exclusive: true,
+  desc: 'Every capsule holds an EXCLUSIVE prize you can only get from this machine. Collect them all: the golden capsule is legendary!'
+});
+
+// --- ticket wheel: spend a token, spin for tickets ---
+const WHEEL_VALS = [2, 5, 2, 10, 3, 5, 2, 20, 3, 5, 2, 50];
+const WHEEL_SEG = Math.PI * 2 / WHEEL_VALS.length;
+const wheel = (() => {
+  const g = new THREE.Group(); g.position.set(ROOM.x0 + .42, 0, -1.45); g.rotation.y = Math.PI / 2; scene.add(g);
+  const base = mesh(new THREE.BoxGeometry(.9, 1.0, .5), std({ color: '#3a1f5c', roughness: .4, envMapIntensity: .6 }), g, 0, .5, 0);
+  mesh(new THREE.BoxGeometry(1.32, 1.4, .12), bodyMat, g, 0, 1.72, -.12);
+  // the wheel face: segments are laid out clockwise from the top
+  const N = WHEEL_VALS.length, cv = mkCanvas(512, 512), c = cv.getContext('2d'), cols = ['#ff4fd8', '#3ad6c4', '#6c8cff', '#ff6b5b', '#9be564', '#9a7bff'];
+  c.translate(256, 256);
+  for (let i = 0; i < N; i++) {
+    const a = i * WHEEL_SEG - Math.PI / 2, v = WHEEL_VALS[i];
+    c.fillStyle = v >= 50 ? '#ffcf4a' : v >= 20 ? '#ff9a3c' : cols[i % cols.length];
+    c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, 250, a - WHEEL_SEG / 2, a + WHEEL_SEG / 2); c.closePath(); c.fill();
+    c.strokeStyle = '#1a1423'; c.lineWidth = 5; c.stroke();
+    c.save(); c.rotate(i * WHEEL_SEG); c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.font = `${v >= 10 ? 40 : 46}px "Press Start 2P"`; c.fillStyle = '#1a1423'; c.fillText(String(v), 3, -168);
+    c.fillStyle = '#ffffff'; c.fillText(String(v), 0, -171); c.restore();
+  }
+  c.beginPath(); c.arc(0, 0, 250, 0, 7); c.lineWidth = 10; c.strokeStyle = '#ffcf4a'; c.stroke();
+  c.beginPath(); c.arc(0, 0, 46, 0, 7); c.fillStyle = '#1a1423'; c.fill();
+  c.font = '30px "Press Start 2P"'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#ffcf4a'; c.fillText('🎟', 0, 2);
+  const wm = new THREE.MeshBasicMaterial({ map: tex(cv) }); wm.color.setScalar(1.15);
+  const disc = mesh(new THREE.CircleGeometry(.55, 64), wm, g, 0, 1.72, -.05, { cast: false, receive: false });
+  dynamic.push(disc);
+  for (let i = 0; i < 18; i++) {                        // marquee bulbs around the rim
+    const a = i / 18 * Math.PI * 2;
+    mesh(new THREE.SphereGeometry(.022, 8, 6), glow(i % 2 ? '#ffcf4a' : '#ffffff', 1.8), g, Math.sin(a) * .61, 1.72 + Math.cos(a) * .61, -.04, { cast: false });
+  }
+  const pointer = mesh(new THREE.ConeGeometry(.055, .14, 4), glow('#ff4f6b', 1.8), g, 0, 2.33, 0, { cast: false });
+  pointer.rotation.x = Math.PI; dynamic.push(pointer);
+  const sm = new THREE.MeshBasicMaterial({ map: tex(textCanvas('TICKET WHEEL', { w: 512, h: 120, size: 44, glowCol: '#ffcf4a', bg: '#120c1f' })) }); sm.color.setScalar(1.6);
+  mesh(new THREE.PlaneGeometry(1.2, .28), sm, g, 0, 2.62, -.06, { cast: false });
+  mesh(new THREE.CylinderGeometry(.07, .07, .04, 20), glow('#ff4f6b', 1.6), g, 0, 1.02, .12, { cast: false });   // big SPIN button
+  mesh(new THREE.BoxGeometry(.8, .02, .02), glow('#ffcf4a', 2), g, 0, .015, .26, { cast: false });
+  contact(g, 1.4, 1.1);
+  lightPool(g, '#ffcf4a', 1.6, 1.4, 0, .7, .35);
+  g.updateMatrixWorld(true);
+  const it = addInteractable([base, disc], {
+    kind: 'wheel', front: g.localToWorld(new THREE.Vector3(0, 0, 1.2)).setY(0),
+    g: { title: 'Ticket Wheel', color: '#ffcf4a', desc: 'Spend 1 token and spin for up to 50 tickets!' }
+  });
+  addObstacle(g, -.66, .66, -.42, .3, '#ffcf4a', it);
+  return { g, disc, pointer };
+})();
+
+// --- Hall of Fame display case: the top prize collectors, on show ---
+const CASE_W = 2.0, CASE_LO = .82, CASE_HI = 2.3, CASE_CV_H = 768;
+const caseCv = mkCanvas(1024, CASE_CV_H), caseTex = tex(caseCv);
+const caseY = px => CASE_HI - px / CASE_CV_H * (CASE_HI - CASE_LO);   // canvas row → height in the case
+(() => {
+  const g = new THREE.Group(); g.position.set(4.6, 0, ROOM.z1 - .3); g.rotation.y = Math.PI; scene.add(g);
+  const wood = std({ color: '#3a2412', roughness: .5, envMapIntensity: .5 });
+  const brass = std({ color: '#d4a84a', roughness: .25, metalness: .85, envMapIntensity: 1.2 });
+  const base = mesh(new THREE.BoxGeometry(CASE_W + .1, CASE_LO, .56), wood, g, 0, CASE_LO / 2, 0);
+  mesh(new THREE.BoxGeometry(CASE_W + .16, .12, .62), wood, g, 0, CASE_HI + .06, 0);
+  const mid = (CASE_LO + CASE_HI) / 2, ch = CASE_HI - CASE_LO;
+  const backMat = new THREE.MeshBasicMaterial({ map: caseTex }); backMat.color.setScalar(1.12);
+  const back = mesh(new THREE.PlaneGeometry(CASE_W, ch), backMat, g, 0, mid, -.25, { cast: false, receive: false });
+  const glass = mesh(new THREE.BoxGeometry(CASE_W, ch, .52), glassMat, g, 0, mid, 0, { cast: false, receive: false });
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) mesh(new THREE.BoxGeometry(.04, ch, .04), brass, g, sx * CASE_W / 2, mid, sz * .26);
+  // glass shelves line up with the ones painted on the back panel
+  const shelfMat = std({ color: '#cfe8ff', roughness: .1, metalness: 0, transparent: true, opacity: .35, envMapIntensity: 1 });
+  for (const r of [1, 2, 3]) {
+    const y = caseY(r * 192);
+    mesh(new THREE.BoxGeometry(CASE_W - .04, .018, .48), shelfMat, g, 0, y, 0, { cast: false, receive: false });
+    mesh(new THREE.BoxGeometry(CASE_W - .06, .012, .012), glow('#fff1c4', 1.6), g, 0, y - .015, .23, { cast: false });
+  }
+  mesh(new THREE.BoxGeometry(CASE_W - .08, .02, .02), glow('#fff1c4', 2.2), g, 0, CASE_HI - .03, .22, { cast: false });
+  // sign + plaque
+  const sm = new THREE.MeshBasicMaterial({ map: tex(textCanvas('HALL OF FAME', { w: 1024, h: 150, size: 70, color: '#fff6d6', glowCol: '#ffcf4a', bg: '#120c1f' })) });
+  sm.color.setScalar(1.6);
+  mesh(new THREE.BoxGeometry(CASE_W + .1, .34, .06), wood, g, 0, CASE_HI + .32, 0);
+  mesh(new THREE.PlaneGeometry(CASE_W - .04, .29), sm, g, 0, CASE_HI + .32, .031, { cast: false });
+  const pc = mkCanvas(512, 96), p = pc.getContext('2d');
+  p.fillStyle = '#d4a84a'; p.fillRect(0, 0, 512, 96); p.fillStyle = '#7a5a2a'; p.fillRect(6, 6, 500, 84); p.fillStyle = '#e2bd6a'; p.fillRect(10, 10, 492, 76);
+  p.fillStyle = '#3a2810'; p.font = '22px "Press Start 2P"'; p.textAlign = 'center'; p.textBaseline = 'middle'; p.fillText('TOP PRIZE COLLECTORS', 256, 50);
+  mesh(new THREE.PlaneGeometry(.9, .17), std({ map: tex(pc), roughness: .35, metalness: .6, envMapIntensity: 1 }), g, 0, .55, .281, { cast: false });
+  mesh(new THREE.BoxGeometry(CASE_W, .02, .02), glow('#ffcf4a', 2), g, 0, .015, .3, { cast: false });
+  contact(g, 2.4, 1.0);
+  lightPool(g, '#ffcf4a', 2.6, 1.6, 0, .8, .35);
+  g.updateMatrixWorld(true);
+  const it = addInteractable([base, glass, back], {
+    kind: 'hof', front: g.localToWorld(new THREE.Vector3(0, 0, 1.2)).setY(0),
+    g: { title: 'Hall of Fame', color: '#ffcf4a', desc: 'The top prize collectors in the arcade, on display. Exclusives score big!' }
+  });
+  addObstacle(g, -1.08, 1.08, -.31, .31, '#ffcf4a', it);
+})();
 
 // --- prize counter & shelves ---
 (() => {
@@ -1284,7 +1451,7 @@ clawMachine(ROOM.x0 + .5, 1.45, Math.PI / 2, '#3ad6c4', 'PRIZE', 'Prize Grabber'
   contact(g, 1.1, 3.4, cx, cz);
   const it = addInteractable([counter, case_], {
     kind: 'prizes', front: new THREE.Vector3(cx - 1.0, 0, cz),
-    g: { title: 'Prize Counter', color: '#ffcf4a', desc: 'Trade your tickets for prizes. Win tickets on the claw machines.' }
+    g: { title: 'Prize Counter', color: '#ffcf4a', desc: 'Trade your tickets for prizes. Earn tickets on the Claw Machine and Ticket Wheel, find golden tickets, and more.' }
   });
   obstacles.push({ x0: cx - .37, x1: ROOM.x1, z0: cz - len / 2, z1: cz + len / 2, color: '#ffcf4a', cab: it });
 })();
@@ -1689,6 +1856,7 @@ addEventListener('keydown', e => {
   // while the idea form is open, let the player type freely
   if (window.ideaOpen) { if (e.code === 'Escape') closeIdea(); return; }
   if (shopOpen) { if (e.code === 'Escape') closeShop(); return; }
+  if (hofOpen) { if (e.code === 'Escape') closeHof(); return; }   // let the player type a name
   if (clawGame) { clawKey(e); return; }
   if (e.code === 'Tab' || e.code === 'KeyG') { e.preventDefault(); if (menuOpen) closeMenu(); else openMenu(); return; }
   if (menuOpen) { if (e.code === 'Escape') closeMenu(); return; }
@@ -1790,7 +1958,8 @@ function updateTarget() {
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
   pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '');
-  pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.` : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : '');
+  pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' || target.kind === 'wheel' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.`
+    : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : target.kind === 'hof' ? ` Your collection: ${fmt(collectorScore())} points.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
   sfx.blip();
 }
@@ -1823,12 +1992,17 @@ function launch(cab) {
   if (cab.kind === 'claw') { enterClaw(cab.machine); return; }
   if (cab.kind === 'tokens') { takeTokens(); return; }
   if (cab.kind === 'prizes') { openShop(true); return; }
+  if (cab.kind === 'wheel') { spinWheel(); return; }
+  if (cab.kind === 'hof') { openHof(); return; }
   if (cab.g.idea) { sfx.blip(); keys.clear(); openIdea(); return; }
   if (!cab.g.url) { sfx.buzz(); glitchUntil = performance.now() + 400; return; }
   sfx.coin();
+  // tickets for playing: each game pays once a day
+  let bonus = false;
+  if (wallet.played[cab.g.title] !== today()) { wallet.played[cab.g.title] = today(); bonus = true; earn(10, '+10 TICKETS', 'For playing ' + cab.g.title + ' today!'); }
   const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38 * cab.s);
   tmpCam.position.copy(to); tmpCam.lookAt(cab.screenWorld);
-  launching = { cab, k: 0, fromP: camera.position.clone(), fromQ: camera.quaternion.clone(), toP: to, toQ: tmpCam.quaternion.clone(), went: false };
+  launching = { cab, k: 0, fromP: camera.position.clone(), fromQ: camera.quaternion.clone(), toP: to, toQ: tmpCam.quaternion.clone(), went: false, bonus };
   if (document.pointerLockElement) document.exitPointerLock();
   $('prompt').hidden = true; $('playBtn').hidden = true; $('crosshair').hidden = true;
   for (const id of ['tools', 'map', 'ainote']) $(id).style.visibility = 'hidden';
@@ -1843,7 +2017,7 @@ function updateLaunch(dt) {
   fade.style.opacity = clamp((L.k - .7) / .3, 0, 1);
   if (L.k >= 1 && !L.went) {
     L.went = true;
-    $('fadeText').textContent = 'LOADING ' + L.cab.g.title.toUpperCase() + '…';
+    $('fadeText').textContent = 'LOADING ' + L.cab.g.title.toUpperCase() + '…' + (L.bonus ? '\n\n+10 🎟 FOR PLAYING!' : '');
     setTimeout(() => { location.href = L.cab.g.url; }, 380);
   }
 }
@@ -1879,7 +2053,7 @@ function setMap(on) { mapOn = on; $('optMap').checked = on; $('map').hidden = !o
 // Tokens come free from the token machine and pay for claw games; claw
 // capsules pay out tickets; the prize counter trades tickets for prizes.
 // Everything is kept in this browser (localStorage).
-const USE_VERB = { claw: 'PLAY', tokens: 'GET TOKENS', prizes: 'SEE PRIZES' };
+const USE_VERB = { claw: 'PLAY', tokens: 'GET TOKENS', prizes: 'SEE PRIZES', wheel: 'SPIN', hof: 'LOOK' };
 const TOKEN_CAP = 20;
 const wallet = (() => {
   let w = null;
@@ -1887,6 +2061,11 @@ const wallet = (() => {
   if (!w || typeof w !== 'object') w = { tokens: 5, tickets: 0, prizes: {} };   // a few tokens to get you started
   w.tokens = Math.max(0, w.tokens | 0); w.tickets = Math.max(0, w.tickets | 0);
   if (!w.prizes || typeof w.prizes !== 'object') w.prizes = {};
+  if (!w.played || typeof w.played !== 'object') w.played = {};
+  if (typeof w.id !== 'string' || !/^[a-z0-9]{16}$/.test(w.id)) {   // anonymous id for the Hall of Fame
+    w.id = ''; while (w.id.length < 16) w.id += Math.random().toString(36).slice(2);
+    w.id = w.id.replace(/[^a-z0-9]/g, '').slice(0, 16);
+  }
   return w;
 })();
 function updateWallet() {
@@ -1911,7 +2090,7 @@ function takeTokens() {
   const now = performance.now(); if (now - lastTokens < 900) return; lastTokens = now;
   if (wallet.tokens >= TOKEN_CAP) { sfx.buzz(); toast('POCKETS FULL!', '#6cc4ff', `You can carry ${TOKEN_CAP} tokens. Go play the claw!`); return; }
   wallet.tokens = Math.min(TOKEN_CAP, wallet.tokens + 5); saveWallet();
-  sfx.tokens(); toast('+5 TOKENS', '#6cc4ff', 'One token = one go on a claw machine');
+  sfx.tokens(); toast('+5 TOKENS', '#6cc4ff', 'One token = one go on a claw machine or the Ticket Wheel');
 }
 
 // --- prize counter ---
@@ -1951,9 +2130,14 @@ function renderShop() {
     return `<div class="prize${ok ? '' : ' dim'}"><div class="ico">${p.icon}</div><h4>${p.name.toUpperCase()}</h4>` +
       `<div class="cost">🎟 ${p.cost}</div><button type="button" data-prize="${p.id}"${shopAtCounter && ok ? '' : ' disabled'}>${label}</button></div>`;
   }).join('');
-  const got = PRIZES.filter(p => wallet.prizes[p.id]);
+  $('shopEx').innerHTML = EXCLUSIVES.map(p => {
+    const n = wallet.prizes[p.id] || 0, rc = RARITY[p.rarity].col;
+    return `<div class="prize ex${n ? '' : ' locked'}" style="--rc:${rc}"><div class="ico">${n ? p.icon : '❔'}</div>` +
+      `<h4>${n ? p.name.toUpperCase() : '???'}</h4><div class="rar">${p.rarity.toUpperCase()}</div><div class="own">${n ? 'YOU HAVE ' + n : 'NOT FOUND YET'}</div></div>`;
+  }).join('');
+  const got = ALL_PRIZES.filter(p => wallet.prizes[p.id]);
   $('shopBag').innerHTML = got.length
-    ? got.map(p => `<span title="${p.name}">${p.icon}${wallet.prizes[p.id] > 1 ? `<small>×${wallet.prizes[p.id]}</small>` : ''}</span>`).join('')
+    ? got.map(p => `<span${p.rarity ? ` class="ex" style="--rc:${RARITY[p.rarity].col}"` : ''} title="${p.name}${p.rarity ? ' (exclusive)' : ''}">${p.icon}${wallet.prizes[p.id] > 1 ? `<small>×${wallet.prizes[p.id]}</small>` : ''}</span>`).join('')
     : 'Nothing yet. Your prizes will show up here.';
 }
 function redeem(id) {
@@ -1966,12 +2150,310 @@ function redeem(id) {
   clearTimeout(revealTimer); revealTimer = setTimeout(() => { $('reveal').hidden = true; }, 3200);
   say(clerk, pickLine(['ENJOY YOUR PRIZE!', 'GREAT CHOICE!', 'THERE YOU GO!', 'COME BACK SOON!']), 3);
   burstConfetti(5.0, 1.6, 1.6);
+  prizesChanged();
 }
 $('shopGrid').addEventListener('click', e => { const b = e.target.closest('[data-prize]'); if (b && !b.disabled) redeem(b.dataset.prize); });
 $('reveal').addEventListener('click', () => { $('reveal').hidden = true; });
 $('closeShop').onclick = () => closeShop();
 $('shop').addEventListener('mousedown', e => { if (e.target === $('shop')) closeShop(); });
 $('wallet').onclick = () => openShop(false);
+
+// --- Prize Grabber exclusives: only ever won from that machine ---
+const EXCLUSIVES = [
+  { id: 'x_octo',    icon: '🐙', name: 'Octo Plush',     rarity: 'common',    pts: 40 },
+  { id: 'x_frog',    icon: '🐸', name: 'Lucky Frog',     rarity: 'common',    pts: 40 },
+  { id: 'x_invader', icon: '👾', name: 'Pixel Invader',  rarity: 'common',    pts: 40 },
+  { id: 'x_ufo',     icon: '🛸', name: 'Mini UFO',       rarity: 'rare',      pts: 120 },
+  { id: 'x_gem',     icon: '💎', name: 'Arcade Gem',     rarity: 'rare',      pts: 120 },
+  { id: 'x_unicorn', icon: '🦄', name: 'Neon Unicorn',   rarity: 'epic',      pts: 350 },
+  { id: 'x_dragon',  icon: '🐉', name: 'Pixel Dragon',   rarity: 'epic',      pts: 350 },
+  { id: 'x_trophy',  icon: '🏆', name: 'Grabber Trophy', rarity: 'legendary', pts: 1000 }   // golden capsule only
+];
+const RARITY = { common: { w: 60, col: '#cdbfe6' }, rare: { w: 30, col: '#6cc4ff' }, epic: { w: 10, col: '#ff4fd8' }, legendary: { w: 0, col: '#ffcf4a' } };
+// every prize is worth points in the Hall of Fame: counter prizes = their ticket price
+const ALL_PRIZES = [...PRIZES.map(p => ({ ...p, pts: p.cost })), ...EXCLUSIVES];
+const PRIZE_BY_ID = Object.fromEntries(ALL_PRIZES.map(p => [p.id, p]));
+function rollExclusive(gold) {
+  let r = 'legendary';
+  if (!gold) { let x = Math.random() * 100; for (const k of ['common', 'rare', 'epic']) { if ((x -= RARITY[k].w) < 0) { r = k; break; } } if (r === 'legendary') r = 'common'; }
+  const pool = EXCLUSIVES.filter(p => p.rarity === r);
+  return pool[(Math.random() * pool.length) | 0];
+}
+function winExclusive(cl, b) {
+  const p = rollExclusive(b.gold), first = !wallet.prizes[p.id];
+  wallet.prizes[p.id] = (wallet.prizes[p.id] || 0) + 1; saveWallet();
+  sfx.prize();
+  toast(`${p.icon} ${p.name.toUpperCase()}!`, RARITY[p.rarity].col, `${p.rarity.toUpperCase()} EXCLUSIVE${first ? ' · NEW FOR YOUR COLLECTION' : ''}`);
+  prizesChanged();
+}
+
+// ============================================================
+//  Hall of Fame: a display case of the top prize collectors.
+//  Shared through a Firebase Realtime Database when one is set
+//  up (window.LEADERBOARD_DB), otherwise it shows just you.
+// ============================================================
+const DB = String(window.LEADERBOARD_DB || '').trim().replace(/\/+$/, '');
+let board = [], boardStatus = DB ? 'loading' : 'off', hofOpen = false, submitTimer = 0, lastBoardFetch = 0;
+const collectorScore = () => Object.entries(wallet.prizes).reduce((s, [id, n]) => s + (PRIZE_BY_ID[id] ? PRIZE_BY_ID[id].pts * n : 0), 0);
+const prizeCount = () => Object.entries(wallet.prizes).reduce((s, [id, n]) => s + (PRIZE_BY_ID[id] ? n : 0), 0);
+const topIds = () => Object.keys(wallet.prizes).filter(id => PRIZE_BY_ID[id] && wallet.prizes[id] > 0).sort((a, b) => PRIZE_BY_ID[b].pts - PRIZE_BY_ID[a].pts).slice(0, 6);
+const myEntry = () => ({ id: wallet.id, name: wallet.onBoard && wallet.name ? wallet.name : 'YOU', score: collectorScore(), count: prizeCount(), top: topIds(), me: true });
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const BAD_NAME = /fuck|shit|bitch|cunt|dick|cock|puss|nigg|fag|slut|whore|rape|nazi|hitler|porn|sex|penis|vagin|asshole|boob|kys/i;
+function cleanName(s) { return String(s || '').toUpperCase().replace(/[^A-Z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12); }
+
+function rowsForDisplay() {
+  const rows = board.filter(e => e.id !== wallet.id), me = myEntry();
+  if (me.score > 0) rows.push(me);
+  return rows.sort((a, b) => b.score - a.score);
+}
+async function dbFetch(path, opts = {}) {
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 8000);
+  try { return await fetch(DB + path, { ...opts, signal: ctl.signal }); } finally { clearTimeout(timer); }
+}
+async function refreshBoard() {
+  if (!DB) { drawCase(); return; }
+  lastBoardFetch = performance.now();
+  try {
+    let res = await dbFetch('/arcade/board.json?orderBy=%22score%22&limitToLast=50');
+    if (!res.ok) res = await dbFetch('/arcade/board.json');      // works even without the score index
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json() || {};
+    board = Object.entries(data).map(([id, v]) => ({
+      id,
+      name: cleanName(v && v.name) || 'PLAYER',
+      score: clamp(Number(v && v.score) || 0, 0, 1e6),
+      count: clamp(Number(v && v.count) || 0, 0, 1e4),
+      top: String((v && v.top) || '').split(',').filter(p => PRIZE_BY_ID[p]).slice(0, 6)
+    })).filter(e => !BAD_NAME.test(e.name.replace(/[^A-Z]/g, ''))).sort((a, b) => b.score - a.score).slice(0, 50);
+    boardStatus = 'ok';
+  } catch { boardStatus = 'error'; }
+  drawCase(); if (hofOpen) renderHof();
+}
+async function submitMe() {
+  if (!DB || !wallet.onBoard || !wallet.name) return false;
+  const me = myEntry();
+  try {
+    const res = await dbFetch(`/arcade/board/${wallet.id}.json`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: wallet.name, score: me.score, count: me.count, top: me.top.join(','), t: Date.now() })
+    });
+    if (!res.ok) throw new Error(res.status);
+    refreshBoard(); return true;
+  } catch { return false; }
+}
+function prizesChanged() {
+  drawCase();
+  clearTimeout(submitTimer); submitTimer = setTimeout(submitMe, 1500);
+}
+
+// --- the display case artwork: four lit shelves, two collectors per shelf ---
+const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function drawCase() {
+  const c = caseCv.getContext('2d'), W = 1024, H = CASE_CV_H, RH = 192;
+  const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#3a0f2a'); bg.addColorStop(1, '#1e0818');
+  c.fillStyle = bg; c.fillRect(0, 0, W, H);
+  c.fillStyle = 'rgba(255,255,255,.035)'; for (let x = 0; x < W; x += 16) c.fillRect(x, 0, 8, H);   // velvet stripes
+  const rows = rowsForDisplay().slice(0, 8);
+  for (let r = 0; r < 4; r++) {
+    const y = (r + 1) * RH;
+    const sp = c.createRadialGradient(W / 2, y - RH + 10, 10, W / 2, y - RH + 10, 520);   // light from the shelf above
+    sp.addColorStop(0, 'rgba(255,241,196,.16)'); sp.addColorStop(1, 'rgba(255,241,196,0)'); c.fillStyle = sp; c.fillRect(0, y - RH, W, RH);
+    c.fillStyle = 'rgba(207,232,255,.55)'; c.fillRect(0, y - 6, W, 6);
+    c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, y, W, 4);
+    for (let s = 0; s < 2; s++) {
+      const i = r * 2 + s, e = rows[i], cx = s * 512 + 256;
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      if (!e) {
+        c.font = '18px "Press Start 2P"'; c.fillStyle = 'rgba(255,241,196,.22)';
+        c.fillText(i === 0 ? 'WIN A PRIZE TO' : 'YOUR PRIZES', cx, y - 92); c.fillText(i === 0 ? 'GET ON DISPLAY!' : 'HERE?', cx, y - 62);
+        continue;
+      }
+      const icons = e.top.slice(0, 4).map(id => PRIZE_BY_ID[id].icon);
+      c.font = `68px ${EMOJI_FONT}`;
+      icons.forEach((ic, k) => {
+        const x = cx + (k - (icons.length - 1) / 2) * 96;
+        c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x, y - 44, 30, 6, 0, 0, 7); c.fill();
+        c.fillStyle = '#fff'; c.fillText(ic, x, y - 48);
+      });
+      // brass name plaque on the shelf edge (gold, silver, bronze for the top three)
+      const plate = ['#ffcf4a', '#d9dde4', '#e0965a'][i] || '#b08a45';
+      c.fillStyle = '#1a1423'; c.fillRect(cx - 186, y - 42, 372, 34);
+      c.fillStyle = plate; c.fillRect(cx - 183, y - 39, 366, 28);
+      c.font = '19px "Press Start 2P"'; c.fillStyle = '#1a1423'; c.textBaseline = 'middle';
+      c.textAlign = 'left'; c.fillText(`#${i + 1} ${e.name}`, cx - 174, y - 24);
+      c.textAlign = 'right'; c.fillText(fmt(e.score), cx + 174, y - 24);
+      if (e.me) { c.strokeStyle = '#3ad6c4'; c.lineWidth = 4; c.strokeRect(cx - 190, y - 46, 380, 42); }
+    }
+  }
+  caseTex.needsUpdate = true;
+}
+
+// --- the Hall of Fame panel ---
+function openHof() {
+  if (hofOpen || shopOpen || clawGame) return;
+  audio(); sfx.blip(); keys.clear();
+  hofOpen = true; $('hofBox').hidden = false; $('hofStatus').textContent = ''; $('hofStatus').className = '';
+  $('hofName').value = wallet.name || '';
+  renderHof();
+  if (DB && performance.now() - lastBoardFetch > 5000) refreshBoard();
+  document.dispatchEvent(new Event('arcade:menu-open'));
+}
+function closeHof() {
+  if (!hofOpen) return;
+  hofOpen = false; $('hofBox').hidden = true; $('hofName').blur();
+  document.dispatchEvent(new Event('arcade:menu-close'));
+}
+function renderHof() {
+  const rows = rowsForDisplay(), me = myEntry(), rank = rows.findIndex(e => e.me) + 1;
+  $('hofNote').textContent = !DB ? 'The arcade-wide board isn\'t switched on yet, so the case shows your own collection for now.'
+    : boardStatus === 'loading' ? 'Loading the board…'
+    : boardStatus === 'error' ? 'Couldn\'t reach the board right now. Try again in a bit.'
+    : 'The top prize collectors in the whole arcade. Every prize is worth points, and exclusives count big!';
+  $('hofMe').innerHTML = `YOUR COLLECTION: <b>${me.count}</b> PRIZE${me.count === 1 ? '' : 'S'} · <b>${fmt(me.score)}</b> POINTS` +
+    (rank && me.score ? ` · RANK <b>#${rank}</b>` : '') + (DB && !wallet.onBoard && me.score ? '<br>Only you can see your spot until you put your prizes on display.' : '');
+  $('hofForm').hidden = !DB;
+  $('hofJoin').textContent = wallet.onBoard ? 'UPDATE MY NAME' : 'PUT MY PRIZES ON DISPLAY';
+  $('hofLeave').hidden = !wallet.onBoard;
+  $('hofList').innerHTML = rows.length ? rows.slice(0, 30).map((e, i) =>
+    `<li class="r${i + 1}${e.me ? ' me' : ''}"><span class="rk">#${i + 1}</span>` +
+    `<div><span class="nm">${esc(e.name)}${e.me ? `<small>${wallet.onBoard ? 'YOU' : 'YOU · NOT POSTED'}</small>` : ''}</span>` +
+    `<span class="ic">${e.top.map(id => PRIZE_BY_ID[id].icon).join('')}</span></div><span class="sc">${fmt(e.score)} PTS</span></li>`).join('')
+    : '<li class="none">Nobody\'s on display yet. Win a prize and be the first!</li>';
+}
+$('hofForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const st = $('hofStatus'), set = (m, c) => { st.textContent = m; st.className = c || ''; };
+  const name = cleanName($('hofName').value);
+  if (name.length < 2) { set('Pick a name with at least 2 letters or numbers.', 'bad'); return; }
+  if (BAD_NAME.test(name.replace(/[^A-Z]/g, ''))) { set('Let\'s keep it friendly. Try another name!', 'bad'); return; }
+  if (!collectorScore()) { set('Win a prize first, then come show it off!', 'bad'); return; }
+  const was = { name: wallet.name, onBoard: wallet.onBoard };
+  wallet.name = name; wallet.onBoard = true; saveWallet();
+  $('hofJoin').disabled = true; set('Putting your prizes on display…');
+  const ok = await submitMe();
+  $('hofJoin').disabled = false;
+  if (ok) { set('★ You\'re in the Hall of Fame! ★', 'ok'); sfx.prize(); }
+  else { Object.assign(wallet, was); saveWallet(); set('Couldn\'t reach the board. Try again in a bit.', 'bad'); }
+  renderHof();
+});
+$('hofLeave').addEventListener('click', async () => {
+  const st = $('hofStatus');
+  try {
+    const res = await dbFetch(`/arcade/board/${wallet.id}.json`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(res.status);
+    wallet.onBoard = false; saveWallet(); st.textContent = 'Your prizes are off display.'; st.className = 'ok';
+    board = board.filter(e => e.id !== wallet.id); renderHof(); drawCase();
+  } catch { st.textContent = 'Couldn\'t reach the board. Try again in a bit.'; st.className = 'bad'; }
+});
+$('closeHof').onclick = () => closeHof();
+$('hofBox').addEventListener('mousedown', e => { if (e.target === $('hofBox')) closeHof(); });
+setInterval(() => { if (DB && started && !document.hidden && performance.now() - lastBoardFetch > 90000) refreshBoard(); }, 15000);
+
+// ============================================================
+//  More ways to earn tickets
+// ============================================================
+const today = () => new Date().toDateString();
+function earn(n, big, small, col = '#ffcf4a') { wallet.tickets += n; saveWallet(); toast(big || `+${n} TICKETS!`, col, small); }
+
+// --- ticket wheel ---
+let wheelSpin = null;
+function spinWheel() {
+  audio();
+  if (wheelSpin) return;
+  if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine on the right wall has free ones'); return; }
+  wallet.tokens--; saveWallet(); sfx.coin();
+  const N = WHEEL_VALS.length, idx = (Math.random() * N) | 0, th0 = wheel.disc.rotation.z;
+  const cur = ((th0 % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2), jit = (Math.random() - .5) * WHEEL_SEG * .6;
+  const delta = (((idx * WHEEL_SEG + jit - cur) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  wheelSpin = { th0, th1: th0 + Math.PI * 8 + delta, k: 0, idx, last: Math.round(th0 / WHEEL_SEG) };
+}
+function updateWheel(dt) {
+  wheel.pointer.rotation.z *= Math.max(0, 1 - dt * 10);
+  const W = wheelSpin; if (!W) return;
+  W.k = Math.min(1, W.k + dt / 4.2);
+  const th = W.th0 + (W.th1 - W.th0) * (1 - (1 - W.k) ** 3);
+  wheel.disc.rotation.z = th;
+  const s = Math.round(th / WHEEL_SEG);
+  if (s !== W.last) { W.last = s; wheel.pointer.rotation.z = .35; if (camera.position.distanceTo(wheel.g.position) < 9) tone(1500, 0, .025, 'square', .018); }
+  if (W.k >= 1) {
+    wheelSpin = null;
+    const v = WHEEL_VALS[W.idx];
+    if (v >= 50) { sfx.win(); const p = wheel.g.localToWorld(new THREE.Vector3(0, 1.8, .4)); burstConfetti(p.x, p.y, p.z); earn(v, `JACKPOT! +${v}`, 'The Ticket Wheel pays out big!'); }
+    else { sfx.coin(); earn(v, `+${v} TICKETS`, v >= 20 ? 'Nice spin!' : 'Spin again?'); }
+  }
+}
+
+// --- golden tickets hidden around the arcade ---
+const goldTicketMat = (() => {
+  const cv = mkCanvas(256, 128), c = cv.getContext('2d');
+  const g = c.createLinearGradient(0, 0, 256, 128); g.addColorStop(0, '#fff2a8'); g.addColorStop(.5, '#ffcf4a'); g.addColorStop(1, '#e09a1c');
+  c.fillStyle = g; c.fillRect(0, 0, 256, 128);
+  c.globalCompositeOperation = 'destination-out';
+  for (const y of [0, 128]) for (let x = 16; x < 256; x += 32) { c.beginPath(); c.arc(x, y, 9, 0, 7); c.fill(); }
+  for (const x of [0, 256]) { c.beginPath(); c.arc(x, 64, 18, 0, 7); c.fill(); }
+  c.globalCompositeOperation = 'source-over';
+  c.strokeStyle = '#a8650c'; c.lineWidth = 4; c.setLineDash([8, 6]); c.strokeRect(26, 18, 204, 92);
+  c.fillStyle = '#7a4a08'; c.font = '26px "Press Start 2P"'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('TICKET', 128, 66);
+  const m = new THREE.SpriteMaterial({ map: tex(cv), toneMapped: false }); m.color.setScalar(1.3);
+  return m;
+})();
+const goldGlowMat = new THREE.SpriteMaterial({ map: poolTex, color: new THREE.Color('#ffcf4a').multiplyScalar(.9), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
+const goldTickets = [0, 1, 2].map(i => {
+  // always faces you, with a warm halo so it catches your eye from across the room
+  const m = new THREE.Group(), halo = new THREE.Sprite(goldGlowMat), card = new THREE.Sprite(goldTicketMat);
+  halo.scale.set(.9, .9, 1); card.scale.set(.42, .21, 1); card.renderOrder = 6; halo.renderOrder = 5;
+  m.add(halo, card); m.visible = false; scene.add(m);
+  const pool = lightPool(scene, '#ffcf4a', 1.1, 1.1, 0, 0, .45); pool.visible = false;
+  return { m, card, pool, x: 0, z: 0, wait: i * 20, ph: Math.random() * 6 };
+});
+function placeTicket(gt) {
+  for (let i = 0; i < 300; i++) {
+    const x = ROOM.x0 + .7 + Math.random() * (RW - 1.4), z = ROOM.z0 + 1.8 + Math.random() * (RD - 2.6);
+    if (!freeFor(x, z, .5) || Math.hypot(x - player.pos.x, z - player.pos.z) < 3) continue;
+    if (Math.hypot(x - DANCE.x, z - DANCE.z) < 1.2 || Math.hypot(x - hockeyPos.x, z - hockeyPos.z) < 1.8) continue;
+    if (goldTickets.some(o => o !== gt && o.m.visible && Math.hypot(o.x - x, o.z - z) < 3)) continue;
+    gt.x = x; gt.z = z; gt.m.visible = gt.pool.visible = true; gt.pool.position.set(x, .009, z); return;
+  }
+}
+function updateGoldTickets(dt, t) {
+  for (const gt of goldTickets) {
+    if (!gt.m.visible) { gt.wait -= dt; if (gt.wait <= 0 && started) placeTicket(gt); continue; }
+    gt.m.position.set(gt.x, 1.0 + Math.sin(t * 2 + gt.ph) * .08, gt.z);
+    const flip = Math.cos(t * 2.4 + gt.ph);   // a little coin-flip wobble
+    gt.card.scale.set(.42 * (.35 + .65 * Math.abs(flip)), .21, 1);
+    if (started && !paused && !clawGame && Math.hypot(player.pos.x - gt.x, player.pos.z - gt.z) < .55) {
+      gt.m.visible = gt.pool.visible = false; gt.wait = 75 + Math.random() * 45;
+      audio(); sfx.tokens(); burstConfetti(gt.x, 1.0, gt.z);
+      earn(10, '+10 TICKETS!', 'You found a golden ticket! More turn up around the arcade.');
+    }
+  }
+}
+
+// --- dance-off with Rocco ---
+let danceT = 0, danceCool = 0, danceHint = false;
+const onDanceFloor = () => Math.abs(player.pos.x - DANCE.x) < .9 && Math.abs(player.pos.z - DANCE.z) < .9;
+function updateDanceOff(dt, t) {
+  if (!(started && !paused && !clawGame && !menuOpen && onDanceFloor())) { danceT = 0; danceHint = false; return; }
+  if (t < danceCool) { if (!danceHint) { danceHint = true; say(rocco, 'TAKE FIVE, THEN WE GO AGAIN!', 2.4); } return; }
+  if (!danceHint) { danceHint = true; say(rocco, 'DANCE-OFF! STAY ON THE FLOOR!', 2.6); }
+  danceT += dt;
+  if (danceT >= 8) {
+    danceT = 0; danceCool = t + 60; danceHint = true;
+    say(rocco, pickLine(['NICE MOVES!', 'YOU GOT THE GROOVE!', 'NOW THAT\'S DANCING!']), 2.6);
+    audio(); [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .07, .14, 'square', .035));
+    burstConfetti(DANCE.x, 1.9, DANCE.z);
+    earn(5, '+5 TICKETS', 'Nice moves! Rocco approves', '#ff4fd8');
+  }
+}
+
+// --- daily visit bonus ---
+function dailyBonus() {
+  const d = today(); if (wallet.day === d) return;
+  const first = !wallet.day; wallet.day = d;
+  setTimeout(() => { sfx.tokens(); earn(20, '+20 TICKETS', first ? 'Welcome bonus! Visit again tomorrow for more' : 'Daily bonus for coming back today!'); }, 900);
+}
 
 // ============================================================
 //  Claw machine game
@@ -2120,6 +2602,11 @@ function stepCapsule(cl, b, dt) {
 }
 function payOut(cl, b) {
   cl.won = true;
+  if (cl.exclusive) {   // the Prize Grabber pays out a prize you can't get anywhere else
+    winExclusive(cl, b);
+    const p = cl.g.localToWorld(new THREE.Vector3(-.3, 1.3, .3)); burstConfetti(p.x, p.y, p.z);
+    return;
+  }
   wallet.tickets += b.value; saveWallet();
   sfx.win();
   toast(`+${b.value} TICKETS!`, b.gold ? '#ffcf4a' : cl.color, b.gold ? 'GOLDEN CAPSULE — JACKPOT!' : 'Trade them in at the prize counter');
@@ -2244,7 +2731,7 @@ function showStart(resumeMode) {
 }
 function enter() {
   audio();
-  if (!started) { started = true; recStart = performance.now(); }
+  if (!started) { started = true; recStart = performance.now(); dailyBonus(); refreshBoard(); }
   $('hud').hidden = false; $('cam').hidden = !fxOn;
   resume();
 }
@@ -2625,6 +3112,7 @@ for (const cl of claws) {
 }
 for (const z of [1.1, 2.2]) addStation(4.4, z, 7, z, 'browse');
 addStation(5.85, -3.2, 7, -3.2, 'token');
+addStation(4.6, 3.7, 4.6, 5, 'browse');   // admiring the Hall of Fame
 for (const s of [-1, 1]) addStation(s * 1.35, -6.4, 0, -6.4, 'watch', { side: s });
 
 function route(from, to) {   // breadth-first over the aisle graph, randomised so paths vary
@@ -2855,6 +3343,7 @@ function updatePlayer(dt, t) {
   const hy = (Math.sin(t * 1.3) * 0.5 + Math.sin(t * 3.1) * 0.3) * 0.005 * sway;
   camera.position.set(player.pos.x + Math.cos(player.bob) * 0.025 * amt * cs, EYE + Math.abs(Math.sin(player.bob)) * 0.045 * amt - 0.02 * amt, player.pos.z - Math.cos(player.bob) * 0.025 * amt * sn);
   camera.rotation.set(player.pitch + hy + Math.sin(player.bob * 2) * 0.006 * amt, player.yaw + hx, Math.sin(player.bob) * 0.009 * amt + hx * .5);
+  if (onDanceFloor()) camera.position.y += Math.abs(Math.sin(t * DANCE_BPM * Math.PI)) * .035;   // bop to the beat
   if (camBlend) {   // gliding back from the claw machine view
     camBlend.k = Math.min(1, camBlend.k + dt / .5);
     const e = ease(camBlend.k), toP = camera.position.clone(), toQ = camera.quaternion.clone();
@@ -2924,6 +3413,9 @@ function frame(now) {
   }
   updatePeople(dt, t);
   updateClaws(dt, t);
+  updateWheel(dt);
+  updateGoldTickets(dt, t);
+  updateDanceOff(dt, t);
   // neon sign flicker
   const fl = (t % 11) > 10.4 && Math.sin(t * 70) > 0 ? .35 : 1;
   signMat.color.setScalar(1.35 * fl); signLight.intensity = 7 * fl;
@@ -2959,7 +3451,8 @@ drawHockey(0);
 try { await Promise.race([renderer.compileAsync(scene, camera), new Promise(r => setTimeout(r, 2500))]); } catch { }
 composer.render(0);
 window.arcadeReady = true;
-window.arcade = { walkTo, cabinets, player, camera, claws, wallet, launch, extras };
+drawCase();
+window.arcade = { walkTo, cabinets, player, camera, claws, wallet, launch, extras, goldTickets, wheel: () => wheelSpin, refreshBoard, board: () => board };
 $('enterBtn').disabled = false;
 showStart(false);
 requestAnimationFrame(frame);
