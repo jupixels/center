@@ -578,7 +578,9 @@
   (function () {
     const list = document.getElementById('glist'), feat = document.getElementById('gfeat');
     const startFeat = document.getElementById('startFeat');
-    GAMES.forEach((g, i) => {
+    // new games go first in the list, right below the featured games
+    const order = GAMES.map((g, i) => [g, i]).sort((a, b) => (b[0].isNew ? 1 : 0) - (a[0].isNew ? 1 : 0));
+    order.forEach(([g, i]) => {
       const el = document.createElement('div');
       el.className = 'gitem' + (g.featured ? ' big' : '');
       el.style.setProperty('--c', g.color);
