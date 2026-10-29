@@ -1270,8 +1270,8 @@ const FEAT_SLOTS = [[0, FZ, 0], [-2.25, FZ, 0], [2.25, FZ, 0]];   // centre, lef
 const EXTRA_SLOTS = [
   [LX, -8.6, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -5.0, Math.PI / 2],
   [RX, -8.6, -Math.PI / 2], [RX, -6.8, -Math.PI / 2], [RX, -5.0, -Math.PI / 2],
-  [RX, -1.4, -Math.PI / 2],   // between the token machine and the prize counter
-  [-3.6, ROOM.z1 - .46, Math.PI]   // on the entrance wall, left of the doors
+  [RX, -3.2, -Math.PI / 2],   // right wall, after the extras
+  [RX, -1.4, -Math.PI / 2]    // right wall, next to the prize counter
 ];
 let nf = 0, ne = 0;
 GAMES.forEach((g, i) => {
@@ -1548,7 +1548,7 @@ const caseY = px => CASE_HI - px / CASE_CV_H * (CASE_HI - CASE_LO);   // canvas 
 
 // --- token machine ---
 (() => {
-  const g = new THREE.Group(); g.position.set(ROOM.x1 - .36, 0, -3.2); g.rotation.y = -Math.PI / 2; scene.add(g);
+  const g = new THREE.Group(); g.position.set(-3.6, 0, ROOM.z1 - .36); g.rotation.y = Math.PI; scene.add(g);
   const body = mesh(new THREE.BoxGeometry(.72, 1.8, .55), std({ color: '#2f6fb6', roughness: .35, metalness: .2, envMapIntensity: .7 }), g, 0, .9, 0);
   const tm = new THREE.MeshBasicMaterial({ map: tex(textCanvas('TOKENS', { w: 512, h: 160, size: 64, color: '#fff6d6', glowCol: '#ffcf4a', bg: '#101a33' })) }); tm.color.setScalar(1.7);
   mesh(new THREE.PlaneGeometry(.62, .2), tm, g, 0, 1.6, .277, { cast: false });
@@ -2491,7 +2491,7 @@ let wheelSpin = null;
 function spinWheel() {
   audio();
   if (wheelSpin) return;
-  if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine on the right wall has free ones'); return; }
+  if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine by the entrance has free ones'); return; }
   wallet.tokens--; saveWallet(); sfx.coin();
   const N = WHEEL_VALS.length, idx = (Math.random() * N) | 0, th0 = wheel.disc.rotation.z;
   const cur = ((th0 % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2), jit = (Math.random() - .5) * WHEEL_SEG * .6;
@@ -2648,7 +2648,7 @@ function clawKey(e) {
 function clawAction() {
   const cl = clawGame; if (!cl) return;
   if (cl.state === 'ready') {
-    if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine by the right wall has free ones'); return; }
+    if (wallet.tokens < 1) { sfx.buzz(); toast('OUT OF TOKENS', '#6cc4ff', 'The token machine by the entrance has free ones'); return; }
     wallet.tokens--; saveWallet(); sfx.coin();
     cl.state = 'aim'; cl.timer = 20; cl.won = false;
   } else if (cl.state === 'aim') startDrop(cl);
@@ -2832,7 +2832,7 @@ let hudKey = '';
 function clawStatus(cl) {
   const st = cl.state;
   const msg = st === 'ready'
-    ? (wallet.tokens ? (isTouch ? 'Tap PLAY to put in a token.' : 'Press SPACE (or click PLAY) to put in a token.') : 'Out of tokens! The token machine on the right wall has free ones.')
+    ? (wallet.tokens ? (isTouch ? 'Tap PLAY to put in a token.' : 'Press SPACE (or click PLAY) to put in a token.') : 'Out of tokens! The token machine by the entrance has free ones.')
     : st === 'aim' ? 'Steer the claw over a capsule, then DROP it!'
     : st === 'result' ? (cl.won ? '★ WINNER! ★' : 'Better luck next time.')
     : 'Here goes…';
@@ -3240,7 +3240,7 @@ for (const cl of claws) {
   cl.station = STATIONS.find(s => s.machine === cl) || null;
 }
 for (const z of [1.1, 2.2]) addStation(4.4, z, 7, z, 'browse');
-addStation(5.85, -3.2, 7, -3.2, 'token');
+addStation(-3.6, ROOM.z1 - 1.36, -3.6, ROOM.z1, 'token');
 addStation(4.6, 3.7, 4.6, 5, 'browse');   // admiring the Hall of Fame
 for (const s of [-1, 1]) addStation(s * 1.35, -6.4, 0, -6.4, 'watch', { side: s });
 
