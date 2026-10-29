@@ -1270,8 +1270,8 @@ const FEAT_SLOTS = [[0, FZ, 0], [-2.25, FZ, 0], [2.25, FZ, 0]];   // centre, lef
 const EXTRA_SLOTS = [
   [LX, -8.6, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -5.0, Math.PI / 2],
   [RX, -8.6, -Math.PI / 2], [RX, -6.8, -Math.PI / 2], [RX, -5.0, -Math.PI / 2],
-  [RX, -3.2, -Math.PI / 2],   // right wall, after the extras
-  [RX, -1.4, -Math.PI / 2]    // right wall, next to the prize counter
+  [-4.75, ROOM.z0 + .46, 0],  // back wall, just left of the featured stage
+  [4.75, ROOM.z0 + .46, 0]    // back wall, just right of the featured stage
 ];
 let nf = 0, ne = 0;
 GAMES.forEach((g, i) => {
