@@ -172,6 +172,22 @@
   .glist.extras .gitem p { font-size: 18px; }
   .glist.soon .gitem { opacity: 1; background: repeating-linear-gradient(-45deg, #221a33 0 14px, #262033 14px 28px); box-shadow: inset 0 0 0 2px rgba(242,194,27,.4); }
   .badge.soon { background: #f2c21b; }
+  /* the showcase game: biggest card in the list, glowing frame */
+  .gsec.newrel { color: #b8ff5a; font-size: 12px; margin-top: 18px; text-shadow: 0 0 10px rgba(184,255,90,.6); }
+  .gitem.hero { grid-template-columns: 16px 1fr auto; padding: 20px 18px 20px 0; background: linear-gradient(100deg, #1d2a14, #221a33 70%);
+                box-shadow: inset 0 0 0 2px #b8ff5a, 0 0 22px rgba(184,255,90,.35); animation: heroGlow 1.6s ease-in-out infinite; }
+  .gitem.hero h3 { font-size: 20px; margin-bottom: 10px; text-shadow: 0 0 12px rgba(184,255,90,.7); }
+  .gitem.hero p { font-size: 22px; color: var(--cream); }
+  .gitem.hero .acts a { font-size: 13px; padding: 15px 18px; background: #b8ff5a; }
+  .badge.newb { background: #ff5a3a; color: #fff; animation: blink 1s steps(2) infinite; }
+  @keyframes heroGlow { 50% { box-shadow: inset 0 0 0 2px #b8ff5a, 0 0 34px rgba(184,255,90,.6); } }
+  @keyframes blink { 50% { opacity: .55; } }
+  .startnew { margin-top: 22px; }
+  .startnew a { display: inline-block; font-family: "Press Start 2P", monospace; font-size: 13px; color: #0e140b; background: #b8ff5a; text-decoration: none;
+                padding: 14px 18px; box-shadow: 0 0 0 3px #0e140b, 0 0 0 5px #b8ff5a, 0 0 28px rgba(184,255,90,.6); animation: heroGlow 1.6s ease-in-out infinite; }
+  .startnew a b { color: #ff3a1a; font-weight: normal; }
+  .startnew a:hover { background: #fff; }
+  .startnew .sub { margin-top: 10px; font-size: 19px; color: var(--muted); }
   .startfeat { margin-top: 24px; }
   .startfeat .lbl { font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--gold); letter-spacing: .1em; }
   .startfeat .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
@@ -392,6 +408,7 @@
       <button class="btn ghost" id="startIdeaBtn" type="button">💡 GAME IDEA</button>
     </div>
     <div class="err" id="err" hidden></div>
+    <div class="startnew" id="startNew" hidden></div>
     <div class="startfeat"><div class="lbl">★ FEATURED GAMES ★</div><div class="links" id="startFeat"></div></div>
     <div class="controls" id="controls">
       <div><kbd>WASD</kbd> walk</div>
@@ -413,6 +430,8 @@
       <h2>GAME LIST</h2>
       <button class="chip" id="closeMenu" type="button">✕ CLOSE</button>
     </div>
+    <div class="gsec newrel" id="gnewHead">★ NEW RELEASE ★</div>
+    <div class="glist" id="gnew"></div>
     <div class="gsec feat">★ FEATURED GAMES</div>
     <div class="glist" id="gfeat"></div>
     <div class="gsec">EXTRAS <span>quick side projects</span></div>
@@ -575,14 +594,13 @@
     { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',      desc: 'Open-world BMX! Pedal, hop and pull tricks off dirt jumps, a mega ramp and a downhill trail, tackle obstacle courses and ride with friends.' },
     // isNew: true puts a flashing NEW! sign on the game's arcade machine.
     // warning: true makes players read and accept a content warning before it opens.
+    // showcase: true gives a big new game its own hall through the right-hand wall,
+    // with the hero machine, display models, banners and floor arrows leading there.
+    { title: 'Frontline',        url: 'https://jupixels.github.io/frontline/',         color: '#a6e05a', scene: 'frontline', isNew: true, showcase: true, desc: 'Modern warfare RTS. Command infantry, armor, artillery, air and naval forces and fight for strategic points: online 1v1, 2v2 or free-for-all, or solo against the AI.' },
     { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',   isNew: true, warning: true, desc: 'Horror. Something is waiting in the old hospital.' }
   ];
-  // Games still being built. Frontline has its own construction bay through the
-  // right-hand wall. When it's ready, move it into GAMES above (with its url)
-  // and delete it here: the bay then goes away by itself.
-  window.UPCOMING = [
-    { title: 'Frontline', url: null, soon: true, color: '#9cc25a', scene: 'frontline', desc: 'A modern warfare RTS. Command tanks, infantry and air power across the front. Still under construction: check back soon!' }
-  ];
+  // Games still being built: they get a COMING SOON entry in the game list.
+  window.UPCOMING = [];
 
   // ---------- game list menu (works even if 3D fails) ----------
   (function () {
@@ -592,14 +610,18 @@
     const order = GAMES.map((g, i) => [g, i]).sort((a, b) => (b[0].isNew ? 1 : 0) - (a[0].isNew ? 1 : 0));
     order.forEach(([g, i]) => {
       const el = document.createElement('div');
-      el.className = 'gitem' + (g.featured ? ' big' : '');
+      el.className = 'gitem' + (g.showcase ? ' big hero' : g.featured ? ' big' : '');
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div>' + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
+        '<div>' + (g.showcase ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
         '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '"' + (g.warning ? ' data-warn="' + i + '"' : '') + '>PLAY ▶</a></div>';
-      (g.featured ? feat : list).appendChild(el);
+      (g.showcase ? document.getElementById('gnew') : g.featured ? feat : list).appendChild(el);
+      if (g.showcase) {   // big NEW button on the start screen too
+        const box = document.getElementById('startNew'); box.hidden = false;
+        box.innerHTML = '<a href="' + g.url + '"><b>NEW!</b> PLAY ' + g.title.toUpperCase() + ' ▶</a><div class="sub">or walk to its hall: follow the green arrows</div>';
+      }
       if (g.featured) {
         const a = document.createElement('a');
         a.href = g.url; a.textContent = g.title.toUpperCase(); a.style.setProperty('--c', g.color);
@@ -615,6 +637,7 @@
         (j === 0 ? '<div class="acts"><button type="button" data-walk="' + (GAMES.length + 1) + '">WALK TO</button></div>' : '');
       soonList.appendChild(el);
     });
+    if (!document.getElementById('gnew').children.length) document.getElementById('gnewHead').hidden = true;
     if (!soonList.children.length) { soonList.hidden = true; document.getElementById('gsoonHead').hidden = true; }
     const menu = document.getElementById('menu');
     window.openMenu = () => { menu.hidden = false; document.dispatchEvent(new Event('arcade:menu-open')); };
@@ -772,7 +795,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const GAMES = window.GAMES;
 const SOON = { title: 'Idea Machine', url: null, idea: true, color: '#ffcf4a', scene: 'idea', desc: 'Got an idea for a new game? Step up and send it in. The best ones might end up in this arcade!' };
-const FRONTLINE = (window.UPCOMING || [])[0] || null;
+const SHOWCASE = GAMES.find(g => g.showcase) || null;   // gets the hall through the right-hand wall
 const $ = id => document.getElementById(id);
 const isTouch = matchMedia('(pointer: coarse)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -975,8 +998,9 @@ await Promise.race([
 //  Room
 // ============================================================
 const ROOM = { x0: -7, x1: 7, z0: -12, z1: 5, h: 4.2 };
-// the Frontline construction bay, knocked through the right-hand wall
-const BAY = { x0: ROOM.x1, x1: ROOM.x1 + 3.2, z0: -3.9, z1: -0.3, h: 3.0 };
+// the showcase hall behind the right-hand wall, and the doorway into it
+const DOOR = { z0: -3.9, z1: -0.3, h: 3.0 };
+const HALL = { x0: ROOM.x1, x1: ROOM.x1 + 5.2, z0: -6.1, z1: 1.9, h: 4.0 };
 const RW = ROOM.x1 - ROOM.x0, RD = ROOM.z1 - ROOM.z0, RCX = (ROOM.x0 + ROOM.x1) / 2, RCZ = (ROOM.z0 + ROOM.z1) / 2;
 const obstacles = [];   // {x0,x1,z0,z1,color,cab}
 
@@ -1039,10 +1063,10 @@ function wall(w, x, z, ry) {
 wall(RW, RCX, ROOM.z0, 0);
 wall(RW, RCX, ROOM.z1, Math.PI);
 wall(RD, ROOM.x0, RCZ, Math.PI / 2);
-if (FRONTLINE) {   // right wall with the opening into the construction bay
-  wall(BAY.z0 - ROOM.z0, ROOM.x1, (ROOM.z0 + BAY.z0) / 2, -Math.PI / 2);
-  wall(ROOM.z1 - BAY.z1, ROOM.x1, (BAY.z1 + ROOM.z1) / 2, -Math.PI / 2);
-  const lin = mesh(new THREE.PlaneGeometry(BAY.z1 - BAY.z0, ROOM.h - BAY.h), std({ color: '#2b1f47', roughness: .92, envMapIntensity: .15 }), null, ROOM.x1, (ROOM.h + BAY.h) / 2, (BAY.z0 + BAY.z1) / 2, { cast: false });
+if (SHOWCASE) {   // right wall with the doorway into the showcase hall
+  wall(DOOR.z0 - ROOM.z0, ROOM.x1, (ROOM.z0 + DOOR.z0) / 2, -Math.PI / 2);
+  wall(ROOM.z1 - DOOR.z1, ROOM.x1, (DOOR.z1 + ROOM.z1) / 2, -Math.PI / 2);
+  const lin = mesh(new THREE.PlaneGeometry(DOOR.z1 - DOOR.z0, ROOM.h - DOOR.h), std({ color: '#2b1f47', roughness: .92, envMapIntensity: .15 }), null, ROOM.x1, (ROOM.h + DOOR.h) / 2, (DOOR.z0 + DOOR.z1) / 2, { cast: false });
   lin.rotation.y = -Math.PI / 2;
 } else wall(RD, ROOM.x1, RCZ, -Math.PI / 2);
 
@@ -1169,6 +1193,10 @@ function makeMarquee(g, idx) {
     // frame + "NEW GAME" tag in the game's own colour
     c.fillStyle = g.color; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
     c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ NEW GAME ★', 256, 34);
+  } else if (g.tag) {
+    // extra machines for a game: frame + their own tag
+    c.fillStyle = g.color; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
+    c.fillRect(120, 18, 272, 30); c.fillStyle = '#1a1423'; c.fillText(g.tag, 256, 34);
   } else if (g.soon) {
     // caution-stripe frame + "COMING SOON" tag
     c.fillStyle = '#f2c21b'; c.fillRect(0, 0, 512, 12); c.fillRect(0, 156, 512, 12);
@@ -1310,6 +1338,7 @@ const EXTRA_SLOTS = [
 ];
 let nf = 0, ne = 0;
 GAMES.forEach((g, i) => {
+  if (g === SHOWCASE) return;   // built in its own hall further down
   if (g.featured && nf < FEAT_SLOTS.length) buildCabinet(g, i, ...FEAT_SLOTS[nf++], FS, STAGE_H);
   else buildCabinet(g, i, ...(EXTRA_SLOTS[ne++] || [LX, -3.2 - ne * 1.8, Math.PI / 2]));
 });
@@ -1633,22 +1662,17 @@ const caseY = px => CASE_HI - px / CASE_CV_H * (CASE_HI - CASE_LO);   // canvas 
 })();
 
 // ============================================================
-//  Frontline construction bay (coming soon)
+//  Frontline showcase hall (the newest big game gets its own room)
 // ============================================================
-// A bay knocked through the right-hand wall and still being fitted out. The
-// Frontline machine waits at the back behind caution tape, guarded by display
-// models of a tank, an APC and a helicopter hanging from the roof. Players
-// can't step inside (it's outside the room bounds); pointing at it shows the
-// prompt, and E fires a salute from the tank.
-const bayFx = FRONTLINE && (() => {
-  const { x0, x1, z0, z1, h } = BAY, cz = (z0 + z1) / 2, bw = z1 - z0, bd = x1 - x0;
-  const hazardCv = (() => {
-    const cv = mkCanvas(64, 64), c = cv.getContext('2d');
-    c.fillStyle = '#f2c21b'; c.fillRect(0, 0, 64, 64); c.fillStyle = '#16140f';
-    for (let i = -2; i < 3; i++) { c.beginPath(); c.moveTo(i * 32, 64); c.lineTo(i * 32 + 16, 64); c.lineTo(i * 32 + 80, 0); c.lineTo(i * 32 + 64, 0); c.closePath(); c.fill(); }
-    return cv;
-  })();
-  const hazard = (rx, ry) => std({ map: tex(hazardCv, { repeat: [rx, ry] }), roughness: .55, envMapIntensity: .4 });
+// A hall knocked through the right-hand wall. The room-side entrance has a
+// neon banner, chasing bulbs and a scrolling ticker, and glowing chevrons on
+// the carpet lead to it. Inside: the hero machine on a lit plinth, two more
+// machines in the corners, a tank and an APC on display, a helicopter over a
+// holographic battle table, a trailer screen and a poster mural.
+const bayFx = SHOWCASE && (() => {
+  const G = SHOWCASE, gi = GAMES.indexOf(G), ACC = '#b8ff5a';
+  const { x0, x1, z0, z1, h } = HALL, cz = (DOOR.z0 + DOOR.z1) / 2, hw = z1 - z0, hd = x1 - x0, hcx = (x0 + x1) / 2, hcz = (z0 + z1) / 2;
+  const animated = [], chase = [], chev = [];
   function grain(c, w, hh, amt) { const id = c.getImageData(0, 0, w, hh), d = id.data; for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * amt; d[i] += n; d[i + 1] += n; d[i + 2] += n; } c.putImageData(id, 0, 0); }
   function camoCanvas(cols, seed) {
     const cv = mkCanvas(256, 256), c = cv.getContext('2d'), r = rng(seed);
@@ -1666,138 +1690,157 @@ const bayFx = FRONTLINE && (() => {
   const greyCamo = camo(['#5a6470', '#47505b', '#6f7883'], 47);
   const steel = std({ color: '#2a2b27', roughness: .6, metalness: .5, envMapIntensity: .6 });
   const rubber = std({ color: '#161613', roughness: .9 });
+  const star = (c, x, y, ro, ri) => { c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? ri : ro; c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } c.closePath(); };
 
-  // --- the bay itself: concrete floor, bare plywood walls, open joists ---
-  const fc = mkCanvas(512, 512), f = fc.getContext('2d');
-  f.fillStyle = '#5d5b57'; f.fillRect(0, 0, 512, 512);
-  const fr = rng(5);
-  for (let i = 0; i < 70; i++) { f.fillStyle = `rgba(${fr() < .5 ? '30,28,26' : '120,116,108'},${.05 + fr() * .1})`; f.beginPath(); f.arc(fr() * 512, fr() * 512, 10 + fr() * 60, 0, 7); f.fill(); }
-  f.strokeStyle = 'rgba(25,24,22,.6)'; f.lineWidth = 2;
-  for (let i = 0; i < 6; i++) { let x = fr() * 512, y = fr() * 512; f.beginPath(); f.moveTo(x, y); for (let j = 0; j < 8; j++) { x += (fr() - .5) * 60; y += (fr() - .5) * 60; f.lineTo(x, y); } f.stroke(); }
-  f.fillStyle = 'rgba(20,20,20,.5)'; f.fillRect(0, 254, 512, 3); f.fillRect(254, 0, 3, 512);   // saw-cut joints
-  grain(f, 512, 512, 22);
-  const bf = mesh(new THREE.PlaneGeometry(bd, bw), std({ map: tex(fc, { repeat: [bd / 1.6, bw / 1.6] }), roughness: .85, envMapIntensity: .2 }), null, x0 + bd / 2, 0.001, cz, { cast: false });
-  bf.rotation.x = -Math.PI / 2;
-  // painted hazard line across the threshold
-  const hl = mesh(new THREE.PlaneGeometry(.16, bw), hazard(1, bw / .16), null, x0 + .1, .004, cz, { cast: false }); hl.rotation.x = -Math.PI / 2;
+  // ---------------- the hall itself ----------------
+  // polished dark concrete, painted walkway lines up to the hero machine
+  const fc = mkCanvas(1024, 1024), f = fc.getContext('2d'), fr = rng(5);
+  f.fillStyle = '#2b2d2a'; f.fillRect(0, 0, 1024, 1024);
+  for (let i = 0; i < 90; i++) { f.fillStyle = `rgba(${fr() < .5 ? '12,13,12' : '70,74,68'},${.06 + fr() * .1})`; f.beginPath(); f.arc(fr() * 1024, fr() * 1024, 20 + fr() * 90, 0, 7); f.fill(); }
+  f.fillStyle = 'rgba(10,10,10,.6)'; for (let i = 1; i < 4; i++) { f.fillRect(i * 256, 0, 3, 1024); f.fillRect(0, i * 256, 1024, 3); }
+  grain(f, 1024, 1024, 18);
+  // canvas x → world x (door to back), canvas y → world z
+  const fx = x => (x - x0) / hd * 1024, fz = z => (z - z0) / hw * 1024;
+  f.fillStyle = 'rgba(242,194,27,.75)';
+  for (const z of [cz - 1.0, cz + 1.0]) f.fillRect(fx(x0 + .3), fz(z) - 4, fx(x1 - 1.3) - fx(x0 + .3), 8);
+  f.save(); f.translate(fx(x0 + .75), fz(cz)); f.rotate(Math.PI / 2); f.globalAlpha = .55;
+  f.strokeStyle = ACC; f.lineWidth = 8; f.beginPath(); f.arc(0, 0, 70, 0, 7); f.stroke(); f.fillStyle = ACC; star(f, 0, 0, 56, 22); f.fill(); f.restore();
+  const floorM = std({ map: tex(fc), roughness: .32, metalness: .1, envMapIntensity: .55 });
+  const fl = mesh(new THREE.PlaneGeometry(hd, hw), floorM, null, hcx, .001, hcz, { cast: false }); fl.rotation.x = -Math.PI / 2;
+  // walls: dark concrete panels with steel ribs
+  const wc = mkCanvas(512, 512), w = wc.getContext('2d');
+  w.fillStyle = '#23262a'; w.fillRect(0, 0, 512, 512); const wr = rng(8);
+  for (let i = 0; i < 60; i++) { w.fillStyle = `rgba(${wr() < .5 ? '10,12,14' : '60,66,72'},${.05 + wr() * .08})`; w.fillRect(wr() * 512, wr() * 512, 20 + wr() * 120, 10 + wr() * 60); }
+  w.fillStyle = 'rgba(8,9,10,.8)'; w.fillRect(0, 0, 512, 4); w.fillRect(0, 0, 4, 512);
+  w.fillStyle = 'rgba(120,130,140,.5)'; for (const x of [32, 480]) for (const y of [32, 480]) { w.beginPath(); w.arc(x, y, 6, 0, 7); w.fill(); }
+  grain(w, 512, 512, 12);
+  const wallM = (len) => std({ map: tex(wc, { repeat: [len / 2, h / 2] }), roughness: .85, envMapIntensity: .2 });
+  const plane = (wd, ht, mat, x, y, z, ry) => { const m = mesh(new THREE.PlaneGeometry(wd, ht), mat, null, x, y, z, { cast: false }); m.rotation.y = ry; return m; };
+  plane(hw, h, wallM(hw), x1, h / 2, hcz, -Math.PI / 2);
+  plane(hd, h, wallM(hd), hcx, h / 2, z0, 0);
+  plane(hd, h, wallM(hd), hcx, h / 2, z1, Math.PI);
+  // the hall's own side of the front wall (around the doorway)
+  plane(DOOR.z0 - z0, h, wallM(DOOR.z0 - z0), x0, h / 2, (z0 + DOOR.z0) / 2, Math.PI / 2);
+  plane(z1 - DOOR.z1, h, wallM(z1 - DOOR.z1), x0, h / 2, (DOOR.z1 + z1) / 2, Math.PI / 2);
+  plane(DOOR.z1 - DOOR.z0, h - DOOR.h, wallM(DOOR.z1 - DOOR.z0), x0, (h + DOOR.h) / 2, cz, Math.PI / 2);
+  const ceil = mesh(new THREE.PlaneGeometry(hd, hw), std({ color: '#121412', roughness: 1 }), null, hcx, h, hcz, { cast: false }); ceil.rotation.x = Math.PI / 2;
+  for (let x = x0 + .5; x < x1; x += 1.1) mesh(new THREE.BoxGeometry(.12, .22, hw), steel, null, x, h - .11, hcz, { cast: false });
+  for (const wz of [z0 + .02, z1 - .02]) mesh(new THREE.BoxGeometry(hd, .03, .03), glow(ACC, 2.2), null, hcx, .04, wz, { cast: false, receive: false });
+  mesh(new THREE.BoxGeometry(.03, .03, hw), glow(ACC, 2.2), null, x1 - .02, .04, hcz, { cast: false, receive: false });
+  for (const wz of [z0 + .02, z1 - .02]) mesh(new THREE.BoxGeometry(hd, .03, .03), glow('#ff5a3a', 1.8), null, hcx, h - .3, wz, { cast: false, receive: false });
+  // camouflage netting sagging under the beams
+  const nc = mkCanvas(256, 256), n = nc.getContext('2d'), nr = rng(12);
+  n.strokeStyle = '#2c3520'; n.lineWidth = 3;
+  for (let i = -256; i < 512; i += 18) { n.beginPath(); n.moveTo(i, 0); n.lineTo(i + 256, 256); n.stroke(); n.beginPath(); n.moveTo(i, 256); n.lineTo(i + 256, 0); n.stroke(); }
+  for (let i = 0; i < 160; i++) { n.fillStyle = ['#3e4a28', '#55603a', '#2f3820', '#6b6845'][nr() * 4 | 0]; n.beginPath(); n.ellipse(nr() * 256, nr() * 256, 4 + nr() * 9, 3 + nr() * 5, nr() * 3, 0, 7); n.fill(); }
+  const netG = new THREE.PlaneGeometry(3.2, hw - .4, 12, 26); netG.rotateX(-Math.PI / 2);
+  { const p = netG.attributes.position; for (let i = 0; i < p.count; i++) { const u = p.getX(i) / 3.2 + .5, v = p.getZ(i) / (hw - .4) + .5; p.setY(i, -Math.sin(u * Math.PI) * .22 - Math.sin(v * Math.PI * 3) ** 2 * .1 + (Math.random() - .5) * .03); } netG.computeVertexNormals(); }
+  mesh(netG, std({ map: tex(nc, { repeat: [3, 7] }), alphaTest: .5, side: THREE.DoubleSide, roughness: 1, envMapIntensity: .1 }), null, x0 + 2.0, h - .3, hcz, { cast: false });
 
-  const pc = mkCanvas(256, 256), p = pc.getContext('2d');
-  p.fillStyle = '#9a7650'; p.fillRect(0, 0, 256, 256); const pr = rng(9);
-  for (let i = 0; i < 140; i++) { p.fillStyle = `rgba(${pr() < .5 ? '70,48,26' : '190,150,100'},${.15 + pr() * .25})`; p.fillRect(pr() * 256, pr() * 256, 4 + pr() * 18, 2 + pr() * 4); }
-  p.fillStyle = 'rgba(40,28,16,.8)'; p.fillRect(0, 0, 256, 3); p.fillRect(0, 0, 3, 256);   // sheet seams
-  p.fillStyle = 'rgba(30,30,30,.7)'; for (let y = 20; y < 256; y += 40) for (const x of [10, 128, 246]) p.fillRect(x, y, 3, 3);   // screws
-  grain(p, 256, 256, 16);
-  const ply = (w) => std({ map: tex(pc, { repeat: [w / 1.22, h / 2.44] }), roughness: .85, envMapIntensity: .15 });
-  const back = mesh(new THREE.PlaneGeometry(bw, h), ply(bw), null, x1, h / 2, cz, { cast: false }); back.rotation.y = -Math.PI / 2;
-  const sA = mesh(new THREE.PlaneGeometry(bd, h), ply(bd), null, x0 + bd / 2, h / 2, z0, { cast: false });
-  const sB = mesh(new THREE.PlaneGeometry(bd, h), ply(bd), null, x0 + bd / 2, h / 2, z1, { cast: false }); sB.rotation.y = Math.PI;
-  const bc = mesh(new THREE.PlaneGeometry(bd, bw), std({ color: '#1a1714', roughness: 1 }), null, x0 + bd / 2, h, cz, { cast: false }); bc.rotation.x = Math.PI / 2;
-  const wood = std({ color: '#b8925e', roughness: .8, envMapIntensity: .2 });
-  for (let x = x0 + .35; x < x1; x += .6) mesh(new THREE.BoxGeometry(.06, .16, bw), wood, null, x, h - .08, cz, { cast: false });
-  // spray-painted stencil on the back wall
-  const sc = mkCanvas(1024, 192), s = sc.getContext('2d');
-  s.textAlign = 'center'; s.textBaseline = 'middle'; s.fillStyle = 'rgba(22,26,16,.9)';
-  s.font = '84px "Press Start 2P"'; s.fillText('FRONTLINE', 540, 100);
-  s.save(); s.translate(90, 96); s.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 26 : 62; s.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } s.fill(); s.restore();
-  s.globalCompositeOperation = 'destination-out';   // stencil bridges + overspray gaps
-  for (let i = 0; i < 400; i++) { s.globalAlpha = Math.random() * .5; s.fillRect(Math.random() * 1024, Math.random() * 192, 2, 2); }
-  for (let x = 160; x < 1000; x += 77) { s.globalAlpha = 1; s.fillRect(x, 92, 4, 14); }
-  const sm = mesh(new THREE.PlaneGeometry(2.6, .49), new THREE.MeshStandardMaterial({ map: tex(sc), transparent: true, roughness: .9, depthWrite: false }), null, x1 - .01, 2.72, cz, { cast: false });
-  sm.rotation.y = -Math.PI / 2;
-
-  // --- hazard-striped door frame + banner over the opening ---
-  for (const z of [z0 + .07, z1 - .07]) mesh(new THREE.BoxGeometry(.16, h, .14), hazard(1, h / .16 / 2), null, x0, h / 2, z);
-  mesh(new THREE.BoxGeometry(.16, .14, bw), hazard(bw / .16 / 2, 1), null, x0, h - .07, cz);
-  const nc = mkCanvas(1024, 168), n = nc.getContext('2d');
-  n.fillStyle = '#2f3a20'; n.fillRect(0, 0, 1024, 168);
-  for (let x = 0; x < 1024; x += 64) n.drawImage(hazardCv, x, 0, 64, 14); for (let x = 0; x < 1024; x += 64) n.drawImage(hazardCv, x, 154, 64, 14);
-  n.textAlign = 'center'; n.textBaseline = 'middle';
-  n.font = '64px "Press Start 2P"'; n.shadowColor = '#b8ff5a'; n.shadowBlur = 18; n.fillStyle = '#eef7d6'; n.fillText('FRONTLINE', 512, 72); n.fillText('FRONTLINE', 512, 72);
-  n.font = '22px "Press Start 2P"'; n.shadowColor = '#ffb02e'; n.shadowBlur = 10; n.fillStyle = '#ffcf6a'; n.fillText('▲ COMING SOON ▲  MODERN WARFARE RTS', 512, 128);
-  const bm = new THREE.MeshBasicMaterial({ map: tex(nc) }); bm.color.setScalar(1.25);
-  const ban = mesh(new THREE.PlaneGeometry(3.2, .525), bm, null, x0 - .09, h + .28, cz, { cast: false, receive: false }); ban.rotation.y = -Math.PI / 2;
-
-  // --- caution tape: "COMING SOON // DO NOT CROSS" ---
-  const tc = mkCanvas(512, 48), tcx = tc.getContext('2d');
-  tcx.fillStyle = '#f5cc16'; tcx.fillRect(0, 0, 512, 48); tcx.fillStyle = '#121212'; tcx.fillRect(0, 0, 512, 4); tcx.fillRect(0, 44, 512, 4);
-  tcx.font = '18px "Press Start 2P"'; tcx.textBaseline = 'middle'; tcx.fillText('COMING SOON // KEEP OUT //', 8, 25);
-  const tapeTex = tex(tc); tapeTex.wrapS = THREE.RepeatWrapping;
-  const tapeMat = new THREE.MeshStandardMaterial({ map: tapeTex, side: THREE.DoubleSide, roughness: .45, emissive: '#ffffff', emissiveMap: tapeTex, emissiveIntensity: .15, envMapIntensity: .6 });
-  function tape(pts, w = .075) {
-    const pos = [], uv = [], idx = []; let u = 0;
-    pts.forEach((pt, i) => {
-      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
-      const dy = b.y - a.y, dz = b.z - a.z, l = Math.hypot(dy, dz) || 1, wy = dz / l * w / 2, wz = -dy / l * w / 2;
-      if (i) u += pt.distanceTo(pts[i - 1]) / 1.55;
-      pos.push(pt.x, pt.y + wy, pt.z + wz, pt.x, pt.y - wy, pt.z - wz); uv.push(u, 1, u, 0);
-      if (i) { const k = i * 2; idx.push(k - 2, k - 1, k, k - 1, k + 1, k); }
-    });
-    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
-    return mesh(g, tapeMat, null, 0, 0, 0, { cast: false });
+  // ---------------- the entrance, seen from the arcade ----------------
+  const frameM = std({ color: '#1b1f1a', roughness: .35, metalness: .7, envMapIntensity: .9 });
+  for (const z of [DOOR.z0 + .07, DOOR.z1 - .07]) mesh(new THREE.BoxGeometry(.2, DOOR.h, .16), frameM, null, x0, DOOR.h / 2, z);
+  mesh(new THREE.BoxGeometry(.2, .16, DOOR.z1 - DOOR.z0), frameM, null, x0, DOOR.h - .08, cz);
+  // chasing marquee bulbs around the doorway
+  const bulbMats = [0, 1, 2].map(() => new THREE.MeshBasicMaterial({ color: '#ffffff' }));
+  const bulbGeo = new THREE.SphereGeometry(.035, 10, 8); let bi = 0;
+  const bulb = (y, z) => { mesh(bulbGeo, bulbMats[bi++ % 3], null, x0 - .11, y, z, { cast: false, receive: false }); };
+  for (let y = .25; y < DOOR.h - .1; y += .26) bulb(y, DOOR.z0 + .07);
+  for (let z = DOOR.z0 + .07; z < DOOR.z1 - .07; z += .26) bulb(DOOR.h - .08, z);
+  for (let y = DOOR.h - .08; y > .2; y -= .26) bulb(y, DOOR.z1 - .07);
+  chase.push(...bulbMats);
+  // neon banner over the doorway
+  const bc = mkCanvas(1024, 228), b = bc.getContext('2d');
+  const bg = b.createLinearGradient(0, 0, 0, 228); bg.addColorStop(0, '#0e140b'); bg.addColorStop(1, '#1d2a14');
+  b.fillStyle = bg; b.fillRect(0, 0, 1024, 228); b.fillStyle = ACC; b.fillRect(0, 0, 1024, 8); b.fillRect(0, 220, 1024, 8);
+  b.textAlign = 'center'; b.textBaseline = 'middle';
+  b.font = '96px "Press Start 2P"'; b.shadowColor = ACC; b.shadowBlur = 34; b.fillStyle = '#f2ffe0';
+  b.fillText('FRONTLINE', 512, 98); b.fillText('FRONTLINE', 512, 98);
+  b.font = '26px "Press Start 2P"'; b.shadowColor = '#ff5a3a'; b.shadowBlur = 14; b.fillStyle = '#ffd6c8';
+  b.fillText('★ NEW GAME · PLAY NOW ★', 512, 182);
+  const bm = new THREE.MeshBasicMaterial({ map: tex(bc) }); bm.color.setScalar(1.35);
+  plane(3.6, .8, bm, x0 - .04, 3.68, cz, -Math.PI / 2);
+  // scrolling LED ticker under the banner
+  const tc = mkCanvas(2048, 64), tcx = tc.getContext('2d');
+  tcx.fillStyle = '#050805'; tcx.fillRect(0, 0, 2048, 64);
+  tcx.font = '30px "Press Start 2P"'; tcx.textBaseline = 'middle'; tcx.shadowColor = ACC; tcx.shadowBlur = 8; tcx.fillStyle = ACC;
+  tcx.fillText('NEW GAME ★ FRONTLINE ★ COMBINED ARMS RTS ★ 1v1 · 2v2 · FREE-FOR-ALL ONLINE ★ SOLO VS AI ★ +25 TICKETS ★ ', 10, 34);
+  tcx.fillStyle = 'rgba(0,0,0,.45)'; for (let x = 0; x < 2048; x += 4) tcx.fillRect(x, 0, 1, 64); for (let y = 0; y < 64; y += 4) tcx.fillRect(0, y, 2048, 1);
+  const tickTex = tex(tc); tickTex.wrapS = THREE.RepeatWrapping; tickTex.repeat.set(.55, 1);
+  const tm = new THREE.MeshBasicMaterial({ map: tickTex }); tm.color.setScalar(1.6);
+  plane(3.6, .22, tm, x0 - .04, 3.13, cz, -Math.PI / 2);
+  // a big NEW! starburst on the corner of the banner (pulses like the others)
+  const nm = new THREE.MeshBasicMaterial({ map: tex(makeNewSign('#ff5a3a')), transparent: true, depthWrite: false });
+  const ns = mesh(new THREE.PlaneGeometry(1.1, .77), nm, null, x0 - .1, 3.95, DOOR.z0 + .15, { cast: false, receive: false });
+  ns.rotation.y = -Math.PI / 2; ns.rotation.x = 0; ns.renderOrder = 4; newSigns.push({ sign: ns, nm });
+  // glowing chevrons on the carpet, leading to the doorway
+  const cc = mkCanvas(128, 128), ch = cc.getContext('2d');
+  ch.fillStyle = '#fff'; ch.beginPath(); ch.moveTo(20, 10); ch.lineTo(70, 10); ch.lineTo(118, 64); ch.lineTo(70, 118); ch.lineTo(20, 118); ch.lineTo(68, 64); ch.closePath(); ch.fill();
+  const chevTex = tex(cc);
+  for (let i = 0; i < 5; i++) {
+    const m = new THREE.MeshBasicMaterial({ map: chevTex, color: ACC, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    const c = mesh(new THREE.PlaneGeometry(.5, .5), m, null, 3.6 + i * .62, .012, cz, { cast: false, receive: false });
+    c.rotation.x = -Math.PI / 2; c.renderOrder = 3; chev.push(m);
   }
-  const zA = z0 + .1, zB = z1 - .1, V = (x, y, z) => new THREE.Vector3(x, y, z);
-  for (const [y, sag, x] of [[1.02, .09, x0 + .1], [1.34, .12, x0 + .12]]) {
-    const pts = []; for (let i = 0; i <= 16; i++) { const k = i / 16; pts.push(V(x + Math.sin(k * Math.PI) * .03, y - sag * 4 * k * (1 - k), zA + (zB - zA) * k)); }
-    tape(pts);
-  }
-  tape([V(x0 + .05, 2.72, zA), V(x0 + .05, .38, zB)]);
-  tape([V(x0 + .065, .38, zA), V(x0 + .065, 2.72, zB)]);
+  // a sign hanging over the middle of the arcade, pointing the way
+  const hc = mkCanvas(512, 160), hs = hc.getContext('2d');
+  hs.fillStyle = '#101a0c'; hs.fillRect(0, 0, 512, 160); hs.strokeStyle = ACC; hs.lineWidth = 8; hs.strokeRect(6, 6, 500, 148);
+  hs.textAlign = 'center'; hs.textBaseline = 'middle'; hs.shadowColor = ACC; hs.shadowBlur = 14; hs.fillStyle = '#f2ffe0';
+  hs.font = '22px "Press Start 2P"'; hs.fillText('NEW GAME', 210, 52); hs.font = '36px "Press Start 2P"'; hs.fillText('FRONTLINE', 210, 104);
+  hs.fillStyle = ACC; hs.beginPath(); hs.moveTo(400, 50); hs.lineTo(450, 50); hs.lineTo(450, 28); hs.lineTo(496, 80); hs.lineTo(450, 132); hs.lineTo(450, 110); hs.lineTo(400, 110); hs.closePath(); hs.fill();
+  const hm = new THREE.MeshBasicMaterial({ map: tex(hc), side: THREE.DoubleSide }); hm.color.setScalar(1.4);
+  const hang = new THREE.Group(); hang.position.set(2.6, 3.25, 1.6); scene.add(hang);
+  mesh(new THREE.PlaneGeometry(1.6, .5), hm, hang, 0, 0, 0, { cast: false, receive: false });
+  for (const sx of [-.7, .7]) mesh(new THREE.CylinderGeometry(.006, .006, .7, 6), steel, hang, sx, .6, 0, { cast: false });
 
-  // --- sawhorse barricades with blinking amber lamps ---
-  const lamps = [];
-  for (const [z, k] of [[cz, 0]]) {   // one barricade in the middle, so the models stay in view
-    const g = new THREE.Group(); g.position.set(x0 + .45, 0, z); scene.add(g);
-    mesh(new THREE.BoxGeometry(.035, .2, 1.2), hazard(7, 1), g, -.02, .78, 0);
-    for (const sz of [-.5, .5]) for (const sx of [-1, 1]) { const l = mesh(new THREE.BoxGeometry(.04, .9, .05), std({ color: '#d8d4cc', roughness: .6 }), g, sx * .12, .43, sz); l.rotation.z = sx * .27; }
-    for (const [lz, lk] of [[-.45, 0], [.45, 1]]) {
-      mesh(new THREE.BoxGeometry(.1, .1, .1), steel, g, 0, .93, lz);
-      const lm = new THREE.MeshBasicMaterial({ color: '#ffaa1e' });
-      mesh(new THREE.CylinderGeometry(.055, .055, .08, 14), lm, g, 0, 1.02, lz, { cast: false }); lamps.push({ lm, k: lk });
-    }
-  }
-  // traffic cones just outside, either side of the opening
-  const coneMat = std({ color: '#ff5a1a', roughness: .5 }), bandMat = std({ color: '#f2f2f2', roughness: .4 });
-  for (const z of [z0 - .25, z1 + .25]) {
-    const g = new THREE.Group(); g.position.set(x0 - .28, 0, z); scene.add(g);
-    mesh(new THREE.BoxGeometry(.34, .03, .34), coneMat, g, 0, .015, 0);
-    mesh(new THREE.ConeGeometry(.13, .5, 18), coneMat, g, 0, .27, 0);
-    mesh(new THREE.CylinderGeometry(.068, .088, .08, 18), bandMat, g, 0, .3, 0, { cast: false });
-    obstacles.push({ x0: x0 - .45, x1: x0, z0: z - .17, z1: z + .17, color: '#ff5a1a' });
-  }
-  // stencilled floor marking in front of the bay
-  const mc = mkCanvas(1024, 256), m = mc.getContext('2d');
-  for (let x = 0; x < 1024; x += 48) { m.drawImage(hazardCv, x, 0, 48, 22); m.drawImage(hazardCv, x, 234, 48, 22); }
-  m.textAlign = 'center'; m.textBaseline = 'middle'; m.font = '62px "Press Start 2P"'; m.fillStyle = '#f2c21b'; m.fillText('CONSTRUCTION ZONE', 512, 130);
-  const mm = new THREE.MeshBasicMaterial({ map: tex(mc), transparent: true, opacity: .8, depthWrite: false });
-  const mark = mesh(new THREE.PlaneGeometry(3.3, .82), mm, null, x0 - 1.0, .008, cz, { cast: false, receive: false });
-  mark.rotation.order = 'YXZ'; mark.rotation.y = -Math.PI / 2; mark.rotation.x = -Math.PI / 2; mark.renderOrder = 2;
+  // ---------------- machines ----------------
+  const plinth = (x, z, w, d, hh = .12) => {
+    mesh(new THREE.BoxGeometry(w, hh, d), std({ color: '#1a1d18', roughness: .4, metalness: .4, envMapIntensity: .7 }), null, x, hh / 2, z);
+    for (const s of [-1, 1]) { mesh(new THREE.BoxGeometry(w, .02, .02), glow(ACC, 2.6), null, x, hh, z + s * d / 2, { cast: false }); mesh(new THREE.BoxGeometry(.02, .02, d), glow(ACC, 2.6), null, x + s * w / 2, hh, z, { cast: false }); }
+    return hh;
+  };
+  const HS = 1.2, ph = plinth(x1 - .75, cz, 1.4, 1.7);
+  const hero = buildCabinet(G, gi, x1 - .46 * HS - .08, cz, -Math.PI / 2, HS, ph);
+  obstacles.push({ x0: x1 - 1.45, x1, z0: cz - .85, z1: cz + .85, color: G.color, cab: hero });
+  // a soft green beam from the ceiling onto the hero machine
+  const beamL = h - 0.05;
+  const hb = new THREE.Mesh(new THREE.CylinderGeometry(.22, .95, beamL, 28, 1, true),
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(ACC).multiplyScalar(.2), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  hb.position.set(x1 - 1.2, beamL / 2, cz); hb.renderOrder = 3; scene.add(hb);
+  lightPool(scene, ACC, 2.6, 2.6, x1 - 1.6, cz, .5);
+  // two more machines in the back corners
+  const side = [
+    buildCabinet({ ...G, isNew: false, tag: 'ONLINE 1v1 · 2v2' }, gi, x1 - .62, z0 + .72, -Math.PI / 2 + .62),
+    buildCabinet({ ...G, isNew: false, tag: 'SOLO VS AI' }, gi, x1 - .62, z1 - .72, -Math.PI / 2 - .62)
+  ];
+  side.forEach((c, i) => { c.offset = 3.3 + i * 4.1; });
 
-  // --- the Frontline machine at the back of the bay ---
-  const cab = buildCabinet(FRONTLINE, GAMES.length + 1, x1 - .46, cz, -Math.PI / 2);
-  cab.kind = 'soon';
-  cab.front = new THREE.Vector3(x0 - .75, 0, cz);   // "walk to" stops at the tape
-  // looking anywhere into the opening targets the machine
-  const proxy = mesh(new THREE.BoxGeometry(.3, h, bw), new THREE.MeshBasicMaterial({ visible: false }), null, x0 + .15, h / 2, cz, { cast: false, receive: false });
-  proxy.userData.cab = cab; interactive.push(proxy);
-
-  // --- display models ---
-  const animated = [];
-  function extrudeSide(pts, width, mat, parent) {   // side profile (z, y) extruded across x
+  // ---------------- display vehicles ----------------
+  function extrudeSide(pts, width, mat, parent) {
     const sh = new THREE.Shape(); pts.forEach(([zz, yy], i) => i ? sh.lineTo(zz, yy) : sh.moveTo(zz, yy));
     const g = new THREE.ExtrudeGeometry(sh, { depth: width, bevelEnabled: false }); g.rotateY(-Math.PI / 2); g.translate(width / 2, 0, 0);
     return mesh(g, mat, parent);
   }
-  function extrudeTop(pts, height, mat, parent, y) {   // top-view outline (x, z) extruded upward
+  function extrudeTop(pts, height, mat, parent, y) {
     const sh = new THREE.Shape(); pts.forEach(([xx, zz], i) => i ? sh.lineTo(xx, -zz) : sh.moveTo(xx, -zz));
     const g = new THREE.ExtrudeGeometry(sh, { depth: height, bevelEnabled: false }); g.rotateX(-Math.PI / 2);
     return mesh(g, mat, parent, 0, y, 0);
   }
   const flashMat = new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffc46b').multiplyScalar(3), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-  function wheelRow(g, xs, zs, r, w, mat) { for (const x of xs) for (const z of zs) { const c = mesh(new THREE.CylinderGeometry(r, r, w, 16), mat, g, x, r, z); c.rotation.z = Math.PI / 2; } }
-
-  // main battle tank (woodland camo)
+  function wheelRow(g, xs, zs, r, wd, mat) { for (const x of xs) for (const z of zs) { const c = mesh(new THREE.CylinderGeometry(r, r, wd, 16), mat, g, x, r, z); c.rotation.z = Math.PI / 2; } }
+  function plaque(text, sub, x, z, ry) {
+    const pc = mkCanvas(512, 128), p = pc.getContext('2d');
+    p.fillStyle = '#c9a65a'; p.fillRect(0, 0, 512, 128); p.fillStyle = '#7a5a2a'; p.fillRect(8, 8, 496, 112); p.fillStyle = '#d8b86a'; p.fillRect(14, 14, 484, 100);
+    p.fillStyle = '#3a2810'; p.textAlign = 'center'; p.font = '24px "Press Start 2P"'; p.fillText(text, 256, 58); p.font = '13px "Press Start 2P"'; p.fillText(sub, 256, 92);
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
+    mesh(new THREE.CylinderGeometry(.025, .025, .8, 8), steel, g, 0, .4, 0);
+    const pl = mesh(new THREE.PlaneGeometry(.5, .125), std({ map: tex(pc), roughness: .35, metalness: .6, envMapIntensity: 1 }), g, 0, .84, .02, { cast: false }); pl.rotation.x = -.5;
+    mesh(new THREE.BoxGeometry(.52, .14, .02), steel, g, 0, .83, 0).rotation.x = -.5;
+  }
+  const VS = 1.15;   // display models, a bit bigger than before
   const tank = (() => {
-    const g = new THREE.Group(); g.position.set(x0 + 1.55, 0, z0 + .72); g.rotation.y = -Math.PI / 2 + .3; scene.add(g);
+    const px = x0 + 2.0, pz = z0 + 1.15; plinth(px, pz, 2.0, 1.5, .1);
+    const g = new THREE.Group(); g.position.set(px, .1, pz); g.rotation.y = -Math.PI / 2 + .95; g.scale.setScalar(VS); scene.add(g);
     for (const sx of [-1, 1]) {
       mesh(new THREE.BoxGeometry(.2, .22, 1.46), rubber, g, sx * .34, .13, 0);
       wheelRow(g, [sx * .45], [-.58, -.35, -.12, .11, .34, .57], .09, .05, steel);
@@ -1808,33 +1851,34 @@ const bayFx = FRONTLINE && (() => {
     extrudeTop([[-.3, -.38], [.3, -.38], [.36, .04], [.2, .32], [-.2, .32], [-.36, .04]], .19, greenCamo, tg, 0);
     mesh(new THREE.CylinderGeometry(.09, .09, .05, 14), greenCamo, tg, -.13, .21, -.12);
     mesh(new THREE.BoxGeometry(.03, .03, .2), steel, tg, -.13, .27, -.02);
-    mesh(new THREE.BoxGeometry(.18, .12, .1), steel, tg, .2, .17, -.38);   // stowage basket
-    const bg = new THREE.Group(); bg.position.set(0, .1, .3); tg.add(bg);
-    const brl = mesh(new THREE.CylinderGeometry(.028, .036, .95, 12), greenCamo, bg, 0, 0, .47); brl.rotation.x = Math.PI / 2;
-    const mz = mesh(new THREE.CylinderGeometry(.045, .045, .09, 12), steel, bg, 0, 0, .93); mz.rotation.x = Math.PI / 2;
-    const fl = mesh(new THREE.SphereGeometry(.16, 12, 10), flashMat, bg, 0, 0, 1.08, { cast: false, receive: false }); fl.visible = false;
-    contact(g, 1.2, 1.9);
-    animated.push(g);   // whole tank rocks back when it fires
-    return { g, tg, bg, fl, base: g.position.clone(), aim: 0 };
+    mesh(new THREE.BoxGeometry(.18, .12, .1), steel, tg, .2, .17, -.38);
+    const bgp = new THREE.Group(); bgp.position.set(0, .1, .3); tg.add(bgp);
+    const brl = mesh(new THREE.CylinderGeometry(.028, .036, .95, 12), greenCamo, bgp, 0, 0, .47); brl.rotation.x = Math.PI / 2;
+    const mz = mesh(new THREE.CylinderGeometry(.045, .045, .09, 12), steel, bgp, 0, 0, .93); mz.rotation.x = Math.PI / 2;
+    const fl = mesh(new THREE.SphereGeometry(.16, 12, 10), flashMat, bgp, 0, 0, 1.08, { cast: false, receive: false }); fl.visible = false;
+    animated.push(g);
+    obstacles.push({ x0: px - 1.0, x1: px + 1.0, z0: pz - .75, z1: pz + .75, color: '#4d5a32' });
+    plaque('MAIN BATTLE TANK', 'ARMOR · 120MM GUN', px - 1.15, pz + .55, -Math.PI / 2 + .5);
+    return { g, tg, bg: bgp, fl, base: g.position.clone() };
   })();
-  // 8-wheeled APC (desert camo)
   const apc = (() => {
-    const g = new THREE.Group(); g.position.set(x0 + 1.55, 0, z1 - .78); g.rotation.y = -Math.PI / 2 - .3; scene.add(g);
+    const px = x0 + 2.0, pz = z1 - 1.15; plinth(px, pz, 2.0, 1.5, .1);
+    const g = new THREE.Group(); g.position.set(px, .1, pz); g.rotation.y = -Math.PI / 2 - .95; g.scale.setScalar(VS); scene.add(g);
     for (const sx of [-1, 1]) wheelRow(g, [sx * .36], [-.5, -.2, .15, .45], .13, .09, rubber);
     extrudeSide([[-.72, .17], [.52, .17], [.72, .33], [.56, .5], [-.72, .5]], .66, sandCamo, g);
     for (const sx of [-1, 1]) mesh(new THREE.BoxGeometry(.03, .06, 1.2), sandCamo, g, sx * .345, .3, -.05);
-    mesh(new THREE.BoxGeometry(.14, .14, .03), steel, g, -.18, .38, -.73);   // rear door
+    mesh(new THREE.BoxGeometry(.14, .14, .03), steel, g, -.18, .38, -.73);
     const tg = new THREE.Group(); tg.position.set(0, .5, -.05); g.add(tg);
     mesh(new THREE.BoxGeometry(.3, .12, .32), sandCamo, tg, 0, .06, 0);
-    const bg = new THREE.Group(); bg.position.set(0, .07, .16); tg.add(bg);
-    const c = mesh(new THREE.CylinderGeometry(.018, .018, .5, 10), steel, bg, 0, 0, .25); c.rotation.x = Math.PI / 2;
-    contact(g, 1.1, 1.8);
+    const bgp = new THREE.Group(); bgp.position.set(0, .07, .16); tg.add(bgp);
+    const c = mesh(new THREE.CylinderGeometry(.018, .018, .5, 10), steel, bgp, 0, 0, .25); c.rotation.x = Math.PI / 2;
     animated.push(tg);
-    return { g, tg, bg };
+    obstacles.push({ x0: px - 1.0, x1: px + 1.0, z0: pz - .75, z1: pz + .75, color: '#a8916a' });
+    plaque('INFANTRY CARRIER', 'ARMOR · 8 WHEELS', px - 1.15, pz - .55, -Math.PI / 2 - .5);
+    return { g, tg, bg: bgp };
   })();
-  // attack helicopter hanging on cables from the joists
   const heli = (() => {
-    const g = new THREE.Group(); g.position.set(x0 + 1.3, 2.25, z1 - 1.0); g.rotation.y = Math.PI / 2 - .55; scene.add(g);   // over the APC, nose toward the visitors
+    const g = new THREE.Group(); g.position.set(x0 + 1.9, 2.75, cz); g.rotation.y = Math.PI / 2 - .7; g.scale.setScalar(1.25); scene.add(g);
     const body = mesh(new THREE.SphereGeometry(1, 18, 12), greyCamo, g, 0, 0, -.12); body.scale.set(.2, .24, .55);
     const cp = mesh(new THREE.SphereGeometry(1, 16, 10), blackGloss, g, 0, .07, -.48); cp.scale.set(.15, .14, .24);
     const boom = mesh(new THREE.CylinderGeometry(.035, .085, .95, 12), greyCamo, g, 0, .05, .72); boom.rotation.x = Math.PI / 2;
@@ -1848,74 +1892,151 @@ const bayFx = FRONTLINE && (() => {
     }
     const nose = mesh(new THREE.CylinderGeometry(.015, .015, .26, 8), steel, g, 0, -.14, -.7); nose.rotation.x = Math.PI / 2;
     mesh(new THREE.CylinderGeometry(.03, .04, .14, 10), steel, g, 0, .28, -.12);
+    mesh(new THREE.SphereGeometry(.025, 8, 6), glow('#ff3a3a', 2.2), g, 0, -.2, .2, { cast: false });   // anti-collision beacon
     const rotor = new THREE.Group(); rotor.position.set(0, .36, -.12); g.add(rotor);
     mesh(new THREE.CylinderGeometry(.05, .05, .04, 12), steel, rotor);
-    for (let i = 0; i < 4; i++) { const b = mesh(new THREE.BoxGeometry(1.3, .012, .07), steel, rotor, 0, 0, 0, { cast: false }); b.rotation.y = i * Math.PI / 4 * 2 + .3; }
+    for (let i = 0; i < 4; i++) { const bl = mesh(new THREE.BoxGeometry(1.3, .012, .07), steel, rotor, 0, 0, 0, { cast: false }); bl.rotation.y = i * Math.PI / 2 + .3; }
     const tail = new THREE.Group(); tail.position.set(.035, .2, 1.17); g.add(tail);
-    for (let i = 0; i < 2; i++) { const b = mesh(new THREE.BoxGeometry(.01, .3, .035), steel, tail, 0, 0, 0, { cast: false }); b.rotation.x = i * Math.PI / 2; }
+    for (let i = 0; i < 2; i++) { const bl = mesh(new THREE.BoxGeometry(.01, .3, .035), steel, tail, 0, 0, 0, { cast: false }); bl.rotation.x = i * Math.PI / 2; }
     const cable = std({ color: '#c9ccd2', roughness: .3, metalness: .8 });
-    mesh(new THREE.CylinderGeometry(.006, .006, h - 2.2 - .38, 6), cable, g, 0, .38 + (h - 2.2 - .38) / 2, -.12, { cast: false });
-    mesh(new THREE.CylinderGeometry(.006, .006, h - 2.2 - .3, 6), cable, g, 0, .3 + (h - 2.2 - .3) / 2, 1.14, { cast: false });
+    mesh(new THREE.CylinderGeometry(.005, .005, .5, 6), cable, g, 0, .62, -.12, { cast: false });
+    mesh(new THREE.CylinderGeometry(.005, .005, .5, 6), cable, g, 0, .55, 1.14, { cast: false });
     animated.push(g);
     return { g, rotor, tail };
   })();
-  // ammo crates, sandbags and a fuel drum
-  const crate = std({ color: '#47512d', roughness: .75, envMapIntensity: .3 });
-  const ccv = mkCanvas(256, 128), cc = ccv.getContext('2d');
-  cc.fillStyle = '#47512d'; cc.fillRect(0, 0, 256, 128); cc.fillStyle = '#e8e2c8'; cc.font = '22px "Press Start 2P"'; cc.textAlign = 'center'; cc.fillText('AMMO', 128, 58); cc.font = '12px "Press Start 2P"'; cc.fillText('CAL .50  x400', 128, 92); grain(cc, 256, 128, 18);
-  const crateFront = std({ map: tex(ccv), roughness: .75, envMapIntensity: .3 });
-  for (const [x, y, z, r] of [[x1 - .3, .16, z0 + .34, .1], [x1 - .3, .48, z0 + .38, -.08], [x1 - .3, .16, z0 + .78, .05]]) {
-    const b = mesh(new THREE.BoxGeometry(.32, .32, .48), [crate, crate, crate, crate, crate, crateFront], null, x, y, z);
-    b.rotation.y = -Math.PI / 2 + r;
-  }
-  const bag = std({ color: '#8d7c56', roughness: .95 }), bagGeo = new THREE.SphereGeometry(1, 12, 8);
-  for (const [bx, bz] of [[x1 - .3, z1 - .35], [x1 - .7, z1 - .3]]) for (let row = 0; row < 3; row++) for (let i = 0; i < 2 - (row > 1 ? 1 : 0); i++) {
-    const b = mesh(bagGeo, bag, null, bx + (row % 2) * .05, .07 + row * .12, bz - .12 + i * .24 + (row % 2) * .1); b.scale.set(.19, .07, .11); b.rotation.y = .1 * (i - row);
-  }
-  const drum = std({ color: '#33502f', roughness: .45, metalness: .5, envMapIntensity: .6 });
-  mesh(new THREE.CylinderGeometry(.17, .17, .56, 20), drum, null, x1 - .3, .28, z1 - 1.05);
-  for (const y of [.12, .44]) mesh(new THREE.TorusGeometry(.172, .01, 6, 24), drum, null, x1 - .3, y, z1 - 1.05).rotation.x = Math.PI / 2;
 
-  // --- work lamp hanging in the bay (it also flashes when the tank fires) ---
-  const lampMat = new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffd39a').multiplyScalar(2.2) });
-  mesh(new THREE.CylinderGeometry(.005, .005, .4, 6), steel, null, x0 + .55, h - .2, cz, { cast: false });
-  mesh(new THREE.SphereGeometry(.06, 12, 8), lampMat, null, x0 + .55, h - .45, cz, { cast: false, receive: false });
-  mesh(new THREE.CylinderGeometry(.13, .06, .1, 16, 1, true), std({ color: '#c9a227', roughness: .4, metalness: .6, side: THREE.DoubleSide }), null, x0 + .55, h - .4, cz, { cast: false });
-  const light = new THREE.PointLight('#ffc98a', 9, 6.5, 2); light.position.set(x0 + .9, h - .5, cz); scene.add(light);
-  lightPool(scene, '#ffb45c', 3.2, 3.4, x0 + 1.6, cz, .22);
+  // ---------------- holographic battle table ----------------
+  const tx = x0 + 1.9;
+  const tableCv = mkCanvas(160, 120), tableCtx = tableCv.getContext('2d'), tableTex = tex(tableCv, { pixel: true }), tableSt = { table: true };
+  mesh(new THREE.BoxGeometry(1.0, .82, 1.7), std({ color: '#1a1d18', roughness: .4, metalness: .5, envMapIntensity: .7 }), null, tx, .41, cz);
+  mesh(new THREE.BoxGeometry(1.08, .04, 1.78), frameM, null, tx, .84, cz);
+  const ttm = new THREE.MeshBasicMaterial({ map: tableTex }); ttm.color.setScalar(1.25);
+  const top = mesh(new THREE.PlaneGeometry(1.6, .92), ttm, null, tx, .865, cz, { cast: false, receive: false }); top.rotation.order = 'YXZ'; top.rotation.y = -Math.PI / 2; top.rotation.x = -Math.PI / 2;
+  for (const s of [-1, 1]) { mesh(new THREE.BoxGeometry(1.08, .02, .02), glow(ACC, 2.4), null, tx, .87, cz + s * .89, { cast: false }); mesh(new THREE.BoxGeometry(.02, .02, 1.78), glow(ACC, 2.4), null, tx + s * .54, .87, cz, { cast: false }); }
+  // a faint hologram rising off the map
+  const holo = new THREE.Mesh(new THREE.BoxGeometry(.9, .55, 1.6, 1, 1, 1), new THREE.MeshBasicMaterial({ color: new THREE.Color(ACC).multiplyScalar(.07), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  holo.position.set(tx, 1.15, cz); holo.rotation.z = Math.PI; holo.renderOrder = 3; scene.add(holo);
+  lightPool(scene, ACC, 2.2, 2.6, tx, cz, .3);
+  obstacles.push({ x0: tx - .54, x1: tx + .54, z0: cz - .89, z1: cz + .89, color: ACC });
+  const tablePos = new THREE.Vector3(tx, .9, cz);
 
-  let fire = 0, cool = 0;
-  const towards = (o, tx, tz) => { const v = o.g.worldToLocal(new THREE.Vector3(tx, 0, tz)); return Math.atan2(v.x, v.z); };
+  // ---------------- trailer screen + poster mural ----------------
+  const trCv = mkCanvas(320, 180), tr = trCv.getContext('2d'), trTex = tex(trCv, { pixel: true }), trSt = {}, trMap = mkCanvas(160, 120), trMapCtx = trMap.getContext('2d');
+  const trX = x0 + 2.3, trY = 2.35;
+  mesh(new THREE.BoxGeometry(2.86, 1.66, .08), frameM, null, trX, trY, z0 + .05);
+  const trm = new THREE.MeshBasicMaterial({ map: trTex }); trm.color.setScalar(1.2);
+  mesh(new THREE.PlaneGeometry(2.7, 1.52), trm, null, trX, trY, z0 + .095, { cast: false, receive: false });
+  const trPos = new THREE.Vector3(trX, trY, z0 + .1);
+  const SLIDES = [
+    ['FRONTLINE', 'MODERN WARFARE RTS', 'NEW!'],
+    ['COMBINED ARMS', 'INFANTRY · ARMOR · ARTILLERY', 'AIR · NAVAL'],
+    ['PLAY ONLINE', '1v1 · 2v2 · FREE-FOR-ALL', 'PEER-TO-PEER · NO INSTALL'],
+    ['SOLO VS AI', 'CAPTURE STRATEGIC POINTS', 'HOLD THE LINE'],
+    ['PLAY NOW', '+25 TICKETS TODAY', 'STEP UP TO THE MACHINE']
+  ];
+  function drawTrailer(t) {
+    SCENES.frontline(trMapCtx, t, trSt);
+    tr.imageSmoothingEnabled = false; tr.drawImage(trMap, 0, 13, 160, 87, 0, 0, 320, 180);
+    tr.fillStyle = 'rgba(6,10,5,.62)'; tr.fillRect(0, 0, 320, 180);
+    const k = Math.floor(t / 4) % SLIDES.length, p = (t % 4) / 4, s = SLIDES[k];
+    tr.textAlign = 'center'; tr.textBaseline = 'middle';
+    const slide = Math.min(1, p * 6), a = p > .9 ? (1 - p) * 10 : 1;
+    tr.globalAlpha = a;
+    tr.font = '22px "Press Start 2P"'; tr.fillStyle = ACC; tr.shadowColor = ACC; tr.shadowBlur = 10;
+    tr.fillText(s[0], 160 - (1 - slide) * 200, 62);
+    tr.shadowBlur = 0; tr.font = '10px "Press Start 2P"'; tr.fillStyle = '#f2ffe0'; tr.fillText(s[1], 160 + (1 - slide) * 200, 104);
+    tr.fillStyle = k === 4 || k === 0 ? '#ff7a5a' : '#c9d6b8'; if (k !== 0 || (t % 1) < .7) tr.fillText(s[2], 160, 126);
+    tr.globalAlpha = 1;
+    tr.fillStyle = ACC; tr.fillRect(0, 172, 320 * p, 3);   // slide progress bar
+    tr.fillStyle = 'rgba(0,0,0,.18)'; for (let y = 1; y < 180; y += 2) tr.fillRect(0, y, 320, 1);
+    trTex.needsUpdate = true;
+  }
+  // poster mural on the opposite wall
+  const mc = mkCanvas(1024, 512), m = mc.getContext('2d');
+  const sky = m.createLinearGradient(0, 0, 0, 512); sky.addColorStop(0, '#1a1024'); sky.addColorStop(.45, '#7a2a1c'); sky.addColorStop(.75, '#e8762a'); sky.addColorStop(1, '#ffb24a');
+  m.fillStyle = sky; m.fillRect(0, 0, 1024, 512);
+  m.fillStyle = 'rgba(255,220,150,.55)'; m.beginPath(); m.arc(700, 400, 90, 0, 7); m.fill();
+  const mr = rng(31);
+  for (let i = 0; i < 5; i++) { const sx = 120 + mr() * 800; m.fillStyle = 'rgba(30,20,20,.45)'; for (let j = 0; j < 9; j++) { m.beginPath(); m.arc(sx + Math.sin(j) * 20 + j * 6, 420 - j * 34, 26 + j * 6, 0, 7); m.fill(); } }
+  m.fillStyle = '#0d0a0a';
+  m.beginPath(); m.moveTo(0, 440); for (let x = 0; x <= 1024; x += 32) m.lineTo(x, 430 + Math.sin(x * .01) * 14 + mr() * 8); m.lineTo(1024, 512); m.lineTo(0, 512); m.fill();
+  const tankSil = (x, y, s, dir) => { m.save(); m.translate(x, y); m.scale(s * dir, s); m.fillRect(-60, -18, 120, 20); m.beginPath(); m.moveTo(-50, -18); m.lineTo(-40, -34); m.lineTo(30, -34); m.lineTo(40, -18); m.fill(); m.fillRect(-20, -46, 46, 14); m.fillRect(24, -42, 70, 5); for (let i = -50; i <= 50; i += 20) { m.beginPath(); m.arc(i, 4, 9, 0, 7); m.fill(); } m.restore(); };
+  tankSil(250, 440, 1.3, 1); tankSil(560, 448, .9, 1); tankSil(860, 444, 1.1, -1);
+  const heliSil = (x, y, s) => { m.save(); m.translate(x, y); m.scale(s, s); m.beginPath(); m.ellipse(0, 0, 44, 16, 0, 0, 7); m.fill(); m.fillRect(30, -4, 70, 7); m.fillRect(94, -18, 6, 20); m.fillRect(-70, -24, 140, 3); m.fillRect(-2, -24, 4, 10); m.fillRect(-26, 18, 50, 3); m.restore(); };
+  heliSil(360, 170, 1.1); heliSil(780, 120, .7); heliSil(560, 70, .5);
+  for (let i = 0; i < 14; i++) { const x = 60 + mr() * 900, y = 460 + mr() * 30; m.fillRect(x, y - 26, 6, 18); m.beginPath(); m.arc(x + 3, y - 30, 5, 0, 7); m.fill(); m.fillRect(x + 4, y - 22, 14, 2); }
+  m.textAlign = 'center'; m.textBaseline = 'middle'; m.font = '88px "Press Start 2P"';
+  m.fillStyle = '#0d0a0a'; m.fillText('FRONTLINE', 518, 270 - 140 + 6); m.fillStyle = '#f2ffe0'; m.shadowColor = '#ffb24a'; m.shadowBlur = 20; m.fillText('FRONTLINE', 512, 130);
+  m.shadowBlur = 0; m.font = '22px "Press Start 2P"'; m.fillStyle = '#ffe2b0'; m.fillText('COMBINED ARMS · ONLINE · VS AI', 512, 206);
+  grain(m, 1024, 512, 16);
+  const mm = new THREE.MeshBasicMaterial({ map: tex(mc) }); mm.color.setScalar(1.05);
+  mesh(new THREE.BoxGeometry(3.7, 1.9, .06), frameM, null, trX, 2.25, z1 - .04);
+  plane(3.6, 1.8, mm, trX, 2.25, z1 - .08, Math.PI);
+  // back wall flags either side of the hero machine
+  const flc = mkCanvas(256, 640), flx = flc.getContext('2d');
+  flx.fillStyle = '#3a4426'; flx.fillRect(0, 0, 256, 640); flx.fillStyle = '#23281a'; flx.fillRect(0, 0, 256, 18); flx.fillRect(0, 622, 256, 18);
+  flx.fillStyle = '#f2ffe0'; star(flx, 128, 210, 90, 36); flx.fill();
+  flx.fillStyle = ACC; for (let i = 0; i < 3; i++) flx.fillRect(40, 360 + i * 46, 176, 22);
+  grain(flx, 256, 640, 18);
+  const flagM = std({ map: tex(flc), roughness: .9, side: THREE.DoubleSide, envMapIntensity: .2 });
+  for (const s of [-1, 1]) { const fm = mesh(new THREE.PlaneGeometry(.7, 1.75), flagM, null, x1 - .03, 2.45, cz + s * 1.55, { cast: false }); fm.rotation.y = -Math.PI / 2; mesh(new THREE.CylinderGeometry(.015, .015, .9, 8), steel, null, x1 - .06, 3.33, cz + s * 1.55).rotation.x = Math.PI / 2; }
+
+  // ---------------- light ----------------
+  const light = new THREE.PointLight('#eaffd8', 16, 9, 2); light.position.set(x0 + 2.0, h - .5, cz); scene.add(light);
+  const heroLight = new THREE.PointLight(ACC, 7, 5, 2); heroLight.position.set(x1 - 1.6, 2.6, cz); scene.add(heroLight);
+  // sweeping searchlights from the corners by the door, aimed at the hero
+  const lights = [];
+  for (const s of [-1, 1]) {
+    const g = new THREE.Group(); g.position.set(x0 + .35, h - .25, cz + s * (hw / 2 - .4)); scene.add(g);
+    mesh(new THREE.CylinderGeometry(.09, .12, .22, 14), frameM, g, 0, 0, 0).rotation.x = Math.PI / 2;
+    const L = 6.2, cone = new THREE.CylinderGeometry(.05, .5, L, 24, 1, true); cone.translate(0, -L / 2, 0); cone.rotateX(-Math.PI / 2);
+    const beam = new THREE.Mesh(cone, new THREE.MeshBasicMaterial({ color: new THREE.Color('#fff6dc').multiplyScalar(.08), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    beam.renderOrder = 3; g.add(beam); animated.push(g); lights.push({ g, s });
+  }
+
+  // ---------------- behaviour ----------------
+  let fire = 0, acc = 0;
+  const towards = (o, x, z) => { const v = o.g.worldToLocal(new THREE.Vector3(x, 0, z)); return Math.atan2(v.x, v.z); };
+  const aimAt = new THREE.Vector3();
   return {
     animated,
-    salute() {
-      if (cool > 0) return; cool = 1.4; fire = 1;
-      audio(); tone(70, 0, .55, 'sawtooth', .08); tone(46, .02, .8, 'triangle', .12); tone(130, 0, .12, 'square', .05);
-      glitchUntil = performance.now() + 160;
-      toast('FRONTLINE', '#b8ff5a', 'Coming soon: a modern warfare RTS. The tanks are still warming up!');
+    fire() {   // the tank salutes when someone starts Frontline
+      fire = 1; audio(); tone(70, 0, .55, 'sawtooth', .08); tone(46, .02, .8, 'triangle', .12); tone(130, 0, .12, 'square', .05);
     },
     update(dt, t) {
-      cool = Math.max(0, cool - dt);
-      // turrets follow you when you're near the bay, otherwise they scan
-      const near = Math.hypot(player.pos.x - (x0 - .5), player.pos.z - cz) < 6.5 && started;
+      const near = started && player.pos.x > x0 - 4 && Math.abs(player.pos.z - cz) < 6;
       for (const v of [tank, apc]) {
         let a = near ? towards(v, player.pos.x, player.pos.z) : Math.sin(t * .35 + (v === apc ? 2 : 0)) * .7;
-        a = clamp(a, -1.4, 1.4);
+        a = clamp(a, -1.6, 1.6);
         v.tg.rotation.y += (a - v.tg.rotation.y) * Math.min(1, dt * (near ? 2.2 : 1));
         v.bg.rotation.x += ((near ? -.05 : -.02 + Math.sin(t * .5) * .03) - v.bg.rotation.x) * Math.min(1, dt * 2);
       }
-      heli.rotor.rotation.y += dt * .9; heli.tail.rotation.x += dt * 2.4;
-      heli.g.position.y = 2.25 + Math.sin(t * .8) * .015; heli.g.rotation.z = Math.sin(t * .6) * .02;
-      // firing: recoil, muzzle flash, light flash
+      heli.rotor.rotation.y += dt * 1.1; heli.tail.rotation.x += dt * 3;
+      heli.g.position.y = 2.75 + Math.sin(t * .8) * .02; heli.g.rotation.z = Math.sin(t * .6) * .025;
+      for (const l of lights) {   // sweep across the hero machine and the room
+        aimAt.set(x1 - 1.1 - Math.sin(t * .5 + l.s) * 1.6, .4, cz + Math.sin(t * .37 * l.s + 1) * 2.4);
+        l.g.lookAt(aimAt);
+      }
       if (fire > 0) {
         fire = Math.max(0, fire - dt * 2.2);
         const k = fire, kick = Math.sin(Math.min(1, (1 - k) * 4) * Math.PI) * .06;
         tank.bg.position.z = .3 - k * k * .12;
         tank.g.position.copy(tank.base).addScaledVector(new THREE.Vector3(Math.sin(tank.g.rotation.y), 0, Math.cos(tank.g.rotation.y)), -kick * .5);
         tank.fl.visible = k > .72; tank.fl.scale.setScalar(.6 + (1 - k) * 3);
-        light.intensity = 9 + Math.max(0, k - .6) * 120;
-      } else { tank.fl.visible = false; light.intensity = 9; }
-      for (const l of lamps) l.lm.color.set(((t * 1.6 + l.k * .5) % 1) < .5 ? '#ffaa1e' : '#3a2408').multiplyScalar(((t * 1.6 + l.k * .5) % 1) < .5 ? 2.4 : 1);
+        light.intensity = 16 + Math.max(0, k - .6) * 140;
+      } else { tank.fl.visible = false; light.intensity = 16; }
+      // marquee bulbs chase, chevrons pulse toward the door, ticker scrolls
+      const step = Math.floor(t * 8) % 3;
+      chase.forEach((mt, i) => mt.color.set(i === step ? '#fff3c4' : '#6a5a2a').multiplyScalar(i === step ? 2.6 : 1));
+      chev.forEach((mt, i) => { const k = ((t * 1.4 - i * .2) % 1 + 1) % 1; mt.opacity = .25 + Math.max(0, 1 - k * 2.5) * .9; });
+      tickTex.offset.x = (t * .05) % 1;
+      heroLight.intensity = 6 + Math.sin(t * 2) * 1.5;
+      acc += dt;
+      if (acc > 1 / 15) {
+        acc = 0;
+        if (visibleNear(tablePos, 1, 10)) { SCENES.frontline(tableCtx, t * .8 + 3, tableSt); tableTex.needsUpdate = true; }
+        if (visibleNear(trPos, 1.6, 12)) drawTrailer(t);
+      }
     }
   };
 })();
@@ -2243,7 +2364,7 @@ const SCENES = {
     if ((t % 1.6) < 1) { R(c, 12, 88, 136, 12, 'rgba(0,0,0,.8)'); T(c, '! GRAPHIC HORROR !', 80, 90, '#ff3b3b'); }
   },
   frontline(c, t, st) {
-    // a top-down RTS teaser: a tank column rolls up the road toward the bridge
+    // top-down battle: a tank column is drag-selected and rolls up the road to the bridge
     if (!st.map) {
       st.map = mkCanvas(160, 120); const m = st.map.getContext('2d'), r = rng(77);
       m.fillStyle = '#4a5a2e'; m.fillRect(0, 0, 160, 120);
@@ -2280,11 +2401,8 @@ const SCENES = {
     if (cyc > 2.4 && cyc < 3.4) { R(c, 92, 70, 8, 1, '#7dff6a'); R(c, 95, 67, 1, 7, '#7dff6a'); }   // move order marker
     st.boom = st.boom.filter(b => (b.t += 1 / 30) < .5);
     for (const b of st.boom) { const r2 = 2 + b.t * 14; c.fillStyle = `rgba(255,${180 - b.t * 200 | 0},60,${1 - b.t * 2})`; c.beginPath(); c.arc(b.x, b.y, r2, 0, 7); c.fill(); }
-    // HUD: title, then the caution band
-    R(c, 0, 0, 160, 13, 'rgba(14,18,10,.8)'); T(c, 'FRONTLINE', 80, 3, '#b8ff5a');
-    R(c, 0, 100, 160, 20, '#f2c21b');
-    for (let x = -12 + (t * 10 % 12); x < 160; x += 12) { c.fillStyle = '#16140f'; c.beginPath(); c.moveTo(x, 120); c.lineTo(x + 6, 120); c.lineTo(x + 12, 100); c.lineTo(x + 6, 100); c.fill(); }
-    R(c, 26, 104, 108, 12, '#16140f'); if ((t % 1) < .7) T(c, 'COMING SOON', 80, 106, '#f2c21b');
+    // the arcade adds the title bar and PRESS START; the battle table shows just the map
+    if (!st.table && (t % .8) < .5) { R(c, 4, 16, 34, 12, '#ff3a1a'); T(c, 'NEW!', 21, 18, '#fff'); }
   },
   soon(c, t, st) {
     if (!st.n) { st.n = mkCanvas(80, 60); st.nc = st.n.getContext('2d'); st.img = st.nc.createImageData(80, 60); }
@@ -2335,8 +2453,14 @@ const keys = new Set();
 let started = false, paused = true, menuOpen = false, launching = null, target = null, dragLook = false, hadLock = false;
 let fxOn = true, mapOn = true, recStart = 0;
 
+function walkable(x, z) {   // the room, plus the showcase hall and its doorway
+  if (x >= ROOM.x0 + RAD && x <= ROOM.x1 - RAD && z >= ROOM.z0 + RAD && z <= ROOM.z1 - RAD) return true;
+  if (!SHOWCASE) return false;
+  if (x >= HALL.x0 + RAD && x <= HALL.x1 - RAD && z >= HALL.z0 + RAD && z <= HALL.z1 - RAD) return true;
+  return x > ROOM.x1 - RAD - .02 && x < HALL.x0 + RAD + .02 && z >= DOOR.z0 + RAD && z <= DOOR.z1 - RAD;
+}
 function blocked(x, z) {
-  if (x < ROOM.x0 + RAD || x > ROOM.x1 - RAD || z < ROOM.z0 + RAD || z > ROOM.z1 - RAD) return true;
+  if (!walkable(x, z)) return true;
   for (const o of obstacles) if (x > o.x0 - RAD && x < o.x1 + RAD && z > o.z0 - RAD && z < o.z1 + RAD) return true;
   if (personHit(x, z)) return true;
   return false;
@@ -2450,7 +2574,7 @@ function updateTarget() {
   $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
+  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '') + (target.g.showcase ? ' · ★ NEW GAME' : '');
   pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' || target.kind === 'wheel' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.`
     : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : target.kind === 'hof' ? ` Your collection: ${fmt(collectorScore())} points.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
@@ -2492,13 +2616,14 @@ function launch(cab, confirmed = false) {
   if (cab.kind === 'prizes') { openShop(true); return; }
   if (cab.kind === 'wheel') { spinWheel(); return; }
   if (cab.kind === 'hof') { openHof(); return; }
-  if (cab.kind === 'soon') { bayFx.salute(); return; }
   if (cab.g.idea) { sfx.blip(); keys.clear(); openIdea(); return; }
   if (!cab.g.url) { sfx.buzz(); glitchUntil = performance.now() + 400; return; }
   sfx.coin();
   // tickets for playing: each game pays once a day
   let bonus = false;
-  if (wallet.played[cab.g.title] !== today()) { wallet.played[cab.g.title] = today(); bonus = true; earn(10, '+10 TICKETS', 'For playing ' + cab.g.title + ' today!'); }
+  if (cab.g.showcase && bayFx) bayFx.fire();   // the display tank fires a salute
+  const pay = cab.g.showcase ? 25 : 10;          // the newest game pays extra
+  if (wallet.played[cab.g.title] !== today()) { wallet.played[cab.g.title] = today(); bonus = true; earn(pay, '+' + pay + ' TICKETS', 'For playing ' + cab.g.title + ' today!'); }
   const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38 * cab.s);
   tmpCam.position.copy(to); tmpCam.lookAt(cab.screenWorld);
   launching = { cab, k: 0, fromP: camera.position.clone(), fromQ: camera.quaternion.clone(), toP: to, toQ: tmpCam.quaternion.clone(), went: false, bonus };
@@ -2529,7 +2654,7 @@ function resetAfterReturn() {
 
 // --- teleport from game list ---
 function walkTo(i) {
-  const cab = cabinets[i]; if (!cab) return;
+  const cab = cabinets.find(c => c.idx === i); if (!cab) return;
   player.pos.set(cab.front.x, 0, cab.front.z); player.vel.set(0, 0, 0);
   const d = new THREE.Vector3().subVectors(cab.screenWorld, cab.front);
   player.yaw = Math.atan2(-d.x, -d.z); player.pitch = -0.08;
@@ -2552,7 +2677,7 @@ function setMap(on) { mapOn = on; $('optMap').checked = on; $('map').hidden = !o
 // Tokens come free from the token machine and pay for claw games; claw
 // capsules pay out tickets; the prize counter trades tickets for prizes.
 // Everything is kept in this browser (localStorage).
-const USE_VERB = { claw: 'PLAY', tokens: 'GET TOKENS', prizes: 'SEE PRIZES', wheel: 'SPIN', hof: 'LOOK', soon: 'FIRE A SALUTE' };
+const USE_VERB = { claw: 'PLAY', tokens: 'GET TOKENS', prizes: 'SEE PRIZES', wheel: 'SPIN', hof: 'LOOK' };
 const TOKEN_CAP = 20;
 const wallet = (() => {
   let w = null;
@@ -3250,18 +3375,25 @@ if (isTouch) {
 //  Minimap
 // ============================================================
 const mapCv = $('map'), mctx = mapCv.getContext('2d'), MS = 10;
-mapCv.width = RW * MS; mapCv.height = RD * MS;
+const MAP_W = SHOWCASE ? HALL.x1 - ROOM.x0 : RW;
+mapCv.width = MAP_W * MS; mapCv.height = RD * MS;
+if (SHOWCASE) mapCv.style.width = 'calc(' + getComputedStyle(mapCv).width + ' * ' + (MAP_W / RW).toFixed(3) + ')';
 function drawMap() {
   if (!mapOn || !started) return;
   const c = mctx; c.clearRect(0, 0, mapCv.width, mapCv.height);
-  c.fillStyle = 'rgba(30,20,50,.6)'; c.fillRect(0, 0, mapCv.width, mapCv.height);
+  c.fillStyle = 'rgba(30,20,50,.6)'; c.fillRect(0, 0, RW * MS, RD * MS);
+  if (SHOWCASE) {
+    c.fillStyle = 'rgba(28,42,20,.75)'; c.fillRect((HALL.x0 - ROOM.x0) * MS, (HALL.z0 - ROOM.z0) * MS, (HALL.x1 - HALL.x0) * MS, (HALL.z1 - HALL.z0) * MS);
+    c.strokeStyle = (performance.now() % 1000) < 600 ? '#b8ff5a' : '#4a6a24'; c.lineWidth = 2;
+    c.strokeRect((HALL.x0 - ROOM.x0) * MS + 1, (HALL.z0 - ROOM.z0) * MS + 1, (HALL.x1 - HALL.x0) * MS - 2, (HALL.z1 - HALL.z0) * MS - 2);
+    c.fillStyle = 'rgba(28,42,20,.9)'; c.fillRect(RW * MS - 2, (DOOR.z0 - ROOM.z0) * MS, 4, (DOOR.z1 - DOOR.z0) * MS);
+  }
   for (const o of obstacles) {
     c.fillStyle = o.cab ? (o.cab === target ? '#ffffff' : o.color) : 'rgba(200,190,230,.35)';
     c.fillRect((o.x0 - ROOM.x0) * MS, (o.z0 - ROOM.z0) * MS, (o.x1 - o.x0) * MS, (o.z1 - o.z0) * MS);
     if (o.cab && o.cab.g.featured) { c.strokeStyle = '#ffcf4a'; c.lineWidth = 2; c.strokeRect((o.x0 - ROOM.x0) * MS - 1, (o.z0 - ROOM.z0) * MS - 1, (o.x1 - o.x0) * MS + 2, (o.z1 - o.z0) * MS + 2); }
   }
   c.fillStyle = '#ffcf4a'; c.fillRect((-1.1 - ROOM.x0) * MS, RD * MS - 3, 2.2 * MS, 3);
-  if (FRONTLINE) { c.fillStyle = (performance.now() % 1000) < 600 ? '#f2c21b' : '#5a4808'; c.fillRect(RW * MS - 3, (BAY.z0 - ROOM.z0) * MS, 3, (BAY.z1 - BAY.z0) * MS); }   // construction bay
   for (const p of people) { c.fillStyle = p.kind === 'dancer' ? '#ff4fd8' : 'rgba(255,241,196,.85)'; c.beginPath(); c.arc((p.x - ROOM.x0) * MS, (p.z - ROOM.z0) * MS, p.kind === 'dancer' ? 3.2 : 2.2, 0, 7); c.fill(); }
   const px = (player.pos.x - ROOM.x0) * MS, pz = (player.pos.z - ROOM.z0) * MS;
   c.save(); c.translate(px, pz); c.rotate(-player.yaw);
