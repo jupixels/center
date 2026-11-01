@@ -594,10 +594,11 @@
     { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',      desc: 'Open-world BMX! Pedal, hop and pull tricks off dirt jumps, a mega ramp and a downhill trail, tackle obstacle courses and ride with friends.' },
     // isNew: true puts a flashing NEW! sign on the game's arcade machine.
     // warning: true makes players read and accept a content warning before it opens.
-    // showcase: true gives a big new game its own hall through the right-hand wall,
+    // showcase: true gives a big game its own hall through the right-hand wall,
     // with the hero machine, display models, banners and floor arrows leading there.
-    { title: 'Frontline',        url: 'https://jupixels.github.io/frontline/',         color: '#a6e05a', scene: 'frontline', isNew: true, showcase: true, desc: 'Modern warfare RTS. Command infantry, armor, artillery, air and naval forces and fight for strategic points: online 1v1, 2v2 or free-for-all, or solo against the AI.' },
-    { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',   isNew: true, warning: true, desc: 'Horror. Something is waiting in the old hospital.' }
+    { title: 'Frontline',        url: 'https://jupixels.github.io/frontline/',         color: '#a6e05a', scene: 'frontline', showcase: true, desc: 'Modern warfare RTS. Command infantry, armor, artillery, air and naval forces and fight for strategic points: online 1v1, 2v2 or free-for-all, or solo against the AI.' },
+    { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',   isNew: true, warning: true, desc: 'Horror. Something is waiting in the old hospital.' },
+    { title: 'Limspace',         url: 'https://jupixels.github.io/limspace/',          color: '#7cf0b0', scene: 'limspace', isNew: true, desc: 'Found footage. Play the unlabeled tape and explore an empty, silent place in the dark, with only your night vision. Headphones recommended.' }
   ];
   // Games still being built: they get a COMING SOON entry in the game list.
   window.UPCOMING = [];
@@ -610,18 +611,14 @@
     const order = GAMES.map((g, i) => [g, i]).sort((a, b) => (b[0].isNew ? 1 : 0) - (a[0].isNew ? 1 : 0));
     order.forEach(([g, i]) => {
       const el = document.createElement('div');
-      el.className = 'gitem' + (g.showcase ? ' big hero' : g.featured ? ' big' : '');
+      el.className = 'gitem' + (g.featured ? ' big' : '');
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div>' + (g.showcase ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
+        '<div>' + (g.isNew ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
         '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '"' + (g.warning ? ' data-warn="' + i + '"' : '') + '>PLAY ▶</a></div>';
-      (g.showcase ? document.getElementById('gnew') : g.featured ? feat : list).appendChild(el);
-      if (g.showcase) {   // big NEW button on the start screen too
-        const box = document.getElementById('startNew'); box.hidden = false;
-        box.innerHTML = '<a href="' + g.url + '"><b>NEW!</b> PLAY ' + g.title.toUpperCase() + ' ▶</a><div class="sub">or walk to its hall: follow the green arrows</div>';
-      }
+      (g.featured ? feat : list).appendChild(el);
       if (g.featured) {
         const a = document.createElement('a');
         a.href = g.url; a.textContent = g.title.toUpperCase(); a.style.setProperty('--c', g.color);
@@ -842,7 +839,7 @@ renderer.shadowMap.autoUpdate = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#050309');
-scene.fog = new THREE.Fog('#07040d', 13, 30);
+scene.fog = new THREE.Fog('#07040d', 16, 36);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
@@ -997,7 +994,8 @@ await Promise.race([
 // ============================================================
 //  Room
 // ============================================================
-const ROOM = { x0: -7, x1: 7, z0: -12, z1: 5, h: 4.2 };
+// the back half was pushed out 5m to make room for more machines
+const ROOM = { x0: -7, x1: 7, z0: -17, z1: 5, h: 4.2 };
 // the showcase hall behind the right-hand wall, and the doorway into it
 const DOOR = { z0: -3.9, z1: -0.3, h: 3.0 };
 const HALL = { x0: ROOM.x1, x1: ROOM.x1 + 5.2, z0: -6.1, z1: 1.9, h: 4.0 };
@@ -1095,7 +1093,7 @@ const ceil = mesh(new THREE.PlaneGeometry(RW, RD), std({ map: ceilTex, roughness
 ceil.rotation.x = Math.PI / 2;
 // recessed light panels
 const panelMat = glow('#efe6ff', 1.05);
-for (const z of [-9.5, -6, -2.5, 1]) for (const x of [-3.6, 3.6]) {
+for (let z = 1; z > ROOM.z0 + 1; z -= 3.5) for (const x of [-3.6, 3.6]) {
   const p = mesh(new THREE.PlaneGeometry(1.2, .6), panelMat, null, x, ROOM.h - .01, z, { cast: false, receive: false });
   p.rotation.x = Math.PI / 2;
 }
@@ -1106,17 +1104,18 @@ for (const [x, col] of [[-1.2, '#ff4fd8'], [1.2, '#3ad6c4']]) strip(RD - 1, 'z',
 scene.add(new THREE.HemisphereLight('#7f6fd8', '#1a0f2e', 0.8));
 const spots = [];
 // the first spot is aimed at the featured stage on the back wall
-for (const [z, tz, ty, power] of [[-9.2, -11.4, 0.9, 85], [-4, -4, 0, 60], [0.5, 0.5, 0, 60]]) {
+for (const [z, tz, ty, power] of [[ROOM.z0 + 2.8, ROOM.z0 + .6, 0.9, 85], [-10.5, -10.5, 0, 60], [-4, -4, 0, 60], [0.5, 0.5, 0, 60]]) {
   const s = new THREE.SpotLight('#ffe9d6', power, 14, 0.95, 0.85, 2);
   s.position.set(0, ROOM.h - .15, z);
   s.target.position.set(0, ty, tz);
-  s.castShadow = !isTouch;
+  s.castShadow = !isTouch && z !== -10.5;   // the back-half fill light skips shadows to save frame time
   s.shadow.mapSize.set(1024, 1024);
   s.shadow.bias = -0.0004; s.shadow.normalBias = 0.02;
   s.shadow.camera.near = .5; s.shadow.camera.far = 8;
   scene.add(s, s.target); spots.push(s);
 }
-for (const [x, z, col] of [[-4.5, -7, '#b38cff'], [4.5, -7, '#b38cff'], [-4, 1.5, '#ffb3e6'], [4, 1.5, '#9de8ff']]) {
+// (every light costs something on every lit pixel, so the bigger room keeps the same lamp count)
+for (const [x, z, col] of [[-4.5, -8.5, '#b38cff'], [4.5, -8.5, '#b38cff'], [-4, 1.5, '#ffb3e6'], [4, 1.5, '#9de8ff']]) {
   const l = new THREE.PointLight(col, 15, 10, 2); l.position.set(x, 3.6, z); scene.add(l);
 }
 
@@ -1325,22 +1324,30 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
 }
 
 // layout: featured games stand on a lit stage on the back wall, straight ahead
-// of the entrance; the extras line the side walls.
+// of the entrance; the extras line the side walls, flank the stage, and fill
+// two back-to-back pods in the back half. Slots fill in this order, so the
+// first ones are the most visible; there's room for 18 extras before overflow.
 const LX = ROOM.x0 + 0.46, RX = ROOM.x1 - 0.46;
 const FS = 1.15, STAGE_H = 0.12, STAGE_X = 3.4, STAGE_FRONT = ROOM.z0 + 1.5;
 const FZ = ROOM.z0 + 0.43 * FS + 0.04;
 const FEAT_SLOTS = [[0, FZ, 0], [-2.25, FZ, 0], [2.25, FZ, 0]];   // centre, left, right
+const POD_X = 3.0, POD_Z = -11.6;   // two back-to-back pairs either side of the centre aisle
 const EXTRA_SLOTS = [
   [LX, -8.6, Math.PI / 2], [LX, -6.8, Math.PI / 2], [LX, -5.0, Math.PI / 2],
   [RX, -8.6, -Math.PI / 2], [RX, -6.8, -Math.PI / 2], [RX, -5.0, -Math.PI / 2],
   [-4.75, ROOM.z0 + .46, 0],  // back wall, just left of the featured stage
-  [4.75, ROOM.z0 + .46, 0]    // back wall, just right of the featured stage
+  [4.75, ROOM.z0 + .46, 0],   // back wall, just right of the featured stage
+  [-POD_X, POD_Z + .45, 0], [POD_X, POD_Z + .45, 0],             // pods, facing the entrance
+  [LX, -10.4, Math.PI / 2], [RX, -10.4, -Math.PI / 2],
+  [LX, -12.2, Math.PI / 2], [RX, -12.2, -Math.PI / 2],
+  [LX, -14.0, Math.PI / 2], [RX, -14.0, -Math.PI / 2],
+  [-POD_X, POD_Z - .45, Math.PI], [POD_X, POD_Z - .45, Math.PI]  // pods, facing the stage
 ];
 let nf = 0, ne = 0;
 GAMES.forEach((g, i) => {
   if (g === SHOWCASE) return;   // built in its own hall further down
   if (g.featured && nf < FEAT_SLOTS.length) buildCabinet(g, i, ...FEAT_SLOTS[nf++], FS, STAGE_H);
-  else buildCabinet(g, i, ...(EXTRA_SLOTS[ne++] || [LX, -3.2 - ne * 1.8, Math.PI / 2]));
+  else buildCabinet(g, i, ...(EXTRA_SLOTS[ne++] || [0, POD_Z + 2.2 - (ne - EXTRA_SLOTS.length) * 1.1, 0]));   // overflow: a row up the centre aisle
 });
 buildCabinet(SOON, GAMES.length, LX, -3.2, Math.PI / 2);
 
@@ -1662,7 +1669,7 @@ const caseY = px => CASE_HI - px / CASE_CV_H * (CASE_HI - CASE_LO);   // canvas 
 })();
 
 // ============================================================
-//  Frontline showcase hall (the newest big game gets its own room)
+//  Frontline showcase hall (a big game with its own room)
 // ============================================================
 // A hall knocked through the right-hand wall. The room-side entrance has a
 // neon banner, chasing bulbs and a scrolling ticker, and glowing chevrons on
@@ -1757,22 +1764,18 @@ const bayFx = SHOWCASE && (() => {
   b.font = '96px "Press Start 2P"'; b.shadowColor = ACC; b.shadowBlur = 34; b.fillStyle = '#f2ffe0';
   b.fillText('FRONTLINE', 512, 98); b.fillText('FRONTLINE', 512, 98);
   b.font = '26px "Press Start 2P"'; b.shadowColor = '#ff5a3a'; b.shadowBlur = 14; b.fillStyle = '#ffd6c8';
-  b.fillText('★ NEW GAME · PLAY NOW ★', 512, 182);
+  b.fillText('★ COMBINED ARMS RTS ★', 512, 182);
   const bm = new THREE.MeshBasicMaterial({ map: tex(bc) }); bm.color.setScalar(1.35);
   plane(3.6, .8, bm, x0 - .04, 3.68, cz, -Math.PI / 2);
   // scrolling LED ticker under the banner
   const tc = mkCanvas(2048, 64), tcx = tc.getContext('2d');
   tcx.fillStyle = '#050805'; tcx.fillRect(0, 0, 2048, 64);
   tcx.font = '30px "Press Start 2P"'; tcx.textBaseline = 'middle'; tcx.shadowColor = ACC; tcx.shadowBlur = 8; tcx.fillStyle = ACC;
-  tcx.fillText('NEW GAME ★ FRONTLINE ★ COMBINED ARMS RTS ★ 1v1 · 2v2 · FREE-FOR-ALL ONLINE ★ SOLO VS AI ★ +25 TICKETS ★ ', 10, 34);
+  tcx.fillText('FRONTLINE ★ COMBINED ARMS RTS ★ 1v1 · 2v2 · FREE-FOR-ALL ONLINE ★ SOLO VS AI ★ CAPTURE THE POINTS ★ ', 10, 34);
   tcx.fillStyle = 'rgba(0,0,0,.45)'; for (let x = 0; x < 2048; x += 4) tcx.fillRect(x, 0, 1, 64); for (let y = 0; y < 64; y += 4) tcx.fillRect(0, y, 2048, 1);
   const tickTex = tex(tc); tickTex.wrapS = THREE.RepeatWrapping; tickTex.repeat.set(.55, 1);
   const tm = new THREE.MeshBasicMaterial({ map: tickTex }); tm.color.setScalar(1.6);
   plane(3.6, .22, tm, x0 - .04, 3.13, cz, -Math.PI / 2);
-  // a big NEW! starburst on the corner of the banner (pulses like the others)
-  const nm = new THREE.MeshBasicMaterial({ map: tex(makeNewSign('#ff5a3a')), transparent: true, depthWrite: false });
-  const ns = mesh(new THREE.PlaneGeometry(1.1, .77), nm, null, x0 - .1, 3.95, DOOR.z0 + .15, { cast: false, receive: false });
-  ns.rotation.y = -Math.PI / 2; ns.rotation.x = 0; ns.renderOrder = 4; newSigns.push({ sign: ns, nm });
   // glowing chevrons on the carpet, leading to the doorway
   const cc = mkCanvas(128, 128), ch = cc.getContext('2d');
   ch.fillStyle = '#fff'; ch.beginPath(); ch.moveTo(20, 10); ch.lineTo(70, 10); ch.lineTo(118, 64); ch.lineTo(70, 118); ch.lineTo(20, 118); ch.lineTo(68, 64); ch.closePath(); ch.fill();
@@ -1786,7 +1789,7 @@ const bayFx = SHOWCASE && (() => {
   const hc = mkCanvas(512, 160), hs = hc.getContext('2d');
   hs.fillStyle = '#101a0c'; hs.fillRect(0, 0, 512, 160); hs.strokeStyle = ACC; hs.lineWidth = 8; hs.strokeRect(6, 6, 500, 148);
   hs.textAlign = 'center'; hs.textBaseline = 'middle'; hs.shadowColor = ACC; hs.shadowBlur = 14; hs.fillStyle = '#f2ffe0';
-  hs.font = '22px "Press Start 2P"'; hs.fillText('NEW GAME', 210, 52); hs.font = '36px "Press Start 2P"'; hs.fillText('FRONTLINE', 210, 104);
+  hs.font = '22px "Press Start 2P"'; hs.fillText('THIS WAY TO', 210, 52); hs.font = '36px "Press Start 2P"'; hs.fillText('FRONTLINE', 210, 104);
   hs.fillStyle = ACC; hs.beginPath(); hs.moveTo(400, 50); hs.lineTo(450, 50); hs.lineTo(450, 28); hs.lineTo(496, 80); hs.lineTo(450, 132); hs.lineTo(450, 110); hs.lineTo(400, 110); hs.closePath(); hs.fill();
   const hm = new THREE.MeshBasicMaterial({ map: tex(hc), side: THREE.DoubleSide }); hm.color.setScalar(1.4);
   const hang = new THREE.Group(); hang.position.set(2.6, 3.25, 1.6); scene.add(hang);
@@ -1928,11 +1931,11 @@ const bayFx = SHOWCASE && (() => {
   mesh(new THREE.PlaneGeometry(2.7, 1.52), trm, null, trX, trY, z0 + .095, { cast: false, receive: false });
   const trPos = new THREE.Vector3(trX, trY, z0 + .1);
   const SLIDES = [
-    ['FRONTLINE', 'MODERN WARFARE RTS', 'NEW!'],
+    ['FRONTLINE', 'MODERN WARFARE RTS', 'NOW PLAYING'],
     ['COMBINED ARMS', 'INFANTRY · ARMOR · ARTILLERY', 'AIR · NAVAL'],
     ['PLAY ONLINE', '1v1 · 2v2 · FREE-FOR-ALL', 'PEER-TO-PEER · NO INSTALL'],
     ['SOLO VS AI', 'CAPTURE STRATEGIC POINTS', 'HOLD THE LINE'],
-    ['PLAY NOW', '+25 TICKETS TODAY', 'STEP UP TO THE MACHINE']
+    ['PLAY NOW', 'COMMAND THE BATTLE', 'STEP UP TO THE MACHINE']
   ];
   function drawTrailer(t) {
     SCENES.frontline(trMapCtx, t, trSt);
@@ -2363,6 +2366,50 @@ const SCENES = {
     if ((t % .8) < .5) { R(c, 4, 16, 34, 12, '#ff2a2a'); T(c, 'NEW!', 21, 18, '#1a1423'); }
     if ((t % 1.6) < 1) { R(c, 12, 88, 136, 12, 'rgba(0,0,0,.8)'); T(c, '! GRAPHIC HORROR !', 80, 90, '#ff3b3b'); }
   },
+  limspace(c, t) {
+    // found footage: a camcorder drifts down an empty, flooded tile corridor;
+    // every so often the night vision kicks in and someone in a hazmat suit is at the far end
+    const cyc = t % 10, nv = cyc > 5.5, glitch = Math.abs(cyc - 5.5) < .18 || (cyc > 9.82);
+    const vx = 80 + Math.sin(t * .7) * 5 + Math.sin(t * 2.3) * 1.2, vy = 52 + Math.sin(t * 1.1) * 2;
+    const col = nv ? (k => `rgb(${20 * k | 0},${255 * k | 0},${110 * k | 0})`) : (k => `rgb(${230 * k | 0},${222 * k | 0},${190 * k | 0})`);
+    R(c, 0, 0, 160, 120, nv ? '#021006' : '#0b0a08');
+    const hw = 16, hh = 13;                                                  // the far end of the corridor
+    const poly = (pts, k) => { c.fillStyle = col(k); c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.fill(); };
+    poly([[0, 0], [160, 0], [vx + hw, vy - hh], [vx - hw, vy - hh]], nv ? .32 : .38);       // ceiling
+    poly([[0, 0], [vx - hw, vy - hh], [vx - hw, vy + hh], [0, 120]], nv ? .42 : .55);       // left wall
+    poly([[160, 0], [vx + hw, vy - hh], [vx + hw, vy + hh], [160, 120]], nv ? .38 : .5);    // right wall
+    poly([[0, 120], [160, 120], [vx + hw, vy + hh], [vx - hw, vy + hh]], nv ? .22 : .2);    // water
+    // tile grout lines receding into the dark
+    c.strokeStyle = nv ? 'rgba(0,40,10,.55)' : 'rgba(40,36,28,.45)'; c.lineWidth = 1;
+    for (let i = 1; i < 6; i++) {
+      const k = 1 - Math.pow(i / 6, .7), x0 = vx - hw - (vx - hw) * k, x1 = vx + hw + (160 - vx - hw) * k, y0 = vy - hh - (vy - hh) * k, y1 = vy + hh + (120 - vy - hh) * k;
+      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0, y1); c.moveTo(x1, y0); c.lineTo(x1, y1); c.moveTo(x0, y0); c.lineTo(x1, y0); c.stroke();
+    }
+    for (const f of [.25, .5, .75]) {
+      c.beginPath(); c.moveTo(0, 120 * f); c.lineTo(vx - hw, vy - hh + hh * 2 * f); c.moveTo(160, 120 * f); c.lineTo(vx + hw, vy - hh + hh * 2 * f); c.stroke();
+    }
+    // the doorway at the end, and what stands in it
+    R(c, vx - 6, vy - 9, 12, 22, '#000');
+    if (nv && cyc > 6.6 && cyc < 9.6) {
+      const fx = vx + Math.sin(t * .5) * 1.5, fy = vy - 7;
+      R(c, fx - 3, fy, 6, 8, col(.75)); R(c, fx - 2, fy - 4, 4, 4, col(.85)); R(c, fx - 1, fy - 3, 2, 2, '#001a08');
+      R(c, fx - 3, fy + 8, 2, 6, col(.6)); R(c, fx + 1, fy + 8, 2, 6, col(.6));
+    }
+    // ripples on the water, reflecting the ceiling lights
+    for (let i = 0; i < 7; i++) {
+      const p = (t * .25 + i / 7) % 1, y = vy + hh + 2 + p * (118 - vy - hh), w = 10 + p * 70;
+      R(c, vx - w / 2 + Math.sin(t * 1.7 + i) * 4, y, w, 1, nv ? `rgba(120,255,160,${.35 * (1 - p)})` : `rgba(255,248,220,${.3 * (1 - p)})`);
+    }
+    // camcorder overlay: REC, tape label, counter
+    for (let i = 0; i < 26; i++) R(c, Math.random() * 160, Math.random() * 120, 1, 1, `rgba(255,255,255,${Math.random() * (nv ? .35 : .2)})`);
+    if (glitch) for (let i = 0; i < 6; i++) { const y = Math.random() * 120; c.drawImage(c.canvas, 0, y, 160, 3, (Math.random() - .5) * 14, y, 160, 3); }
+    if ((t % 1) < .6) { c.fillStyle = '#ff2a2a'; c.beginPath(); c.arc(126, 20, 2.5, 0, 7); c.fill(); }
+    T(c, 'REC', 145, 17, '#fff');
+    T(c, nv ? 'NV' : 'TAPE 01', 4, 17, nv ? '#7cf0b0' : '#fff', 'left');
+    const sec = Math.floor(t % 3600), mm = String(Math.floor(sec / 60) % 60).padStart(2, '0'), ss = String(sec % 60).padStart(2, '0');
+    T(c, '00:' + mm + ':' + ss, 4, 92, '#fff', 'left');
+    if ((t % .8) < .5) { R(c, 118, 90, 38, 12, '#ff2a2a'); T(c, 'NEW!', 137, 92, '#1a1423'); }
+  },
   frontline(c, t, st) {
     // top-down battle: a tank column is drag-selected and rolls up the road to the bridge
     if (!st.map) {
@@ -2402,7 +2449,6 @@ const SCENES = {
     st.boom = st.boom.filter(b => (b.t += 1 / 30) < .5);
     for (const b of st.boom) { const r2 = 2 + b.t * 14; c.fillStyle = `rgba(255,${180 - b.t * 200 | 0},60,${1 - b.t * 2})`; c.beginPath(); c.arc(b.x, b.y, r2, 0, 7); c.fill(); }
     // the arcade adds the title bar and PRESS START; the battle table shows just the map
-    if (!st.table && (t % .8) < .5) { R(c, 4, 16, 34, 12, '#ff3a1a'); T(c, 'NEW!', 21, 18, '#fff'); }
   },
   soon(c, t, st) {
     if (!st.n) { st.n = mkCanvas(80, 60); st.nc = st.n.getContext('2d'); st.img = st.nc.createImageData(80, 60); }
@@ -2432,6 +2478,7 @@ const SCENES = {
     if ((t % 1.2) < .75) { R(c, 20, 100, 120, 14, 'rgba(8,6,14,.8)'); T(c, 'SUBMIT IT HERE', 80, 103, '#3ad6c4'); }
   }
 };
+const SCANLINES = (() => { const cv = mkCanvas(160, 120), c = cv.getContext('2d'); c.fillStyle = 'rgba(0,0,0,.16)'; for (let y = 1; y < 120; y += 2) c.fillRect(0, y, 160, 1); return cv; })();
 function drawScreen(cab, t) {
   const c = cab.ctx, g = cab.g, lt = t + cab.offset;
   SCENES[g.scene](c, lt, cab.state);
@@ -2439,7 +2486,7 @@ function drawScreen(cab, t) {
     R(c, 0, 0, 160, 13, 'rgba(8,6,14,.72)'); T(c, g.title.toUpperCase(), 80, 3, g.color);
     if (!g.idea && (lt % 1.2) < .75) { R(c, 32, 104, 96, 12, 'rgba(8,6,14,.72)'); T(c, 'PRESS START', 80, 106, '#fff'); }
   }
-  if (g.scene !== 'fluid') { c.fillStyle = 'rgba(0,0,0,.16)'; for (let y = 1; y < 120; y += 2) c.fillRect(0, y, 160, 1); }
+  if (g.scene !== 'fluid') c.drawImage(SCANLINES, 0, 0);
   cab.tex.needsUpdate = true;
 }
 
@@ -2574,7 +2621,7 @@ function updateTarget() {
   $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '') + (target.g.showcase ? ' · ★ NEW GAME' : '');
+  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
   pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' || target.kind === 'wheel' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.`
     : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : target.kind === 'hof' ? ` Your collection: ${fmt(collectorScore())} points.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
@@ -2622,7 +2669,7 @@ function launch(cab, confirmed = false) {
   // tickets for playing: each game pays once a day
   let bonus = false;
   if (cab.g.showcase && bayFx) bayFx.fire();   // the display tank fires a salute
-  const pay = cab.g.showcase ? 25 : 10;          // the newest game pays extra
+  const pay = 10;
   if (wallet.played[cab.g.title] !== today()) { wallet.played[cab.g.title] = today(); bonus = true; earn(pay, '+' + pay + ' TICKETS', 'For playing ' + cab.g.title + ' today!'); }
   const to = cab.screenWorld.clone().addScaledVector(cab.screenNormal, 0.38 * cab.s);
   tmpCam.position.copy(to); tmpCam.lookAt(cab.screenWorld);
@@ -3378,22 +3425,29 @@ const mapCv = $('map'), mctx = mapCv.getContext('2d'), MS = 10;
 const MAP_W = SHOWCASE ? HALL.x1 - ROOM.x0 : RW;
 mapCv.width = MAP_W * MS; mapCv.height = RD * MS;
 if (SHOWCASE) mapCv.style.width = 'calc(' + getComputedStyle(mapCv).width + ' * ' + (MAP_W / RW).toFixed(3) + ')';
-function drawMap() {
-  if (!mapOn || !started) return;
-  const c = mctx; c.clearRect(0, 0, mapCv.width, mapCv.height);
+let mapBase = null;
+function drawMapBase() {   // everything that never moves, drawn once
+  mapBase = mkCanvas(mapCv.width, mapCv.height); const c = mapBase.getContext('2d');
   c.fillStyle = 'rgba(30,20,50,.6)'; c.fillRect(0, 0, RW * MS, RD * MS);
   if (SHOWCASE) {
     c.fillStyle = 'rgba(28,42,20,.75)'; c.fillRect((HALL.x0 - ROOM.x0) * MS, (HALL.z0 - ROOM.z0) * MS, (HALL.x1 - HALL.x0) * MS, (HALL.z1 - HALL.z0) * MS);
-    c.strokeStyle = (performance.now() % 1000) < 600 ? '#b8ff5a' : '#4a6a24'; c.lineWidth = 2;
+    c.strokeStyle = '#4a6a24'; c.lineWidth = 2;
     c.strokeRect((HALL.x0 - ROOM.x0) * MS + 1, (HALL.z0 - ROOM.z0) * MS + 1, (HALL.x1 - HALL.x0) * MS - 2, (HALL.z1 - HALL.z0) * MS - 2);
     c.fillStyle = 'rgba(28,42,20,.9)'; c.fillRect(RW * MS - 2, (DOOR.z0 - ROOM.z0) * MS, 4, (DOOR.z1 - DOOR.z0) * MS);
   }
   for (const o of obstacles) {
-    c.fillStyle = o.cab ? (o.cab === target ? '#ffffff' : o.color) : 'rgba(200,190,230,.35)';
+    c.fillStyle = o.cab ? o.color : 'rgba(200,190,230,.35)';
     c.fillRect((o.x0 - ROOM.x0) * MS, (o.z0 - ROOM.z0) * MS, (o.x1 - o.x0) * MS, (o.z1 - o.z0) * MS);
     if (o.cab && o.cab.g.featured) { c.strokeStyle = '#ffcf4a'; c.lineWidth = 2; c.strokeRect((o.x0 - ROOM.x0) * MS - 1, (o.z0 - ROOM.z0) * MS - 1, (o.x1 - o.x0) * MS + 2, (o.z1 - o.z0) * MS + 2); }
   }
   c.fillStyle = '#ffcf4a'; c.fillRect((-1.1 - ROOM.x0) * MS, RD * MS - 3, 2.2 * MS, 3);
+}
+function drawMap() {
+  if (!mapOn || !started) return;
+  if (!mapBase) drawMapBase();
+  const c = mctx; c.clearRect(0, 0, mapCv.width, mapCv.height);
+  c.drawImage(mapBase, 0, 0);
+  if (target) for (const o of obstacles) if (o.cab === target) { c.fillStyle = '#ffffff'; c.fillRect((o.x0 - ROOM.x0) * MS, (o.z0 - ROOM.z0) * MS, (o.x1 - o.x0) * MS, (o.z1 - o.z0) * MS); }
   for (const p of people) { c.fillStyle = p.kind === 'dancer' ? '#ff4fd8' : 'rgba(255,241,196,.85)'; c.beginPath(); c.arc((p.x - ROOM.x0) * MS, (p.z - ROOM.z0) * MS, p.kind === 'dancer' ? 3.2 : 2.2, 0, 7); c.fill(); }
   const px = (player.pos.x - ROOM.x0) * MS, pz = (player.pos.z - ROOM.z0) * MS;
   c.save(); c.translate(px, pz); c.rotate(-player.yaw);
@@ -3711,10 +3765,12 @@ contact(boombox, .8, .5);
 addObstacle(boombox, -.28, .28, -.1, .1, '#ff4fd8');
 
 // --- where people go and what they do there ---
-const WP = { A: [0, 2.6], B: [-3.2, 1.2], C: [3.0, 0], K: [0, -2.6], D: [-3.9, -3.4], E: [3.9, -3.4], F: [-2.3, -6.4], G: [2.3, -6.4], H: [-3.9, -8.9], I: [3.9, -8.9], J: [0, -9.4] };
+const WP = { A: [0, 2.6], B: [-3.2, 1.2], C: [3.0, 0], K: [0, -2.6], D: [-3.9, -3.4], E: [3.9, -3.4], F: [-2.3, -6.4], G: [2.3, -6.4], H: [-3.9, -8.9], I: [3.9, -8.9], J: [0, -9.4],
+  // the back half: outer aisles past the pods, the centre aisle, and the stage front
+  L: [-4.7, -10.4], M: [4.7, -10.4], N: [-4.7, -13.6], O: [4.7, -13.6], Q: [0, -12], P: [0, -14.2] };
 const WP_KEYS = Object.keys(WP);
 const WP_EDGES = {};
-for (const e of 'AB AC AK BD CE KD KE KF KG DF EG DH EI FH GI HJ IJ'.split(' ')) {
+for (const e of 'AB AC AK BD CE KD KE KF KG DF EG DH EI FH GI HJ IJ HL IM JQ LN MO QP NP OP'.split(' ')) {
   (WP_EDGES[e[0]] ||= []).push(e[1]); (WP_EDGES[e[1]] ||= []).push(e[0]);
 }
 function freeFor(x, z, r) {
@@ -4022,8 +4078,11 @@ $('optGfx').value = gfxMode;
 $('optGfx').addEventListener('change', e => setGfx(e.target.value));
 $('optFps').addEventListener('change', e => { fpsOn = e.target.checked; $('fps').hidden = !fpsOn; });
 
-let mapAcc = 0;
+let mapAcc = 0, screenTick = 0;
 function frame(now) {
+  // while a menu, the start screen or the pause screen covers the arcade, the
+  // scene behind it only needs ~20 fps: saves battery and keeps menus snappy
+  if ((!started || paused || menuOpen) && !launching && !clawGame && now - last < 48) { requestAnimationFrame(frame); return; }
   const rawDt = (now - last) / 1000;
   const dt = Math.min(0.05, rawDt); last = now;
   const t = now / 1000;
@@ -4040,7 +4099,12 @@ function frame(now) {
   screenAcc += dt;
   if (screenAcc >= 1 / 30) {
     const sdt = screenAcc; screenAcc = 0;
-    for (const c of cabinets) if (visibleNear(c.screenWorld, .6 * c.s, 11)) drawScreen(c, t);
+    screenTick++;
+    for (const c of cabinets) {
+      // screens across the room animate at 15 fps (you can't tell at that distance), close ones at 30
+      if (camera.position.distanceTo(c.screenWorld) > 5.5 && ((screenTick + c.idx) & 1)) continue;
+      if (visibleNear(c.screenWorld, .6 * c.s, 11)) drawScreen(c, t);
+    }
     if (visibleNear(hockeyPos, 1.3, 12)) drawHockey(sdt);
   }
   updatePeople(dt, t);
