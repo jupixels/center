@@ -180,6 +180,10 @@
   .gitem.hero p { font-size: 22px; color: var(--cream); }
   .gitem.hero .acts a { font-size: 13px; padding: 15px 18px; background: #b8ff5a; }
   .badge.newb { background: #ff5a3a; color: #fff; animation: blink 1s steps(2) infinite; }
+  .badge.updb { background: #2f6fb6; color: #fff; margin-right: 6px; box-shadow: 0 0 12px rgba(108,196,255,.7); animation: blink 1s steps(2) infinite; }
+  .startnew.upd a { background: #ffcf4a; color: #1a1423; box-shadow: 0 0 0 3px #1a1423, 0 0 0 5px #ffcf4a, 0 0 28px rgba(255,207,74,.6); animation: updGlow 1.6s ease-in-out infinite; }
+  .startnew.upd a b { color: #2f6fb6; }
+  @keyframes updGlow { 50% { box-shadow: 0 0 0 3px #1a1423, 0 0 0 5px #ffcf4a, 0 0 40px rgba(255,207,74,.85); } }
   @keyframes heroGlow { 50% { box-shadow: inset 0 0 0 2px #b8ff5a, 0 0 34px rgba(184,255,90,.6); } }
   @keyframes blink { 50% { opacity: .55; } }
   .startnew { margin-top: 22px; }
@@ -582,9 +586,11 @@
   // featured: true = a big, finished game. These get the stage on the back wall,
   // bigger cabinets and the top of the game list. Everything else is an "extra".
   window.GAMES = [
+    // update: '...' hypes a big update: a badge in the game list, a callout on the start
+    // screen, an UPDATE! sign on the machine and its own marquee tag.
+    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, update: 'NEW WORLD UPDATE', desc: 'The war goes global! The map now covers the WHOLE WORLD, not just Europe, North Africa and the Middle East. Command your forces across every continent and ocean.' },
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
     { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    featured: true, desc: 'Dig deep. Build big.' },
-    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, desc: 'Command your forces across the map.' },
     { title: 'Geneva Game',     url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
     { title: '3D Boxing',        url: 'https://jupixels.github.io/3d-boxing/',         color: '#ffcf4a', scene: 'boxing',   desc: 'Gloves up. Throw hands.' },
     { title: 'Fluid Lab',       url: 'https://jupixels.github.io/fluidlab/',          color: '#3ad6c4', scene: 'fluid',    desc: 'Simulate how fluids flow and swirl.' },
@@ -615,10 +621,14 @@
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div>' + (g.isNew ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
+        '<div>' + (g.update ? '<span class="badge updb">🌍 ' + g.update + '</span>' : '') + (g.isNew ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
         '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '"' + (g.warning ? ' data-warn="' + i + '"' : '') + '>PLAY ▶</a></div>';
       (g.featured ? feat : list).appendChild(el);
+      if (g.update) {   // big callout on the start screen
+        const box = document.getElementById('startNew'); box.hidden = false; box.classList.add('upd');
+        box.innerHTML = '<a href="' + g.url + '"><b>🌍 ' + g.update + ':</b> PLAY ' + g.title.toUpperCase() + ' ▶</a><div class="sub">' + g.title + ' now covers the whole world. Find it in the middle of the featured stage.</div>';
+      }
       if (g.featured) {
         const a = document.createElement('a');
         a.href = g.url; a.textContent = g.title.toUpperCase(); a.style.setProperty('--c', g.color);
@@ -1185,9 +1195,10 @@ function makeMarquee(g, idx) {
   c.shadowColor = g.color; c.shadowBlur = 16; c.fillStyle = '#ffffff'; c.fillText(label, 256, 96);
   c.shadowBlur = 0; c.font = '13px "Press Start 2P"'; c.fillStyle = g.color;
   if (g.featured) {
-    // gold frame + "FEATURED" tag
+    // gold frame + "FEATURED" tag (or the update's own tag)
     c.fillStyle = '#ffcf4a'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
-    c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34);
+    if (g.update) { c.fillRect(96, 18, 320, 30); c.fillStyle = '#1a1423'; c.fillText('★ ' + g.update + ' ★', 256, 34); }
+    else { c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34); }
   } else if (g.isNew) {
     // frame + "NEW GAME" tag in the game's own colour
     c.fillStyle = g.color; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
@@ -1206,14 +1217,14 @@ function makeMarquee(g, idx) {
 }
 
 const cabinets = [], interactive = [], newSigns = [];
-function makeNewSign(col) {     // starburst with "NEW!" for brand-new games
+function makeNewSign(col, text = 'NEW!', size = 54) {     // starburst with "NEW!" for brand-new games
   const cv = mkCanvas(320, 224), c = cv.getContext('2d');
   c.translate(160, 112); c.beginPath();
   for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2, r = i % 2 ? 78 : 104; c.lineTo(Math.cos(a) * r * 1.4, Math.sin(a) * r); }
   c.closePath(); c.shadowColor = col; c.shadowBlur = 18; c.fillStyle = col; c.fill();
   c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = '#1a1423'; c.stroke();
-  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '54px "Press Start 2P"';
-  c.fillStyle = '#1a1423'; c.fillText('NEW!', 4, 8); c.fillStyle = '#ffffff'; c.fillText('NEW!', 0, 4);
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = size + 'px "Press Start 2P"';
+  c.fillStyle = '#1a1423'; c.fillText(text, 4, 8); c.fillStyle = '#ffffff'; c.fillText(text, 0, 4);
   return cv;
 }
 function addObstacle(grp, lx0, lx1, lz0, lz1, color, cab) {
@@ -1268,7 +1279,7 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
   const bezel = mesh(new THREE.PlaneGeometry(0.9, 0.74), blackGloss, grp); bezel.position.copy(onSlope(0.003)); bezel.rotation.x = -SCREEN_TILT;
   const screen = mesh(new THREE.PlaneGeometry(0.8, 0.6), smat, grp, 0, 0, 0, { cast: false, receive: false }); screen.position.copy(onSlope(0.006)); screen.rotation.x = -SCREEN_TILT;
   // marquee
-  const mBase = g.featured || g.isNew ? 1.7 : 1.2;   // featured and new marquees shine brighter
+  const mBase = g.featured || g.isNew || g.update ? 1.7 : 1.2;   // featured and new marquees shine brighter
   const mmat = new THREE.MeshBasicMaterial({ map: tex(makeMarquee(g, idx)) }); mmat.color.setScalar(mBase);
   const marquee = mesh(new THREE.PlaneGeometry(0.92, 0.3), mmat, grp, 0, 2.25, 0.345, { cast: false, receive: false });
   // control panel
@@ -1295,6 +1306,12 @@ function buildCabinet(g, idx, x, z, ry, s = 1, y = 0) {
     const m = lightPool(scene, col, w * s, d * s, p.x, p.z, k); m.rotation.order = 'YXZ'; m.rotation.y = ry; return m;
   };
   floorPool(g.color, 1.9, 1.5, 0.95, g.featured ? .75 : .45);
+  if (g.update) {
+    // big update: a flashing gold "UPDATE!" starburst on top of the machine
+    const nm = new THREE.MeshBasicMaterial({ map: tex(makeNewSign('#2f6fb6', 'UPDATE!', 34)), transparent: true, depthWrite: false });
+    const sign = mesh(new THREE.PlaneGeometry(1.0, 0.7), nm, grp, 0, 2.82, 0.2, { cast: false, receive: false });
+    sign.rotation.x = -0.12; sign.renderOrder = 4; newSigns.push({ sign, nm });
+  }
   if (g.isNew) {
     // brand-new game: a flashing starburst "NEW!" on top of the machine
     const nm = new THREE.MeshBasicMaterial({ map: tex(makeNewSign(g.color)), transparent: true, depthWrite: false });
@@ -2198,24 +2215,45 @@ const SCENES = {
     R(c, 6, 16, 58, 5, '#3a2f4f'); R(c, 6, 16, 58 * (1 - cyc * .7), 5, '#ff6b5b');
     R(c, 96, 16, 58, 5, '#3a2f4f'); const hb = 1 - cyc * .85; R(c, 96 + 58 * (1 - hb), 16, 58 * hb, 5, '#6cc4ff');
   },
-  ww2(c, t) {
-    R(c, 0, 0, 160, 120, '#d8c896'); R(c, 0, 0, 34, 120, '#6f9bb5');
-    for (let y = 0; y < 120; y += 8) R(c, 34, y, (hash(y) * 7) | 0, 8, '#6f9bb5');
-    for (let i = 0; i < 10; i++) R(c, 2 + hash(i) * 26 + (Math.floor(t * 2 + i) % 2) * 2, 5 + hash(i + 3) * 110, 4, 1, '#9cc0d4');
-    R(c, 52, 22, 42, 22, '#a7b46c'); R(c, 100, 64, 48, 28, '#a7b46c'); R(c, 44, 82, 26, 18, '#a7b46c');
-    for (let i = 0; i < 18; i++) R(c, 54 + hash(i + 40) * 38, 24 + hash(i + 60) * 18, 3, 3, '#6d8a45');
-    R(c, 76, 14, 3, 46, '#6f9bb5'); R(c, 76, 58, 40, 3, '#6f9bb5');
-    c.fillStyle = 'rgba(60,40,10,.13)'; for (let x = 0; x < 160; x += 10) c.fillRect(x, 0, 1, 120); for (let y = 0; y < 120; y += 10) c.fillRect(0, y, 160, 1);
-    for (let y = 16; y < 104; y += 6) R(c, 96 + Math.sin(y * .15 + t * .5) * 4, y, 2, 3, '#c0392b');
-    const unit = (x, y, col) => { R(c, x, y, 14, 10, '#f6e7c8'); R(c, x + 1, y + 1, 12, 8, col); R(c, x + 4, y + 3, 6, 4, '#f6e7c8'); R(c, x + 5, y + 4, 4, 2, col); };
-    for (let i = 0; i < 3; i++) { const p = (t * .1 + i * .33) % 1; unit(40 + p * 46, 30 + i * 26, '#2f6fb6'); }
-    for (let i = 0; i < 3; i++) unit(106 + Math.sin(t * 3 + i), 24 + i * 28, '#c0392b');
-    if (Math.floor(t * 2) % 2) {
-      c.fillStyle = '#2f6fb6'; c.beginPath(); c.moveTo(44, 104); c.lineTo(78, 104); c.lineTo(78, 100); c.lineTo(88, 107); c.lineTo(78, 114); c.lineTo(78, 110); c.lineTo(44, 110); c.fill();
+  ww2(c, t, st) {
+    // the whole world at war: a pixel world map (drawn once), fronts on every continent,
+    // convoys crossing the oceans, and a flashing NEW WORLD UPDATE banner
+    const P = (lon, lat) => [(lon + 172) / 352 * 160, 14 + (80 - lat) / 136 * 90];
+    if (!st.map) {
+      st.map = mkCanvas(160, 120); const m = st.map.getContext('2d');
+      m.fillStyle = '#5f8fae'; m.fillRect(0, 0, 160, 120);
+      m.fillStyle = 'rgba(255,255,255,.07)'; for (let y = 0; y < 120; y += 3) for (let x = (y / 3) % 2 * 2; x < 160; x += 4) m.fillRect(x, y, 1, 1);
+      const LAND = [
+        [[-168, 66], [-140, 70], [-95, 72], [-80, 63], [-60, 55], [-66, 45], [-75, 35], [-81, 25], [-97, 26], [-105, 20], [-90, 16], [-83, 9], [-79, 8], [-87, 14], [-105, 22], [-117, 32], [-124, 40], [-125, 49], [-135, 58], [-150, 60], [-165, 60]],
+        [[-45, 60], [-20, 72], [-30, 80], [-62, 80], [-55, 68]],
+        [[-80, 9], [-60, 10], [-50, 0], [-35, -6], [-40, -22], [-55, -35], [-68, -55], [-75, -45], [-71, -18], [-81, -5]],
+        [[-10, 36], [-9, 43], [-2, 48], [-5, 58], [10, 63], [20, 70], [30, 70], [70, 73], [100, 77], [140, 72], [180, 68], [170, 60], [160, 55], [140, 50], [130, 42], [122, 30], [120, 22], [108, 18], [105, 10], [100, 2], [97, 16], [90, 22], [80, 10], [72, 20], [60, 25], [50, 30], [44, 13], [35, 30], [28, 41], [20, 40], [12, 44], [5, 43]],
+        [[-17, 15], [-10, 30], [10, 37], [32, 31], [43, 12], [51, 11], [40, -5], [35, -25], [20, -35], [12, -17], [10, 0], [-8, 5]],
+        [[114, -22], [130, -12], [142, -11], [153, -27], [146, -38], [135, -34], [115, -34]],
+        [[130, 31], [141, 41], [142, 45], [135, 35]], [[-5, 50], [2, 52], [-2, 57], [-6, 58], [-5, 54]],
+        [[95, 5], [105, -6], [120, -9], [118, 0], [108, 2]], [[45, -14], [50, -16], [47, -25], [44, -22]]
+      ];
+      for (const poly of LAND) {
+        m.fillStyle = '#c9b46b'; m.beginPath(); poly.forEach(([lo, la], i) => { const [x, y] = P(lo, la); i ? m.lineTo(x, y) : m.moveTo(x, y); }); m.closePath(); m.fill();
+        m.strokeStyle = '#8a7a44'; m.lineWidth = 1; m.stroke();
+      }
+      m.fillStyle = 'rgba(60,40,10,.12)'; for (let x = 0; x < 160; x += 10) m.fillRect(x, 0, 1, 120); for (let y = 0; y < 120; y += 10) m.fillRect(0, y, 160, 1);
     }
-    const ep = (t * .8) % 1, ey = 36 + (Math.floor(t * .8) % 3) * 25;
-    if (ep < .4) { c.fillStyle = ep < .15 ? '#fff' : '#ffb347'; c.beginPath(); c.arc(98, ey, 2 + ep * 14, 0, 7); c.fill(); }
-    T(c, 'TURN ' + (1 + Math.floor(t / 4) % 30), 4, 16, '#1a1423', 'left');
+    c.drawImage(st.map, 0, 0);
+    // fronts: Allied (blue) vs Axis (red) counters all over the globe
+    const unit = (lon, lat, col, k) => { const [x, y] = P(lon, lat), b = Math.sin(t * 3 + k) > .85 ? 1 : 0; R(c, x - 4, y - 3 - b, 8, 6, '#f6e7c8'); R(c, x - 3, y - 2 - b, 6, 4, col); R(c, x - 1, y - 1 - b, 2, 2, '#f6e7c8'); };
+    [[2, 49], [-3, 33], [40, 52], [85, 30], [140, -8], [-160, 20], [-70, 45]].forEach(([lo, la], i) => unit(lo, la, '#2f6fb6', i));
+    [[16, 52], [15, 32], [32, 55], [118, 35], [150, 18], [140, 37]].forEach(([lo, la], i) => unit(lo, la, '#c0392b', i + 9));
+    // convoys and task forces crossing the oceans
+    const route = (a, b, p, col) => { const [x0, y0] = P(...a), [x1, y1] = P(...b); const x = x0 + (x1 - x0) * p, y = y0 + (y1 - y0) * p; R(c, x - 2, y - 1, 5, 3, col); R(c, x - 4 - (x1 > x0 ? 0 : -6), y, 2, 1, 'rgba(255,255,255,.6)'); };
+    route([-70, 38], [-8, 46], (t * .07) % 1, '#e8f1ff');
+    route([-150, 22], [150, 12], (t * .05 + .4) % 1, '#e8f1ff');
+    route([135, 30], [160, 0], (t * .06 + .2) % 1, '#ffd0c8');
+    // flashes of battle around the world
+    const k = Math.floor(t * 1.2), ep = (t * 1.2) % 1, spots = [[24, 50], [12, 33], [150, 15], [110, 30], [140, -6], [35, 54]], [ex, ey] = P(...spots[k % spots.length]);
+    if (ep < .45) { c.fillStyle = ep < .15 ? '#fff' : '#ffb347'; c.beginPath(); c.arc(ex, ey, 1.5 + ep * 10, 0, 7); c.fill(); }
+    T(c, 'TURN ' + (1 + Math.floor(t / 4) % 30), 156, 16, '#1a1423', 'right');
+    if ((t % 1) < .65) { R(c, 12, 91, 136, 12, '#ffcf4a'); T(c, 'NEW WORLD UPDATE', 80, 93, '#1a1423'); }
   },
   fluid(c, t, st) {
     if (!st.p) {
@@ -2621,7 +2659,7 @@ function updateTarget() {
   $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
+  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.update ? ' · 🌍 ' + target.g.update : target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
   pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' || target.kind === 'wheel' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.`
     : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : target.kind === 'hof' ? ` Your collection: ${fmt(collectorScore())} points.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
