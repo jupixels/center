@@ -179,13 +179,14 @@
   .gitem.hero h3 { font-size: 20px; margin-bottom: 10px; text-shadow: 0 0 12px rgba(184,255,90,.7); }
   .gitem.hero p { font-size: 22px; color: var(--cream); }
   .gitem.hero .acts a { font-size: 13px; padding: 15px 18px; background: #b8ff5a; }
-  .badge.newb { background: #ff5a3a; color: #fff; animation: blink 1s steps(2) infinite; }
-  .badge.updb { background: #2f6fb6; color: #fff; margin-right: 6px; box-shadow: 0 0 12px rgba(108,196,255,.7); animation: blink 1s steps(2) infinite; }
+  .badge.newb { background: #ff5a3a; color: #fff; animation: badgePulse 1s steps(2) infinite; }
+  .badge.updb { background: #2f6fb6; color: #fff; margin-right: 6px; box-shadow: 0 0 12px rgba(108,196,255,.7); animation: badgePulse 1s steps(2) infinite; }
   .startnew.upd a { background: #ffcf4a; color: #1a1423; box-shadow: 0 0 0 3px #1a1423, 0 0 0 5px #ffcf4a, 0 0 28px rgba(255,207,74,.6); animation: updGlow 1.6s ease-in-out infinite; }
   .startnew.upd a b { color: #2f6fb6; }
   @keyframes updGlow { 50% { box-shadow: 0 0 0 3px #1a1423, 0 0 0 5px #ffcf4a, 0 0 40px rgba(255,207,74,.85); } }
   @keyframes heroGlow { 50% { box-shadow: inset 0 0 0 2px #b8ff5a, 0 0 34px rgba(184,255,90,.6); } }
-  @keyframes blink { 50% { opacity: .55; } }
+  /* badges dim but never vanish (the plain blink further down goes all the way to 0) */
+  @keyframes badgePulse { 50% { opacity: .55; } }
   .startnew { margin-top: 22px; }
   .startnew a { display: inline-block; font-family: "Press Start 2P", monospace; font-size: 13px; color: #0e140b; background: #b8ff5a; text-decoration: none;
                 padding: 14px 18px; box-shadow: 0 0 0 3px #0e140b, 0 0 0 5px #b8ff5a, 0 0 28px rgba(184,255,90,.6); animation: heroGlow 1.6s ease-in-out infinite; }
@@ -586,9 +587,9 @@
   // featured: true = a big, finished game. These get the stage on the back wall,
   // bigger cabinets and the top of the game list. Everything else is an "extra".
   window.GAMES = [
-    // update: '...' hypes a big update: a badge in the game list, a callout on the start
+    // update: '...' hypes a big update (updateIcon / updateNote are optional): a badge in the game list, a callout on the start
     // screen, an UPDATE! sign on the machine and its own marquee tag.
-    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, update: 'NEW WORLD UPDATE', desc: 'The war goes global! The map now covers the WHOLE WORLD, not just Europe, North Africa and the Middle East. Command your forces across every continent and ocean.' },
+    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, update: 'MAJOR FIX UPDATE', updateIcon: '🛠️', updateNote: 'Tons of fixes and polish, on top of the new whole-world map.', desc: 'Major fix update! Tons of bugs squashed and polish all over the game, on top of the new map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
     { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    featured: true, desc: 'Dig deep. Build big.' },
     { title: 'Geneva Game',     url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
@@ -621,13 +622,13 @@
       el.style.setProperty('--c', g.color);
       el.innerHTML =
         '<span class="sw"></span>' +
-        '<div>' + (g.update ? '<span class="badge updb">🌍 ' + g.update + '</span>' : '') + (g.isNew ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
+        '<div>' + (g.update ? '<span class="badge updb">' + (g.updateIcon || '🌍') + ' ' + g.update + '</span>' : '') + (g.isNew ? '<span class="badge newb">NEW!</span> ' : '') + (g.featured ? '<span class="badge">★ FEATURED</span>' : '') + (g.warning ? '<span class="badge warnb">⚠ GRAPHIC HORROR · GORE</span>' : '') +
         '<h3>' + g.title.toUpperCase() + '</h3><p>' + g.desc + '</p></div>' +
         '<div class="acts"><button type="button" data-walk="' + i + '">WALK TO</button><a href="' + g.url + '"' + (g.warning ? ' data-warn="' + i + '"' : '') + '>PLAY ▶</a></div>';
       (g.featured ? feat : list).appendChild(el);
       if (g.update) {   // big callout on the start screen
         const box = document.getElementById('startNew'); box.hidden = false; box.classList.add('upd');
-        box.innerHTML = '<a href="' + g.url + '"><b>🌍 ' + g.update + ':</b> PLAY ' + g.title.toUpperCase() + ' ▶</a><div class="sub">' + g.title + ' now covers the whole world. Find it in the middle of the featured stage.</div>';
+        box.innerHTML = '<a href="' + g.url + '"><b>' + (g.updateIcon || '🌍') + ' ' + g.update + ':</b> PLAY ' + g.title.toUpperCase() + ' ▶</a><div class="sub">' + (g.updateNote ? g.updateNote + ' ' : '') + 'Find it in the middle of the featured stage.</div>';
       }
       if (g.featured) {
         const a = document.createElement('a');
@@ -2217,7 +2218,7 @@ const SCENES = {
   },
   ww2(c, t, st) {
     // the whole world at war: a pixel world map (drawn once), fronts on every continent,
-    // convoys crossing the oceans, and a flashing NEW WORLD UPDATE banner
+    // convoys crossing the oceans, and a flashing banner for the latest update
     const P = (lon, lat) => [(lon + 172) / 352 * 160, 14 + (80 - lat) / 136 * 90];
     if (!st.map) {
       st.map = mkCanvas(160, 120); const m = st.map.getContext('2d');
@@ -2253,7 +2254,7 @@ const SCENES = {
     const k = Math.floor(t * 1.2), ep = (t * 1.2) % 1, spots = [[24, 50], [12, 33], [150, 15], [110, 30], [140, -6], [35, 54]], [ex, ey] = P(...spots[k % spots.length]);
     if (ep < .45) { c.fillStyle = ep < .15 ? '#fff' : '#ffb347'; c.beginPath(); c.arc(ex, ey, 1.5 + ep * 10, 0, 7); c.fill(); }
     T(c, 'TURN ' + (1 + Math.floor(t / 4) % 30), 156, 16, '#1a1423', 'right');
-    if ((t % 1) < .65) { R(c, 12, 91, 136, 12, '#ffcf4a'); T(c, 'NEW WORLD UPDATE', 80, 93, '#1a1423'); }
+    if ((t % 1) < .65) { R(c, 12, 91, 136, 12, '#ffcf4a'); T(c, (t % 6) < 4 ? 'MAJOR FIX UPDATE' : 'WHOLE WORLD MAP', 80, 93, '#1a1423'); }
   },
   fluid(c, t, st) {
     if (!st.p) {
@@ -2659,7 +2660,7 @@ function updateTarget() {
   $('playBtn').textContent = verb ? '▶ ' + verb : target && target.g.idea ? '💡 SEND IDEA' : '▶ PLAY';
   if (!target) { pr.hidden = true; return; }
   pr.hidden = false; pr.style.setProperty('--c', target.g.color);
-  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.update ? ' · 🌍 ' + target.g.update : target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
+  pr.querySelector('.t').textContent = (target.g.featured ? '★ ' : '') + target.g.title.toUpperCase() + (target.g.update ? ' · ' + (target.g.updateIcon || '🌍') + ' ' + target.g.update : target.g.featured ? ' · FEATURED' : '') + (target.g.warning ? ' · ⚠ GRAPHIC HORROR' : '') + (target.g.soon ? ' · 🚧 COMING SOON' : '');
   pr.querySelector('.d').textContent = target.g.desc + (target.kind === 'claw' || target.kind === 'wheel' ? ` You have ${wallet.tokens} token${wallet.tokens === 1 ? '' : 's'}.`
     : target.kind === 'prizes' ? ` You have ${wallet.tickets} tickets.` : target.kind === 'hof' ? ` Your collection: ${fmt(collectorScore())} points.` : '');
   pr.querySelector('.k').innerHTML = verb ? '<span>▶</span> ' + (isTouch ? 'TAP' : dragLook ? 'CLICK' : 'PRESS E') + ' TO ' + verb : target.g.idea ? (isTouch ? '<span>▶</span> TAP TO SEND AN IDEA' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO SEND AN IDEA' : '<span>▶</span> PRESS E TO SEND AN IDEA')) : !target.g.url ? 'NOT PLAYABLE YET' : (isTouch ? '<span>▶</span> TAP THE SCREEN OR PLAY' : (dragLook ? '<span>▶</span> CLICK THE SCREEN TO PLAY' : '<span>▶</span> PRESS E OR CLICK TO PLAY'));
