@@ -589,7 +589,7 @@
   window.GAMES = [
     // update: '...' hypes a big update (updateIcon / updateNote are optional): a badge in the game list, a callout on the start
     // screen, an UPDATE! sign on the machine and its own marquee tag.
-    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, update: 'MAJOR FIX UPDATE', updateIcon: '🛠️', updateNote: 'Tons of fixes and polish, on top of the new whole-world map.', desc: 'Major fix update! Tons of bugs squashed and polish all over the game, on top of the new map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
+    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',      featured: true, update: 'MAJOR UPGRADES & FIXES', updateIcon: '🛠️', updateNote: 'Big upgrades and tons of fixes, on top of the new whole-world map.', desc: 'Major upgrades and fixes! Big improvements and tons of bugs squashed all over the game, on top of the new map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',     featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
     { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',    featured: true, desc: 'Dig deep. Build big.' },
     { title: 'Geneva Game',     url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',   desc: 'Draw your sword, brave knight.' },
@@ -1198,7 +1198,7 @@ function makeMarquee(g, idx) {
   if (g.featured) {
     // gold frame + "FEATURED" tag (or the update's own tag)
     c.fillStyle = '#ffcf4a'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
-    if (g.update) { c.fillRect(96, 18, 320, 30); c.fillStyle = '#1a1423'; c.fillText('★ ' + g.update + ' ★', 256, 34); }
+    if (g.update) { c.fillRect(56, 18, 400, 30); c.fillStyle = '#1a1423'; c.fillText('★ ' + g.update + ' ★', 256, 34); }
     else { c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34); }
   } else if (g.isNew) {
     // frame + "NEW GAME" tag in the game's own colour
@@ -2254,7 +2254,7 @@ const SCENES = {
     const k = Math.floor(t * 1.2), ep = (t * 1.2) % 1, spots = [[24, 50], [12, 33], [150, 15], [110, 30], [140, -6], [35, 54]], [ex, ey] = P(...spots[k % spots.length]);
     if (ep < .45) { c.fillStyle = ep < .15 ? '#fff' : '#ffb347'; c.beginPath(); c.arc(ex, ey, 1.5 + ep * 10, 0, 7); c.fill(); }
     T(c, 'TURN ' + (1 + Math.floor(t / 4) % 30), 156, 16, '#1a1423', 'right');
-    if ((t % 1) < .65) { R(c, 12, 91, 136, 12, '#ffcf4a'); T(c, (t % 6) < 4 ? 'MAJOR FIX UPDATE' : 'WHOLE WORLD MAP', 80, 93, '#1a1423'); }
+    if ((t % 1) < .65) { R(c, 12, 91, 136, 12, '#ffcf4a'); T(c, (t % 6) < 4 ? 'UPGRADES + FIXES' : 'WHOLE WORLD MAP', 80, 93, '#1a1423'); }
   },
   fluid(c, t, st) {
     if (!st.p) {
