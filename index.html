@@ -7,7 +7,7 @@
 <meta name="description" content="Spin the Jupixels Arcade game selector, pick a machine and press start.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <!-- the import map must come before any module loads or preloads -->
 <script type="importmap">
 { "imports": {
@@ -21,6 +21,7 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js" crossorigin>
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/Pass.js" crossorigin>
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/BufferGeometryUtils.js" crossorigin>
 <style>
   :root {
     --ink: #1a1423;
@@ -178,6 +179,53 @@
           display: flex; align-items: center; justify-content: center; }
   #fade .pixel { font-family: "Press Start 2P", monospace; font-size: 14px; color: var(--gold); text-align: center; padding: 0 16px; line-height: 1.5; }
 
+  /* ---------- modern pass: crisp type, rounded glassy panels, soft glows ---------- */
+  body { font-family: "Chakra Petch", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .brand { font-size: 14px; }
+  .cat {
+    font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .04em;
+    border-radius: 999px; border: 1px solid rgba(205,191,230,.18); padding: 6px 11px;
+    background: rgba(18,12,30,.62); transition: background .15s, color .15s, border-color .15s;
+  }
+  .cat:hover { border-color: rgba(205,191,230,.45); }
+  .cat.on { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 18px rgba(255,207,74,.45); }
+  .cat .n { font-weight: 500; opacity: .55; margin-left: 6px; }
+  .chip { font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 13px; letter-spacing: .06em;
+          border-radius: 999px; border: 1px solid rgba(205,191,230,.25); padding: 8px 16px; background: rgba(18,12,30,.62); }
+  .arrow { border-radius: 50%; border: 1px solid rgba(205,191,230,.25); background: rgba(18,12,30,.55);
+           font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 24px; transition: border-color .15s, color .15s, box-shadow .15s; }
+  .arrow:hover { box-shadow: 0 0 22px color-mix(in srgb, var(--c) 45%, transparent); }
+  #info { border-radius: 18px; border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+          background: linear-gradient(180deg, rgba(24,16,40,.9), rgba(12,8,22,.92));
+          box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 0 40px color-mix(in srgb, var(--c) 18%, transparent); padding: 16px 22px 12px; }
+  #gTitle { text-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent), 2px 2px 0 #000; }
+  #gDesc { font-size: 16px; line-height: 1.4; height: 4.2em; color: #e9e1f5; margin: 8px 0 14px; }
+  .btn { border-radius: 12px; box-shadow: 0 6px 22px rgba(255,207,74,.35), inset 0 -3px 0 rgba(0,0,0,.18); transition: transform .12s, box-shadow .12s; }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,207,74,.5), inset 0 -3px 0 rgba(0,0,0,.18); }
+  .btn.ghost { font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 14px; letter-spacing: .06em;
+               border-radius: 12px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(205,191,230,.3); }
+  .btn.ghost:hover:not(:disabled) { box-shadow: inset 0 0 0 1px rgba(205,191,230,.6); }
+  #favBtn.on { box-shadow: inset 0 0 0 1px var(--gold), 0 0 18px rgba(255,207,74,.3); }
+  .badge { border-radius: 6px; font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .06em; padding: 3px 8px; }
+  .meta { font-size: 13px; color: #9a8db8; }
+  kbd { font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 11px; border-radius: 5px; padding: 1px 6px; border-bottom-width: 2px; }
+  #count { font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 13px; letter-spacing: .08em; }
+  #empty { border-radius: 18px; border: 1px dashed rgba(255,207,74,.6); }
+  #empty p { font-size: 17px; line-height: 1.4; }
+  #ainote { font-size: 13px; }
+  #toast { font-size: clamp(12px, 2.6vw, 16px); }
+  #menu .panel, #warn .panel { border-radius: 18px; }
+  #menu .panel { border: 1px solid rgba(154,123,255,.5); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  .gitem { border-radius: 12px; overflow: hidden; }
+  .gitem p { font-size: 15px; line-height: 1.35; }
+  .acts a, .acts button { border-radius: 8px; }
+  .opts { font-size: 16px; }
+  .opts select { font-family: "Chakra Petch", sans-serif; font-size: 15px; border-radius: 6px; }
+  .ai { font-size: 14px; }
+  .err { font-size: 18px; }
+  #warn p, #warn li { font-size: 17px; line-height: 1.4; }
+  #warn .wstop { font-size: 17px; } #warn .wnote, .wcheck { font-size: 15px; line-height: 1.4; }
+
   @media (max-width: 860px) {
     #top { grid-template-columns: 1fr auto; padding: 12px; gap: 10px; }
     #cats { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
@@ -189,7 +237,8 @@
   }
   @media (max-width: 600px) {
     #info { bottom: 10px; padding: 12px 12px 10px; }
-    #gDesc { font-size: 19px; }
+    #gDesc { font-size: 14px; height: 4.2em; }
+    .cat { font-size: 12px; padding: 6px 12px; }
     #playBtn { font-size: 12px; padding: 13px 16px; }
     #favBtn { min-width: 0; font-size: 9px; padding: 12px 10px; }
     .meta .keys { display: none; }
@@ -198,7 +247,7 @@
     .acts { grid-column: 2; justify-content: flex-start; }
   }
   @media (max-height: 560px) and (min-width: 601px) {
-    #gDesc { -webkit-line-clamp: 2; height: 2.1em; }
+    #gDesc { -webkit-line-clamp: 2; height: 2.8em; }
     .meta { display: none; }
   }
   /* ---------- content warning for scary games ---------- */
@@ -480,6 +529,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const GAMES = window.GAMES, CATS = window.CATEGORIES;
 const $ = id => document.getElementById(id);
@@ -503,26 +553,29 @@ try {
 // In "Auto" mode the arcade watches its own frame rate and steps down
 // (lower resolution, no anti-aliasing, then no bloom) until it runs smoothly,
 // and steps back up when there's headroom.
+// Sharpness comes first: "Auto" drops the costly extras (anti-aliasing, then
+// bloom) before it lowers the resolution, and it never goes blurrier than 1×.
+const NATIVE = Math.min(devicePixelRatio || 1, 2);
 const LEVELS = [
-  { dpr: 1.6,  samples: 4, bloom: true  },   // 0 high
-  { dpr: 1.3,  samples: 2, bloom: true  },   // 1
-  { dpr: 1.0,  samples: 0, bloom: true  },   // 2 medium
-  { dpr: 0.85, samples: 0, bloom: true  },   // 3
-  { dpr: 0.7,  samples: 0, bloom: false },   // 4 low
-  { dpr: 0.55, samples: 0, bloom: false }    // 5
+  { dpr: NATIVE,                 samples: NATIVE < 1.5 ? 4 : 0, bloom: true  },   // 0 high
+  { dpr: Math.min(NATIVE, 1.5),  samples: NATIVE < 1.5 ? 2 : 0, bloom: true  },   // 1
+  { dpr: Math.min(NATIVE, 1.5),  samples: 0, bloom: true  },                      // 2 medium
+  { dpr: Math.min(NATIVE, 1.25), samples: 0, bloom: false },                      // 3
+  { dpr: 1,                      samples: 0, bloom: false },                      // 4 low
+  { dpr: 1,                      samples: 0, bloom: false }                       // 5
 ];
 const PRESETS = { high: 0, medium: 2, low: 4 };
 let gfxMode = 'auto';
 try { gfxMode = localStorage.getItem('arcade-gfx') || 'auto'; } catch { }
 if (!(gfxMode in PRESETS) && gfxMode !== 'auto') gfxMode = 'auto';
 let q = gfxMode === 'auto' ? (isTouch ? 2 : 1) : PRESETS[gfxMode];
-const dprFor = i => Math.min(LEVELS[i].dpr, devicePixelRatio || 1);
+const dprFor = i => LEVELS[i].dpr;
 const DPR = dprFor(q);
 
 renderer.setPixelRatio(DPR);
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 1.08;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#050309');
@@ -537,7 +590,7 @@ const rt = new THREE.WebGLRenderTarget(innerWidth * DPR, innerHeight * DPR, { ty
 const composer = new EffectComposer(renderer, rt);
 composer.setPixelRatio(DPR);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.32, 0.95);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.36, 0.22, 0.9);
 // bloom is a soft blur anyway, so compute it at half resolution
 const bloomSetSize = bloom.setSize.bind(bloom);
 bloom.setSize = (w, h) => bloomSetSize(Math.max(2, w * 0.5), Math.max(2, h * 0.5));
@@ -1239,8 +1292,8 @@ scene.add(new THREE.Points(sparkGeo, new THREE.PointsMaterial({ size: .05, verte
 scene.add(new THREE.HemisphereLight('#7f6fd8', '#1a0f2e', 0.55));
 const keyLight = new THREE.SpotLight('#ffe9d6', 70, 14, 0.42, 0.7, 1.6);   // aimed at the machine in front
 scene.add(keyLight, keyLight.target);
-const sideL = new THREE.PointLight('#ff6be0', 14, 9, 2), sideR = new THREE.PointLight('#5fe8ff', 14, 9, 2), backL = new THREE.PointLight('#8a5cff', 10, 10, 2);
-scene.add(sideL, sideR, backL);
+const sideL = new THREE.PointLight('#ff6be0', 14, 9, 2), sideR = new THREE.PointLight('#5fe8ff', 14, 9, 2);
+scene.add(sideL, sideR);
 // soft beam of light from above onto the machine in front, plus a pool on the floor
 const beamMat = new THREE.MeshBasicMaterial({ color: new THREE.Color('#fff1c4').multiplyScalar(.09), alphaMap: beamTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
 const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.8, 5.2, 32, 1, true), beamMat);
@@ -1300,7 +1353,29 @@ function buildTemplate(g, idx) {
     s.rotation.x = -0.12; s.renderOrder = 4; s.name = 'pulse';
     pulseMats.add(nm);
   }
+  mergeTemplate(grp);
   return { grp, scr: { g, ctx: sctx, tex: stex, state: {}, offset: idx * 1.7 } };
+}
+// A machine is ~30 small parts. Baking the parts that never move into one mesh per
+// material cuts each machine to about a dozen draw calls (the screen and the
+// flashing signs stay separate because they animate).
+function mergeTemplate(grp) {
+  grp.updateMatrixWorld(true);
+  const byMat = new Map(), parts = [];
+  grp.traverse(o => {
+    if (!o.isMesh || o.name || Array.isArray(o.material)) return;
+    const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+    g.clearGroups(); g.applyMatrix4(o.matrixWorld);
+    if (!byMat.has(o.material)) byMat.set(o.material, { list: [], ro: o.renderOrder });
+    byMat.get(o.material).list.push(g); parts.push(o);
+  });
+  for (const o of parts) o.parent.remove(o);
+  for (const [mat, { list, ro }] of byMat) {
+    const merged = mergeGeometries(list);
+    if (!merged) continue;
+    const m = new THREE.Mesh(merged, mat); m.renderOrder = ro; grp.add(m);
+  }
 }
 const pulseMats = new Set();
 GAMES.forEach((g, i) => templates.set(g.title, buildTemplate(g, i)));
@@ -1606,7 +1681,7 @@ const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 function slotAt(x, y) {
   ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, camera);
-  const hit = ray.intersectObject(ring, true).find(h => h.object.userData.slot !== undefined && h.object.visible);
+  const hit = ray.intersectObject(ring, true).find(h => h.object.userData.slot !== undefined && h.object.parent.visible);
   return hit ? hit.object.userData.slot : -1;
 }
 function clickAt(x, y) {
@@ -1737,6 +1812,7 @@ function updateSlots(dtK) {
     const a = M > 1 ? wrapAngle(s.k * step + ringRot) : 0;
     const f = M > 1 ? clamp(1 - Math.abs(a) / step, 0, 1) : 1;
     s.grp.scale.setScalar(0.9 + 0.12 * f);
+    s.grp.visible = M <= 1 || Math.abs(a) < 1.95;   // the far side of the turntable is hidden behind the front anyway
     s.front = f; s.angle = a;
   }
 }
@@ -1791,7 +1867,7 @@ function frame(now) {
   // lights follow the front of the turntable
   const fz = radNow;
   keyLight.position.set(0, 5.4, fz + 2.2); keyLight.target.position.set(0, 1.1, fz);
-  sideL.position.set(-3.2, 2.6, fz + .6); sideR.position.set(3.2, 2.6, fz + .6); backL.position.set(0, 3, -radNow - 1.5);
+  sideL.position.set(-3.2, 2.6, fz + .6); sideR.position.set(3.2, 2.6, fz + .6);
   beam.position.set(0, TOP + 2.6, fz + .35);
   frontPool.position.set(0, TOP + .004, fz + .55);
   const bk = 1 - clamp(Math.abs(ringRot - target()) / (step * .5 || 1), 0, 1) * .6;   // dims while turning
