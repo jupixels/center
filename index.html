@@ -1667,9 +1667,12 @@ canvasEl.addEventListener('wheel', e => {
 }, { passive: false });
 // gamepad: d-pad / stick to move, A to play, Y to favorite, shoulders for categories
 const padPrev = {};
-let padRepeat = 0;
+let padRepeat = 0, padsAllowed = !!navigator.getGamepads;
 function pollPad(dt) {
-  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  if (!padsAllowed) return;
+  let pads;
+  // some pages (embedded previews, locked-down browsers) aren't allowed to use controllers at all
+  try { pads = navigator.getGamepads(); } catch { padsAllowed = false; return; }
   const p = pads && [...pads].find(Boolean); if (!p) return;
   const b = i => !!(p.buttons[i] && p.buttons[i].pressed);
   const ax = p.axes[0] || 0, ay = p.axes[1] || 0;
