@@ -214,6 +214,10 @@
                        padding: 10px; border-radius: 10px; background: rgba(255,255,255,.04); color: var(--muted); border: 1px solid rgba(205,191,230,.25); }
   #idea .kind button.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
   .topbtns { display: flex; gap: 8px; }
+  #cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #cats .cat { flex-shrink: 0; }   /* always one row; scrolls sideways if it really can't fit */
+  #cats::-webkit-scrollbar { display: none; }
+  @media (max-width: 1240px) and (min-width: 861px) { .topbtns .lbl { display: none; } .topbtns .chip { padding: 8px 12px; } }
   .menuIdea { margin-top: 18px; width: 100%; }
 
   /* ---------- modern pass: crisp type, rounded glassy panels, soft glows ---------- */
@@ -321,8 +325,8 @@
   <div class="brand">JUPIXELS<br><span>ARCADE</span></div>
   <nav id="cats" role="tablist" aria-label="Game categories"></nav>
   <div class="topbtns">
-    <button class="chip" id="ideaBtn" type="button">💡 IDEAS &amp; BUGS</button>
-    <button class="chip" id="menuBtn" type="button">☰ MENU</button>
+    <button class="chip" id="ideaBtn" type="button" title="Ideas &amp; bugs">💡<span class="lbl"> IDEAS &amp; BUGS</span></button>
+    <button class="chip" id="menuBtn" type="button" title="Menu">☰<span class="lbl"> MENU</span></button>
   </div>
 </div>
 
@@ -486,11 +490,11 @@
     { id: 'all',      name: 'ALL' },
     { id: 'fav',      name: '★ FAVORITES' },
     { id: 'featured', name: 'FEATURED' },
-    { id: 'strategy', name: 'STRATEGY & WAR' },
-    { id: 'action',   name: 'ACTION & SPORTS' },
-    { id: 'build',    name: 'BUILD & SANDBOX' },
+    { id: 'strategy', name: 'STRATEGY' },
+    { id: 'action',   name: 'ACTION' },
+    { id: 'build',    name: 'BUILD' },
     { id: 'labs',     name: 'LABS' },
-    { id: 'horror',   name: 'HORROR & MYSTERY' }
+    { id: 'horror',   name: 'HORROR' }
   ];
 
   // ---------- favorites (kept in this browser, so they're there next visit) ----------
