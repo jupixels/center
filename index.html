@@ -179,6 +179,43 @@
           display: flex; align-items: center; justify-content: center; }
   #fade .pixel { font-family: "Press Start 2P", monospace; font-size: 14px; color: var(--gold); text-align: center; padding: 0 16px; line-height: 1.5; }
 
+  /* ---------- idea machine form ---------- */
+  #idea { z-index: 25; }
+  #idea .panel { max-width: 560px; text-align: left; background: #150f22; border: 3px solid var(--gold);
+                 box-shadow: 8px 8px 0 rgba(0,0,0,.5); padding: 22px; }
+  #idea .sub { font-size: 21px; color: var(--muted); margin: 12px 0 4px; line-height: 1.05; }
+  #ideaForm { display: grid; gap: 14px; margin-top: 14px; -webkit-user-select: text; user-select: text; }
+  #ideaForm label { display: grid; gap: 6px; font-family: "Press Start 2P", monospace; font-size: 9px; letter-spacing: .05em; color: var(--teal); }
+  #ideaForm label small { font-family: "VT323", monospace; font-size: 17px; color: #8f82ab; letter-spacing: 0; }
+  #ideaForm input, #ideaForm textarea {
+    font-family: "VT323", monospace; font-size: 22px; color: var(--cream); background: #0c0816;
+    border: 2px solid #5b4c7a; padding: 8px 10px; width: 100%; border-radius: 0; outline: none;
+  }
+  #ideaForm input:focus, #ideaForm textarea:focus { border-color: var(--gold); }
+  #ideaForm textarea { min-height: 130px; resize: vertical; line-height: 1.05; }
+  #ideaForm .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { #ideaForm .row2 { grid-template-columns: 1fr; } }
+  #ideaForm .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  #ideaForm .count { justify-self: end; font-size: 17px; color: #8f82ab; margin-top: -8px; }
+  #ideaForm .btn { justify-self: start; }
+  #ideaStatus { font-size: 21px; min-height: 22px; line-height: 1.05; }
+  #ideaStatus.ok { color: var(--teal); } #ideaStatus.bad { color: var(--coral); }
+  #idea .panel { border-radius: 18px; border: 1px solid rgba(255,207,74,.55); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  #idea .mhead h2 { font-size: 15px; }
+  #idea .sub { font-size: 16px; line-height: 1.4; }
+  #ideaForm label { font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: .08em; }
+  #ideaForm label small { font-family: "Chakra Petch", sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0; }
+  #ideaForm input, #ideaForm textarea { font-family: "Chakra Petch", sans-serif; font-size: 16px; border-radius: 10px; border-width: 1px; }
+  #ideaForm textarea { line-height: 1.4; }
+  #ideaForm .count { font-size: 13px; }
+  #ideaStatus { font-size: 16px; line-height: 1.4; }
+  #idea .kind { display: flex; gap: 8px; margin-top: 14px; }
+  #idea .kind button { flex: 1; font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .06em; cursor: pointer;
+                       padding: 10px; border-radius: 10px; background: rgba(255,255,255,.04); color: var(--muted); border: 1px solid rgba(205,191,230,.25); }
+  #idea .kind button.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .topbtns { display: flex; gap: 8px; }
+  .menuIdea { margin-top: 18px; width: 100%; }
+
   /* ---------- modern pass: crisp type, rounded glassy panels, soft glows ---------- */
   body { font-family: "Chakra Petch", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
   .brand { font-size: 14px; }
@@ -283,7 +320,10 @@
 <div id="top">
   <div class="brand">JUPIXELS<br><span>ARCADE</span></div>
   <nav id="cats" role="tablist" aria-label="Game categories"></nav>
-  <button class="chip" id="menuBtn" type="button">☰ MENU</button>
+  <div class="topbtns">
+    <button class="chip" id="ideaBtn" type="button">💡 IDEAS &amp; BUGS</button>
+    <button class="chip" id="menuBtn" type="button">☰ MENU</button>
+  </div>
 </div>
 
 <!-- turn the carousel -->
@@ -345,6 +385,7 @@
         </select>
       </label>
     </div>
+    <button class="btn ghost menuIdea" id="menuIdeaBtn" type="button">💡 GOT A GAME IDEA OR FOUND A BUG? SEND IT IN</button>
     <div class="ai">✦ All games in this arcade were made with the help of AI</div>
   </div>
 </div>
@@ -371,6 +412,42 @@
       <button class="btn" id="warnBack" type="button">◀ NO, TAKE ME BACK</button>
       <button class="btn danger" id="warnGo" type="button" disabled>ENTER ASHGROVE</button>
     </div>
+  </div>
+</div>
+
+<!-- idea machine -->
+<div id="idea" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="ideaTitle">
+    <div class="mhead">
+      <h2 id="ideaTitle">💡 IDEAS &amp; BUGS</h2>
+      <button class="chip" id="closeIdea" type="button">✕ CLOSE</button>
+    </div>
+    <p class="sub" id="ideaSub">Dream up a game for this arcade, or tell us about a bug you found in one. It goes straight to the arcade owner.</p>
+    <div class="kind" role="radiogroup" aria-label="What are you sending?">
+      <button type="button" class="on" data-kind="idea" role="radio" aria-checked="true">💡 GAME IDEA</button>
+      <button type="button" data-kind="bug" role="radio" aria-checked="false">🐛 BUG REPORT</button>
+    </div>
+    <form id="ideaForm" novalidate>
+      <label><span id="ideaNameLbl">GAME NAME</span>
+        <input id="ideaName" name="game_name" type="text" maxlength="60" placeholder="Space Pizza Delivery" required>
+      </label>
+      <datalist id="gameTitles"></datalist>
+      <label><span id="ideaTextLbl">YOUR IDEA</span>
+        <textarea id="ideaText" name="idea" maxlength="1500" placeholder="What do you do in the game? What makes it fun?" required></textarea>
+      </label>
+      <div class="count" id="ideaCount">0 / 1500</div>
+      <div class="row2">
+        <label>YOUR NAME <small>(optional)</small>
+          <input id="ideaFrom" name="name" type="text" maxlength="40" placeholder="Player 1">
+        </label>
+        <label>EMAIL <small>(optional, for a reply)</small>
+          <input id="ideaEmail" name="email" type="email" maxlength="80" placeholder="you@example.com">
+        </label>
+      </div>
+      <div class="hp" aria-hidden="true"><input type="checkbox" name="botcheck" id="ideaBot" tabindex="-1" autocomplete="off"></div>
+      <button class="btn" id="ideaSend" type="submit">INSERT COIN ▶ SEND</button>
+      <div id="ideaStatus" role="status" aria-live="polite"></div>
+    </form>
   </div>
 </div>
 
@@ -522,6 +599,98 @@
     };
   })();
 
+  // ---------- idea machine (sends ideas by email via Web3Forms) ----------
+  // Get a free access key at https://web3forms.com (enter the email the ideas
+  // should go to) and paste it here. The key is safe to keep in public code.
+  const WEB3FORMS_KEY = '3b19866d-50ba-41b5-92d1-8c67731f7357';
+  (function () {
+    const box = document.getElementById('idea'), form = document.getElementById('ideaForm');
+    const name = document.getElementById('ideaName'), text = document.getElementById('ideaText');
+    const from = document.getElementById('ideaFrom'), email = document.getElementById('ideaEmail');
+    const send = document.getElementById('ideaSend'), status = document.getElementById('ideaStatus');
+    const count = document.getElementById('ideaCount');
+    const setStatus = (msg, cls) => { status.textContent = msg; status.className = cls || ''; };
+    let cooldownUntil = 0;
+    // the same form sends game ideas and bug reports
+    let kind = 'idea';
+    const MODES = {
+      idea: { name: 'GAME NAME', namePh: 'Space Pizza Delivery', text: 'YOUR IDEA', textPh: 'What do you do in the game? What makes it fun?',
+              noName: 'Give your game a name first.', short: 'Tell us a little more about your idea.', ok: "★ IDEA SENT! Thanks, it's on its way. ★" },
+      bug:  { name: 'WHICH GAME?', namePh: 'Pick or type a game', text: 'WHAT WENT WRONG?', textPh: 'What happened, and what were you doing right before? Which device and browser?',
+              noName: 'Which game has the bug?', short: 'Tell us a little more about what went wrong.', ok: '★ BUG REPORT SENT! Thanks for helping fix it. ★' }
+    };
+    document.getElementById('gameTitles').innerHTML = GAMES.map(g => '<option value="' + g.title + '">').join('');
+    function setKind(k) {
+      kind = k; const m = MODES[k];
+      document.querySelectorAll('#idea .kind button').forEach(b => { const on = b.dataset.kind === k; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+      document.getElementById('ideaNameLbl').textContent = m.name; name.placeholder = m.namePh;
+      document.getElementById('ideaTextLbl').textContent = m.text; text.placeholder = m.textPh;
+      if (k === 'bug') name.setAttribute('list', 'gameTitles'); else name.removeAttribute('list');
+      setStatus('');
+    }
+    document.querySelector('#idea .kind').addEventListener('click', e => { const b = e.target.closest('[data-kind]'); if (b) setKind(b.dataset.kind); });
+
+    window.ideaOpen = false;
+    window.openIdea = () => {
+      document.getElementById('menu').hidden = true;
+      box.hidden = false; window.ideaOpen = true;
+      document.dispatchEvent(new Event('arcade:menu-open'));
+      setTimeout(() => name.focus(), 50);
+    };
+    window.closeIdea = () => {
+      if (!window.ideaOpen) return;
+      box.hidden = true; window.ideaOpen = false;
+      document.dispatchEvent(new Event('arcade:menu-close'));
+    };
+    document.getElementById('closeIdea').onclick = () => closeIdea();
+    document.getElementById('menuIdeaBtn').onclick = () => openIdea();
+    document.getElementById('ideaBtn').onclick = () => openIdea();
+    box.addEventListener('mousedown', e => { if (e.target === box) closeIdea(); });
+    text.addEventListener('input', () => { count.textContent = text.value.length + ' / 1500'; });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const game = name.value.trim(), idea = text.value.trim(), mail = email.value.trim();
+      if (!game) { setStatus(MODES[kind].noName, 'bad'); name.focus(); return; }
+      if (idea.length < 10) { setStatus(MODES[kind].short, 'bad'); text.focus(); return; }
+      if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { setStatus('That email doesn\'t look right (or leave it blank).', 'bad'); email.focus(); return; }
+      if (Date.now() < cooldownUntil) { setStatus('Easy there! Wait a moment before sending another one.', 'bad'); return; }
+      if (!WEB3FORMS_KEY || WEB3FORMS_KEY.startsWith('PASTE_')) { setStatus('The Idea Machine isn\'t plugged in yet. Check back soon!', 'bad'); return; }
+
+      const payload = {
+        access_key: WEB3FORMS_KEY,
+        subject: kind === 'bug' ? '🐛 Bug report: ' + game : '💡 New game idea: ' + game,
+        from_name: 'Jupixels Arcade Idea Machine',
+        game_name: game,
+        type: kind === 'bug' ? 'Bug report' : 'Game idea',
+        [kind === 'bug' ? 'bug' : 'idea']: idea,
+        name: from.value.trim() || 'Anonymous player',
+        botcheck: document.getElementById('ideaBot').checked
+      };
+      if (mail) payload.email = mail;
+
+      send.disabled = true; send.textContent = 'SENDING…'; setStatus('');
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          setStatus(MODES[kind].ok, 'ok');
+          form.reset(); count.textContent = '0 / 1500';
+          cooldownUntil = Date.now() + 30000;
+          document.dispatchEvent(new Event('arcade:idea-sent'));
+        } else {
+          setStatus(res.status === 429 ? 'Too many ideas right now. Try again in a bit.' : 'Couldn\'t send that. Please try again.', 'bad');
+        }
+      } catch {
+        setStatus('No connection. Check your internet and try again.', 'bad');
+      }
+      send.disabled = false; send.textContent = 'INSERT COIN ▶ SEND';
+    });
+  })();
 </script>
 
 <script type="module">
@@ -1696,7 +1865,7 @@ document.addEventListener('arcade:menu-close', () => { menuOpen = false; if (doc
 document.addEventListener('arcade:show', e => showGame(e.detail));
 
 addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (window.warnOpen) closeWarning(); else closeMenu(); return; }
+  if (e.key === 'Escape') { if (window.warnOpen) closeWarning(); else if (window.ideaOpen) closeIdea(); else closeMenu(); return; }
   if (blocked() || e.altKey || e.ctrlKey || e.metaKey) return;
   if (e.target.closest && e.target.closest('input, select, textarea')) return;
   audio();
