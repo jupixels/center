@@ -468,6 +468,7 @@
   //   update: '...'    hypes a big update (updateIcon / updateNote are optional).
   //   warning: true    players must read and accept a content warning before it opens.
   window.GAMES = [
+    { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',       cats: ['action'],   update: 'BIG UPDATE', updateIcon: '🚲', updateNote: 'New tricks, things to do, multiplayer, better visuals and lots of fixes.', desc: 'Big update! Deeper tricks, new things to do, better multiplayer and visuals, smoother controls and lots of fixes. Open-world BMX: pull tricks off dirt jumps, a mega ramp and a downhill trail.' },
     { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',       cats: ['strategy'], featured: true, update: 'MAJOR UPGRADES & FIXES', updateIcon: '🛠️', updateNote: 'Big upgrades and tons of fixes, on top of the new whole-world map.', desc: 'Major upgrades and fixes! Big improvements and tons of bugs squashed all over the game, on top of the new map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
     { title: 'Frontline',        url: 'https://jupixels.github.io/frontline/',         color: '#a6e05a', scene: 'frontline', cats: ['strategy'], featured: true, desc: 'Modern warfare RTS. Command infantry, armor, artillery, air and naval forces and fight for strategic points: online 1v1, 2v2 or free-for-all, or solo against the AI.' },
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',      cats: ['strategy'], featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
@@ -477,7 +478,6 @@
     { title: 'Terrarium',        url: 'https://jupixels.github.io/terrarium/',         color: '#7bd88f', scene: 'terrarium', cats: ['build'],    isNew: true, desc: 'Grow a tiny voxel civilization inside a glass tank.' },
     { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',    cats: ['horror'],   isNew: true, warning: true, desc: 'Horror. Something is waiting in the old hospital.' },
     { title: 'Limspace',         url: 'https://jupixels.github.io/limspace/',          color: '#7cf0b0', scene: 'limspace',  cats: ['horror'],   isNew: true, desc: 'Found footage. Play the unlabeled tape and explore an empty, silent place in the dark, with only your night vision. Headphones recommended.' },
-    { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',       cats: ['action'],   desc: 'Open-world BMX! Pedal, hop and pull tricks off dirt jumps, a mega ramp and a downhill trail, tackle obstacle courses and ride with friends.' },
     { title: '3D Boxing',        url: 'https://jupixels.github.io/3d-boxing/',         color: '#ffcf4a', scene: 'boxing',    cats: ['action'],   desc: 'Gloves up. Throw hands.' },
     { title: 'Geneva Game',      url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',    cats: ['action'],   desc: 'Draw your sword, brave knight.' },
     { title: 'Pressure Washing', url: 'https://jupixels.github.io/pressurewashing/',   color: '#6cc4ff', scene: 'wash',      cats: ['build'],    desc: 'Blast away the grime.' },
@@ -917,6 +917,10 @@ function makeMarquee(g, idx) {
     c.fillStyle = '#ffcf4a'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
     if (g.update) { c.fillRect(56, 18, 400, 30); c.fillStyle = '#1a1423'; c.fillText('★ ' + g.update + ' ★', 256, 34); }
     else { c.fillRect(150, 18, 212, 30); c.fillStyle = '#1a1423'; c.fillText('★ FEATURED ★', 256, 34); }
+  } else if (g.update) {
+    // blue frame + the update's tag
+    c.fillStyle = '#6cc4ff'; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
+    c.fillStyle = '#2f6fb6'; c.fillRect(96, 18, 320, 30); c.fillStyle = '#ffffff'; c.fillText('★ ' + g.update + ' ★', 256, 34);
   } else if (g.isNew) {
     // frame + "NEW GAME" tag in the game's own colour
     c.fillStyle = g.color; c.fillRect(0, 0, 512, 7); c.fillRect(0, 161, 512, 7); c.fillRect(0, 0, 7, 168); c.fillRect(505, 0, 7, 168);
