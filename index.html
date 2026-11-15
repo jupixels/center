@@ -468,16 +468,17 @@
   //   update: '...'    hypes a big update (updateIcon / updateNote are optional).
   //   warning: true    players must read and accept a content warning before it opens.
   window.GAMES = [
-    { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',       cats: ['action'],   update: 'BIG UPDATE', updateIcon: '🚲', updateNote: 'New tricks, things to do, multiplayer, better visuals and lots of fixes.', desc: 'Big update! Deeper tricks, new things to do, better multiplayer and visuals, smoother controls and lots of fixes. Open-world BMX: pull tricks off dirt jumps, a mega ramp and a downhill trail.' },
-    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',       cats: ['strategy'], featured: true, update: 'MAJOR UPGRADES & FIXES', updateIcon: '🛠️', updateNote: 'Big upgrades and tons of fixes, on top of the new whole-world map.', desc: 'Major upgrades and fixes! Big improvements and tons of bugs squashed all over the game, on top of the new map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
+    { title: 'Snow Rider',       url: 'https://jupixels.github.io/snowrider/',         color: '#7fd4ff', scene: 'sled',      cats: ['action'],   isNew: true, desc: 'Sled down an endless snowy mountain. Steer around trees and rocks, hit the ramps, grab gifts and spend them on new sleds.' },
+    { title: 'Ramped Up',        url: 'https://jupixels.github.io/rampedup/',          color: '#b8ff2e', scene: 'bmx',       cats: ['action'],   desc: 'Open-world BMX: pull tricks off dirt jumps, a mega ramp and a downhill trail.' },
+    { title: 'WW2 Strategy',     url: 'https://jupixels.github.io/ww2-strategy-game/', color: '#c9b46b', scene: 'ww2',       cats: ['strategy'], featured: true, desc: 'A map that covers the WHOLE WORLD. Command your forces across every continent and ocean.' },
     { title: 'Frontline',        url: 'https://jupixels.github.io/frontline/',         color: '#a6e05a', scene: 'frontline', cats: ['strategy'], featured: true, desc: 'Modern warfare RTS. Command infantry, armor, artillery, air and naval forces and fight for strategic points: online 1v1, 2v2 or free-for-all, or solo against the AI.' },
     { title: 'Star Conquest',    url: 'https://jupixels.github.io/starconquest/',      color: '#9a7bff', scene: 'star',      cats: ['strategy'], featured: true, desc: 'Conquer the frontier. Mine and trade to build your fortune and fleet, destroy the drone hives to free all 18 systems, and silence the Choir at Terminus, the last system.' },
     { title: 'Minercraft',       url: 'https://jupixels.github.io/minercraft/',        color: '#5bd16a', scene: 'miner',     cats: ['build'],    featured: true, desc: 'Dig deep. Build big.' },
-    { title: 'Tiny Tees',        url: 'https://jupixels.github.io/minigolf/',          color: '#ffd34e', scene: 'golf',      cats: ['action'],   isNew: true, desc: 'Mini golf. Sink every hole in as few putts as you can.' },
-    { title: 'Eyes Up Front',    url: 'https://jupixels.github.io/eyesupfront/',       color: '#7cc8ff', scene: 'classroom', cats: ['horror'],   isNew: true, desc: "Horror in a classroom. Stay on your laptop, but don't get caught." },
-    { title: 'Terrarium',        url: 'https://jupixels.github.io/terrarium/',         color: '#7bd88f', scene: 'terrarium', cats: ['build'],    isNew: true, desc: 'Grow a tiny voxel civilization inside a glass tank.' },
-    { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',    cats: ['horror'],   isNew: true, warning: true, desc: 'Horror. Something is waiting in the old hospital.' },
-    { title: 'Limspace',         url: 'https://jupixels.github.io/limspace/',          color: '#7cf0b0', scene: 'limspace',  cats: ['horror'],   isNew: true, desc: 'Found footage. Play the unlabeled tape and explore an empty, silent place in the dark, with only your night vision. Headphones recommended.' },
+    { title: 'Tiny Tees',        url: 'https://jupixels.github.io/minigolf/',          color: '#ffd34e', scene: 'golf',      cats: ['action'],   desc: 'Mini golf. Sink every hole in as few putts as you can.' },
+    { title: 'Eyes Up Front',    url: 'https://jupixels.github.io/eyesupfront/',       color: '#7cc8ff', scene: 'classroom', cats: ['horror'],   desc: "Horror in a classroom. Stay on your laptop, but don't get caught." },
+    { title: 'Terrarium',        url: 'https://jupixels.github.io/terrarium/',         color: '#7bd88f', scene: 'terrarium', cats: ['build'],    desc: 'Grow a tiny voxel civilization inside a glass tank.' },
+    { title: 'Ashgrove',         url: 'https://jupixels.github.io/ashgrove/',          color: '#c8202a', scene: 'horror',    cats: ['horror'],   warning: true, desc: 'Horror. Something is waiting in the old hospital.' },
+    { title: 'Limspace',         url: 'https://jupixels.github.io/limspace/',          color: '#7cf0b0', scene: 'limspace',  cats: ['horror'],   desc: 'Found footage. Play the unlabeled tape and explore an empty, silent place in the dark, with only your night vision. Headphones recommended.' },
     { title: '3D Boxing',        url: 'https://jupixels.github.io/3d-boxing/',         color: '#ffcf4a', scene: 'boxing',    cats: ['action'],   desc: 'Gloves up. Throw hands.' },
     { title: 'Geneva Game',      url: 'https://jupixels.github.io/genevagame/',        color: '#ff6b5b', scene: 'knight',    cats: ['action'],   desc: 'Draw your sword, brave knight.' },
     { title: 'Pressure Washing', url: 'https://jupixels.github.io/pressurewashing/',   color: '#6cc4ff', scene: 'wash',      cats: ['build'],    desc: 'Blast away the grime.' },
@@ -1279,6 +1280,49 @@ const SCENES = {
     c.restore();
     if (air && jump % 2 && (q - RAMP) / AIR > .25) T(c, 'BACKFLIP!', 104, 20, '#b8ff2e');
     if (!air && q > RAMP + AIR && q < RAMP + AIR + 14) for (let i = 0; i < 5; i++) R(c, rx - 14 - i * 4, G - 2 - (i % 3) * 2, 2, 2, '#c4905e');
+  },
+  sled(c, t) {
+    // a snowy hill: the sled rides the bumps, hops the rocks and grabs the gifts
+    ['#8fc3ea', '#a3cff0', '#b7daf3', '#cbe5f6'].forEach((col, i) => R(c, 0, 13 + i * 10, 160, 10, col));
+    R(c, 0, 0, 160, 13, '#8fc3ea');
+    for (let x = 0; x < 160; x += 4) {   // far mountains, slow parallax
+      const h = 18 + Math.abs(Math.sin((x + t * 6) * .035)) * 22;
+      R(c, x, 70 - h, 4, h + 40, '#7d9fc0'); R(c, x, 70 - h, 4, 3, '#f4faff');
+    }
+    const SP = 70, s = t * SP, ground = x => 90 + Math.sin((x + s) * .03) * 5;
+    for (let x = 0; x < 160; x += 2) { const g = ground(x); R(c, x, g, 2, 120 - g, '#f4faff'); R(c, x, g + 6, 2, 1, '#dbe9f5'); }
+    // pine trees drifting past behind the track
+    for (let k = Math.floor(s / 46) - 1; k < Math.floor(s / 46) + 5; k++) {
+      const x = k * 46 - s + hash(k) * 20, g = ground(x) - 2;
+      R(c, x + 4, g - 6, 3, 6, '#6b4a2a');
+      for (let j = 0; j < 3; j++) R(c, x + j * 2, g - 12 - j * 6, 11 - j * 4, 6, '#2f6b4f');
+      R(c, x + 2, g - 24, 7, 2, '#f4faff');
+    }
+    // rocks to hop and gifts to grab, one of each per stretch
+    const GAP = 130, rx = 48;
+    const k0 = Math.floor(s / GAP);
+    for (let k = k0 - 1; k <= k0 + 2; k++) {
+      const ox = k * GAP + 110 - s, og = ground(ox);
+      R(c, ox - 6, og - 6, 12, 7, '#7a8494'); R(c, ox - 4, og - 8, 8, 3, '#97a1b0'); R(c, ox - 3, og - 9, 5, 2, '#f4faff');
+      const gx = ox + 60, gy = ground(gx) - 14 + Math.sin(t * 5 + k) * 2;
+      if (gx > rx + 4) { R(c, gx - 4, gy - 4, 9, 8, '#e63946'); R(c, gx, gy - 4, 2, 8, '#ffd166'); R(c, gx - 4, gy - 1, 9, 2, '#ffd166'); R(c, gx - 2, gy - 6, 6, 2, '#ffd166'); }
+    }
+    // the rider: jump just before each rock, then land back on the snow
+    const q = ((s - 110 + rx + 22) % GAP + GAP) % GAP, AIR = 48;
+    let y = ground(rx), rot = Math.atan2(ground(rx + 4) - ground(rx - 4), 8);
+    if (q < AIR) { const d = q / AIR; y -= Math.sin(Math.PI * d) * 26; rot = -.35 + d * .7; }
+    c.save(); c.translate(rx, y - 2); c.rotate(rot);
+    R(c, -11, -3, 22, 3, '#e63946'); R(c, -11, -3, 22, 1, '#ff8a8a');   // sled
+    R(c, -12, 0, 24, 1, '#ffd166'); R(c, 11, -4, 2, 4, '#ffd166');
+    R(c, -5, -11, 8, 8, '#1d3557'); R(c, -2, -17, 6, 6, '#f0c090');     // rider + face
+    R(c, -3, -19, 8, 3, '#2ec4b6'); R(c, 4, -18, 3, 2, '#2ec4b6');      // hat
+    R(c, 2, -9, 7, 2, '#1d3557');                                         // arms on the rope
+    c.restore();
+    if (q < AIR && q > 8) T(c, 'JUMP!', 48, 20, '#e63946');
+    if (q > AIR && q < AIR + 10) for (let i = 0; i < 6; i++) R(c, rx - 16 - i * 4, ground(rx - 16 - i * 4) - 2 - (i % 3) * 2, 2, 2, '#ffffff');
+    // falling snow
+    for (let i = 0; i < 26; i++) { const fx = (hash(i) * 180 + Math.sin(t + i) * 6 - t * 18) % 160, fy = (hash(i * 7) * 120 + t * (14 + i % 3 * 6)) % 120; R(c, (fx + 160) % 160, fy, i % 4 ? 1 : 2, i % 4 ? 1 : 2, '#ffffff'); }
+    T(c, 'GIFTS ' + (Math.floor(s / GAP) % 50), 156, 16, '#e63946', 'right');
   },
   horror(c, t) {
     // a dark hospital corridor; the lights die, and when they come back something is closer
